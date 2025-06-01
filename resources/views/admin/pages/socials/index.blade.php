@@ -82,7 +82,7 @@
                                                     class="action-icon edit-icon" title="Chỉnh sửa">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
-                                                @include('admin.components.delete-form', [
+                                                @include('components.delete-form', [
                                                     'id' => $social->id,
                                                     'route' => route('admin.socials.destroy', $social),
                                                     'message' => "Bạn có chắc chắn muốn xóa social '{$social->name}'?",

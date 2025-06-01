@@ -161,7 +161,7 @@
                                             <a href="{{ route('admin.products.edit', $product) }}" class="action-icon edit-icon" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            @include('admin.components.delete-form', [
+                                            @include('components.delete-form', [
                                                 'id' => $product->id,
                                                 'route' => route('admin.products.destroy', $product),
                                                 'message' => "Bạn có chắc chắn muốn xóa sản phẩm '{$product->name}'?"

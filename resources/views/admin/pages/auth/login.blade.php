@@ -36,7 +36,7 @@
                 </div>
                 
                 <div class="login-body">
-                    @include('admin.components.alert')
+                    @include('components.alert')
                     
                     <form method="POST" action="{{ route('admin.login') }}">
                         @csrf

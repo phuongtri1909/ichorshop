@@ -219,7 +219,7 @@
                                                 </a>
                                             </div>
 
-                                            @include('admin.components.delete-form', [
+                                            @include('components.delete-form', [
                                                 'id' => $order->id,
                                                 'route' => route('admin.orders.destroy', $order),
                                                 'message' => "Bạn có chắc chắn muốn xóa đơn hàng '{$order->id}'?",

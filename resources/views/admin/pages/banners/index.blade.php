@@ -80,7 +80,7 @@
                                             <a href="{{ route('admin.banners.edit', $banner) }}" class="action-icon edit-icon" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            @include('admin.components.delete-form', [
+                                            @include('components.delete-form', [
                                                 'id' => $banner->id,
                                                 'route' => route('admin.banners.destroy', $banner),
                                                 'message' => "Bạn có chắc chắn muốn xóa banner '{$banner->title}'?"

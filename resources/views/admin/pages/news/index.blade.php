@@ -152,7 +152,7 @@
                                             <a href="{{ route('admin.news.edit', $item) }}" class="action-icon edit-icon" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            @include('admin.components.delete-form', [
+                                            @include('components.delete-form', [
                                                 'id' => $item->id,
                                                 'route' => route('admin.news.destroy', $item),
                                                 'message' => "Bạn có chắc chắn muốn xóa tin tức '{$item->title}'?"

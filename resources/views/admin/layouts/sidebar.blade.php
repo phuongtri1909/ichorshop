@@ -87,6 +87,14 @@
                         <span>Đơn hàng</span>
                     </a>
                 </li>
+
+                <li class="{{ Route::currentRouteNamed('admin.logo-site.edit') ? 'active' : '' }}">
+                    <a href="{{ route('admin.logo-site.edit') }}">
+                        <i class="fas fa-cog"></i>
+                        <span>Logo Site</span>
+                    </a>
+                </li>
+
                 <li class="{{ request()->is('admin/users*') ? 'active' : '' }}">
                     <a href="">
                         <i class="fas fa-users"></i>

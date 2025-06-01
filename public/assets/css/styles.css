@@ -1,6 +1,10 @@
 :root {
-    --primary-color: #5B3C25;
-    --primary-hover: #4A3020;
+    --primary-color: #000000;
+    --primary-color-2: #f2f0f1;
+    --primary-color-3: #272727;
+    --primary-color-4: #fafafa;
+    --primary-color-5: #797878;
+    --primary-hover: #444444;
     --secondary-color: #8C5E3B;
     --accent-color: #D1A66E;
     --text-color: #333333;
@@ -15,8 +19,64 @@
 }
 
 body {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inria Sans', sans-serif;
 }
+
+.bg-success-custom {
+    background-color: #3ac73a !important;
+}
+
+.cl-ffe371 {
+    color: #ffc633 !important;
+}
+
+.text-sm {
+    font-size: .875rem !important;
+    line-height: 1.25rem !important;
+}
+
+.text-ssm {
+    font-size: .75rem !important;
+    line-height: 1rem !important;
+}
+
+.bg-primary-2 {
+    background-color: var(--primary-color-2) !important;
+}
+
+.bg-primary-4 {
+    background-color: var(--primary-color-4) !important;
+}
+
+.color-primary {
+    color: var(--primary-color) !important;
+}
+
+
+.color-primary-hover:hover, .color-primary-hover:focus {
+    color: var(--primary-color) !important;
+}
+
+.color-primary-2 {
+    color: var(--primary-color-2) !important;
+}
+
+.color-primary-3 {
+    color: var(--primary-color-3) !important;
+}
+
+.color-primary-4 {
+    color: var(--primary-color-4) !important;
+}
+
+.color-primary-5 {
+    color: var(--primary-color-5) !important;
+}
+
+.font-light { font-weight: 300; }
+.font-regular { font-weight: 400; }
+.font-bold { font-weight: 700; }
+
 
 /* Login */
 
@@ -1479,12 +1539,6 @@ body {
     margin-bottom: 10px;
 }
 
-.rating-stars {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-}
-
 .rating-option {
     margin-right: 15px;
 }
@@ -1582,7 +1636,7 @@ body {
     padding: 4px 10px;
     border-radius: 30px;
     font-size: 13px;
-    background: #f8f9fa;
+    background: var(--primary-color-2);
     color: #666;
 }
 
@@ -1753,7 +1807,7 @@ body {
 }
 
 .detail-item .cke_top {
-    background: #f8f9fa;
+    background: var(--primary-color-2);
     border-bottom: 1px solid #eee;
     padding: 4px;
 }

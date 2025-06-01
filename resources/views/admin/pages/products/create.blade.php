@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="form-body">
-                @include('admin.components.alert', ['alertType' => 'alert'])
+                @include('components.alert', ['alertType' => 'alert'])
 
                 <form action="{{ route('admin.products.store') }}" method="POST" class="product-form"
                     enctype="multipart/form-data" id="product-form">

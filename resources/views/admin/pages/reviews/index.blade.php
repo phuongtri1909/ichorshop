@@ -174,7 +174,7 @@
                                                     class="action-icon edit-icon" title="Chỉnh sửa">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                @include('admin.components.delete-form', [
+                                                @include('components.delete-form', [
                                                     'id' => $review->id,
                                                     'route' => route('admin.reviews.destroy', $review),
                                                     'message' => 'Bạn có chắc chắn muốn xóa đánh giá này?',

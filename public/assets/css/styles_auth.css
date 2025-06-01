@@ -1,0 +1,128 @@
+.auth-container {
+    min-height: 80vh;
+}
+
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+.google-btn {
+    border: 1px solid #dadce0;
+    background: white;
+    color: #3c4043;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.google-btn:hover {
+    background: var(--primary-color-2);
+    border-color: #dadce0;
+    color: #3c4043;
+}
+
+.divider {
+    position: relative;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e8eaed;
+    z-index: 1;
+}
+
+.divider p {
+    background: white;
+    color: #5f6368;
+    font-size: 0.875rem;
+    padding: 0 1rem;
+    margin: 0;
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+}
+
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+.form-floating>label {
+    color: #5f6368;
+    font-size: 0.875rem;
+}
+
+.form-control {
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    background: white;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem var(--primary-color-2);
+}
+
+.auth-btn {
+    background: #1a1a1a;
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin: 1.5rem 0;
+    transition: all 0.2s ease;
+}
+
+.auth-btn:hover {
+    background: #333;
+    color: white;
+}
+
+.auth-link {
+    color: #1a73e8;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.auth-link:hover {
+    color: #1557b0;
+    text-decoration: underline;
+}
+
+.forgot-password {
+    text-align: right;
+    margin-bottom: 1.5rem;
+}
+
+.signup-text {
+    color: #5f6368;
+    font-size: 0.875rem;
+    margin-top: 1.5rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 5px;
+    top: 72%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #5f6368;
+    cursor: pointer;
+    padding: 4px;
+}
