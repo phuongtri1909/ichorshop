@@ -150,7 +150,7 @@
 
     <hr class="container my-0 color-primary-5">
 
-        @include('components.list_product_home', [
+    @include('components.list_product_home', [
         'title' => 'TOP SELLING',
         'products' => [
             [
@@ -215,7 +215,7 @@
     ])
 
     <!-- Browse by Style Section -->
-    @include('components.style', [ 
+    @include('components.style', [
         'styles' => [
             [
                 'name' => 'Casual',
@@ -238,15 +238,38 @@
 
     <!-- Features Section -->
     @include('components.features', [
-        $features = [
-            ['icon' => '<i class="bi bi-currency-dollar-slash"></i>', 'title' => 'NO Die & plate charges', 'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...'],
-            ['icon' => '<i class="bi bi-printer"></i>', 'title' => 'High quality offset printing', 'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...'],
-            ['icon' => '<i class="bi bi-shield-check"></i>', 'title' => 'Secure payment', 'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...'],
-            ['icon' => '<i class="bi bi-sliders"></i>', 'title' => 'Custom size & style', 'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...'],
-            ['icon' => '<i class="bi bi-truck"></i>', 'title' => 'Fast & free delivery', 'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...'],
-            ['icon' => '<i class="bi bi-box-seam"></i>', 'title' => 'Low minimum order quantity', 'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...'],
-],
-
+        ($features = [
+            [
+                'icon' => '<i class="bi bi-currency-dollar-slash"></i>',
+                'title' => 'NO Die & plate charges',
+                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
+            ],
+            [
+                'icon' => '<i class="bi bi-printer"></i>',
+                'title' => 'High quality offset printing',
+                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
+            ],
+            [
+                'icon' => '<i class="bi bi-shield-check"></i>',
+                'title' => 'Secure payment',
+                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
+            ],
+            [
+                'icon' => '<i class="bi bi-sliders"></i>',
+                'title' => 'Custom size & style',
+                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
+            ],
+            [
+                'icon' => '<i class="bi bi-truck"></i>',
+                'title' => 'Fast & free delivery',
+                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
+            ],
+            [
+                'icon' => '<i class="bi bi-box-seam"></i>',
+                'title' => 'Low minimum order quantity',
+                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
+            ],
+        ]),
     ])
 
     <!-- Blog Section -->
@@ -263,7 +286,8 @@
                 <div class="col-lg-6">
                     <div class="blog-content ps-lg-5">
                         <h3 class="blog-title">How to combine your daily outfit to looks fresh and cool.</h3>
-                        <p class="blog-description color-3">These are ten easy tips to help fashion in New York city from business
+                        <p class="blog-description color-3">These are ten easy tips to help fashion in New York city from
+                            business
                             dresses, evening dresses to casual dresses and formal dresses. Find the perfect fit for your
                             personality.</p>
                         <a href="#" class="btn blog-btn">READ MORE</a>
@@ -273,38 +297,44 @@
         </div>
     </section>
 
-    
+
     @include('components.testimonials', [
         'testimonials' => [
             [
                 'name' => 'Alex K. ✓',
                 'rating' => 5,
-                'text' => '"Finding clothes that align with my personal style used to be a challenge until I discovered Shop.co. The range of options they offer is truly remarkable."',
+                'text' =>
+                    '"Finding clothes that align with my personal style used to be a challenge until I discovered Shop.co. The range of options they offer is truly remarkable."',
             ],
             [
                 'name' => 'James L. ✓',
                 'rating' => 5,
-                'text' => '"As someone who\'s always on the lookout for unique fashion pieces, I\'m thrilled to have stumbled upon Shop.co. The selection of clothes is not only diverse but also on-point with the latest trends."',
+                'text' =>
+                    '"As someone who\'s always on the lookout for unique fashion pieces, I\'m thrilled to have stumbled upon Shop.co. The selection of clothes is not only diverse but also on-point with the latest trends."',
             ],
             [
                 'name' => 'Sarah M. ✓',
                 'rating' => 5,
-                'text' => '"I\'m blown away by the quality and style of the clothes I received from Shop.co. From casual wear to elegant dresses, every piece I\'ve bought has exceeded my expectations."',
+                'text' =>
+                    '"I\'m blown away by the quality and style of the clothes I received from Shop.co. From casual wear to elegant dresses, every piece I\'ve bought has exceeded my expectations."',
             ],
             [
                 'name' => 'Emily R. ✓',
                 'rating' => 5,
-                'text' => '"Shop.co has become my go-to destination for fashion. The variety of styles available means I can always find something that suits my mood and occasion."',
+                'text' =>
+                    '"Shop.co has become my go-to destination for fashion. The variety of styles available means I can always find something that suits my mood and occasion."',
             ],
             [
                 'name' => 'Michael T. ✓',
                 'rating' => 5,
-                'text' => '"I appreciate the attention to detail in the clothing offered by Shop.co. The fabrics are high-quality, and the designs are both trendy and timeless."',
+                'text' =>
+                    '"I appreciate the attention to detail in the clothing offered by Shop.co. The fabrics are high-quality, and the designs are both trendy and timeless."',
             ],
             [
                 'name' => 'Olivia S. ✓',
                 'rating' => 5,
-                'text' => '"Shopping at Shop.co has transformed my wardrobe. The clothes are not only stylish but also comfortable, making them perfect for everyday wear."',
+                'text' =>
+                    '"Shopping at Shop.co has transformed my wardrobe. The clothes are not only stylish but also comfortable, making them perfect for everyday wear."',
             ],
         ],
     ])

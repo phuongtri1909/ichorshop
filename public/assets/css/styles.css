@@ -22,6 +22,10 @@ body {
     font-family: 'Inria Sans', sans-serif;
 }
 
+.border-primary-5 {
+    border-color: var(--primary-color-5) !important;
+}
+
 .bg-success-custom {
     background-color: #3ac73a !important;
 }

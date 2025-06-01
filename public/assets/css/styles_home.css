@@ -156,25 +156,6 @@
     transform: translateY(-5px);
 }
 
-.product-image {
-    background-color: var(--primary-color-2);
-    aspect-ratio: 1;
-    overflow: hidden;
-    border-radius: 20px;
-    margin-bottom: 1rem;
-}
-
-.product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.product-card:hover .product-image img {
-    transform: scale(1.05);
-}
-
 .rating {
     font-size: 14px;
     color: var(--primary-color-2);
@@ -199,14 +180,7 @@
     text-decoration: line-through;
 }
 
-.discount {
-    background: rgba(255, 51, 51, 0.1);
-    color: #ff3333;
-    padding: 6px 14px;
-    border-radius: 62px;
-    font-size: 12px;
-    font-weight: 500;
-}
+
 
 .view-all-btn {
     background: transparent;

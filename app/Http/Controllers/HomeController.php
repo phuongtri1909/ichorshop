@@ -13,4 +13,10 @@ class HomeController extends Controller{
            
         ]);
     }
+
+    public function productDetails($slug)
+    {
+
+        return view('client.pages.product-detail');
+    }
 }
