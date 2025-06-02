@@ -19,4 +19,9 @@ class HomeController extends Controller{
 
         return view('client.pages.product-detail');
     }
+
+    public function categoryProducts($slug)
+    {
+        return view('client.pages.category');
+    }
 }

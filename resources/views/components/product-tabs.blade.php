@@ -4,19 +4,19 @@
         <div class="tab-navigation">
             <ul class="nav nav-tabs border-0" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#details" type="button"
+                    <button class="nav-link active py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#details" type="button"
                         role="tab">
                         Product Details
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews" type="button"
+                    <button class="nav-link py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#reviews" type="button"
                         role="tab">
                         Rating & Reviews
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#faqs" type="button" role="tab">
+                    <button class="nav-link py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#faqs" type="button" role="tab">
                         FAQs
                     </button>
                 </li>
@@ -117,3 +117,76 @@
         </div>
     </div>
 </section>
+
+@push('styles')
+    <style>
+        /* Product Tabs */
+        .tab-navigation {
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .tab-navigation .nav-tabs {
+            justify-content: space-between;
+            border-bottom: none;
+            width: 100%;
+        }
+
+        .tab-navigation .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .tab-navigation .nav-link {
+            color: var(--primary-color-5);
+            background: none;
+            border: none;
+            font-size: 16px;
+            position: relative;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .tab-navigation .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-navigation .nav-link.active {
+            color: var(--primary-color);
+            background: none;
+            border: none;
+        }
+
+        .tab-navigation .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        /* FAQs */
+        .faqs-content .faq-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .faqs-content .faq-item h6 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .faqs-content .faq-item p {
+            color: var(--primary-color-5);
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tab-navigation .nav-link {
+                font-size: 14px;
+            }
+        }
+    </style>
+@endpush

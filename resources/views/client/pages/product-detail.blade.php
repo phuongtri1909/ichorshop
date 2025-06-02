@@ -34,6 +34,7 @@
                 'https://picsum.photos/300/400?random=1',
                 'https://picsum.photos/300/400?random=2',
                 'https://picsum.photos/300/400?random=3',
+                'https://picsum.photos/300/400?random=4',
             ],
             'colors' => ['brown', 'green', 'navy'],
             'sizes' => ['Small', 'Medium', 'Large', 'X-Large'],
