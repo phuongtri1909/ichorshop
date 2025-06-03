@@ -18,11 +18,24 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'username',
+        'full_name',
+        'phone',
         'email',
         'password',
+        'role',
+        'avatar',
+        'active',
+        'key_active',
+        'key_reset_password',
+        'reset_password_at',
+        'google_id', 
     ];
+
+    const ROLE_ADMIN = 'admin';
+    const ROLE_USER = 'user';
+    const ROLE_STAFF = 'staff';
+
+    
 
     /**
      * The attributes that should be hidden for serialization.

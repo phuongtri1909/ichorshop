@@ -47,7 +47,9 @@
     @stack('meta')
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+        rel="stylesheet">
     <!-- Bootstrap CSS -->
 
     {{-- styles --}}
@@ -86,7 +88,8 @@
             <!-- Promo Banner -->
             <div class="promo-banner d-none" id="promoBanner">
                 <div class="container-fluid">
-                    <span>Sign up and get 20% off to your first order. <a href="#" class="promo-link">Sign Up
+                    <span>Sign up and get 20% off to your first order. <a href="{{ route('register') }}"
+                            class="promo-link">Sign Up
                             Now</a></span>
                     <button class="close-banner" onclick="closePromoBanner()">×</button>
                 </div>
@@ -146,13 +149,57 @@
                             </button>
                         @endif
 
-                        <button class="action-btn">
+                        <a class="action-btn">
                             <img src="{{ asset('assets/images/svg/cart.svg') }}" alt="Cart">
                             <span class="cart-badge">0</span>
-                        </button>
-                        <button class="action-btn mt-0 mt-md-1">
-                            <i class="fa-regular fa-circle-user"></i>
-                        </button>
+                        </a>
+
+                        @if (auth()->check())
+                            <div class="dropdown">
+                                <a href="#"
+                                    class="action-btn mt-0 mt-md-1 text-decoration-none d-flex align-items-baseline dropdown-toggle"
+                                    id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="{{ auth()->user()->avatar ? Storage::url(auth()->user()->avatar) : asset('assets/images/avatar_default.jpg') }}" alt="User"
+                                        class="user-icon rounded-circle me-0 me-md-2" height="40" width="40">
+                                    <span class="d-none d-md-inline text-sm">{{ auth()->user()->full_name }}</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end user-dropdown"
+                                    aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('my.account') }}">
+                                            <i class="fas fa-user me-2"></i>
+                                            My Account
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="">
+                                            <i class="fas fa-box me-2"></i>
+                                            My Orders
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="">
+                                            <i class="fas fa-heart me-2"></i>
+                                            Wishlist
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ route('logout') }}">
+                                            <i class="fas fa-sign-out-alt me-2"></i>
+                                            Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        @else
+                            <a href="{{ route('login') }}" class="action-btn mt-0 mt-md-1">
+                                <i class="fa-regular fa-circle-user"></i>
+                            </a>
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -163,7 +210,7 @@
     @if ($showNavigation && $type !== 'minimal')
         <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
         <div class="mobile-nav">
-            <div class="mobile-nav-header">     
+            <div class="mobile-nav-header">
                 <button class="mobile-nav-close" onclick="closeMobileNav()">×</button>
             </div>
 
@@ -188,37 +235,37 @@
 
         @once
             <script>
-            function toggleMobileNav() {
-                document.querySelector('.mobile-nav-overlay').classList.add('show');
-                document.querySelector('.mobile-nav').classList.add('show');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeMobileNav() {
-                document.querySelector('.mobile-nav-overlay').classList.remove('show');
-                document.querySelector('.mobile-nav').classList.remove('show');
-                document.body.style.overflow = '';
-            }
-
-            function closePromoBanner() {
-                const promoBanner = document.getElementById('promoBanner');
-                if (promoBanner) {
-                    promoBanner.remove();
-                    localStorage.setItem('promoBannerClosed', 'true');
+                function toggleMobileNav() {
+                    document.querySelector('.mobile-nav-overlay').classList.add('show');
+                    document.querySelector('.mobile-nav').classList.add('show');
+                    document.body.style.overflow = 'hidden';
                 }
-            }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const promoBanner = document.getElementById('promoBanner');
-                
-                if (promoBanner) {
-                    if (localStorage.getItem('promoBannerClosed') === 'true') {
+                function closeMobileNav() {
+                    document.querySelector('.mobile-nav-overlay').classList.remove('show');
+                    document.querySelector('.mobile-nav').classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+
+                function closePromoBanner() {
+                    const promoBanner = document.getElementById('promoBanner');
+                    if (promoBanner) {
                         promoBanner.remove();
-                    } else {
-                        promoBanner.classList.remove('d-none');
+                        localStorage.setItem('promoBannerClosed', 'true');
                     }
                 }
-            });
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    const promoBanner = document.getElementById('promoBanner');
+
+                    if (promoBanner) {
+                        if (localStorage.getItem('promoBannerClosed') === 'true') {
+                            promoBanner.remove();
+                        } else {
+                            promoBanner.classList.remove('d-none');
+                        }
+                    }
+                });
             </script>
         @endonce
     @endif

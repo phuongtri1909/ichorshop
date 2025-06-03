@@ -12,6 +12,10 @@ Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->na
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('my-account', function () {
+        return view('client.pages.account.profile');
+    })->name('my.account');
 });
 
 Route::group(['middleware' => 'guest'], function () {
@@ -34,8 +38,6 @@ Route::group(['middleware' => 'guest'], function () {
     Route::get('/reset-password/{token}', function ($token) {
         return view('client.pages.auth.reset-password', ['token' => $token]);
     })->name('reset-password');
-
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset.password');
 
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);

@@ -82,6 +82,18 @@ body {
 .font-bold { font-weight: 700; }
 
 
+/* header dropdown */
+@media (max-width: 768px) {
+    .dropdown-toggle::after {
+        display: none !important;
+    }
+    
+    /* Also hide the dropdown arrow specifically for user dropdown on mobile */
+    #userDropdown::after {
+        display: none !important;
+    }
+}
+
 /* Login */
 
 .login-page-container {

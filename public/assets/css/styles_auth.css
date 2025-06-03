@@ -126,3 +126,133 @@
     cursor: pointer;
     padding: 4px;
 }
+
+/* Multi-step form containers */
+.email-form, .otp-container, .password-container {
+    transition: all 0.3s ease;
+}
+
+.email-form.hide, .otp-container, .password-container {
+    display: none;
+}
+
+.otp-container.show, .password-container.show {
+    display: block;
+}
+
+/* OTP Input Styles */
+.otp-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-input {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.otp-input.filled {
+    background: var(--primary-color-2);
+    border-color: var(--primary-color);
+}
+
+/* Info sections */
+.otp-info, .password-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.otp-info h4, .password-info h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.otp-info p, .password-info p {
+    color: var(--primary-color-5);
+    margin: 0;
+}
+
+/* Resend OTP */
+.resend-otp {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.resend-otp button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.resend-otp button:disabled {
+    color: var(--primary-color-5);
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.resend-timer {
+    color: var(--primary-color-5);
+    font-size: 14px;
+}
+
+/* Back buttons */
+.back-to-form {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.back-to-form button {
+    background: none;
+    border: none;
+    color: var(--primary-color-5);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.back-to-form button:hover {
+    color: var(--primary-color);
+}
+
+/* Loading states */
+.btn-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    .otp-inputs {
+        gap: 8px;
+    }
+    
+    .otp-input {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .auth-title {
+        font-size: 1.5rem;
+    }
+}
