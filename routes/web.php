@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
-
+use App\Http\Controllers\UserController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -13,9 +13,30 @@ Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->na
 Route::group(['middleware' => 'auth'], function () {
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('my-account', function () {
-        return view('client.pages.account.profile');
-    })->name('my.account');
+    Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
+        // Profile pages
+        Route::get('my-account', [UserController::class, 'userProfile'])->name('my.account');
+        Route::get('orders', [UserController::class, 'orders'])->name('orders');
+        Route::get('wishlist', [UserController::class, 'wishlist'])->name('wishlist');
+        Route::get('addresses', [UserController::class, 'addresses'])->name('addresses');
+
+        // Address CRUD routes
+        Route::post('addresses', [UserController::class, 'storeAddress'])->name('addresses.store');
+        Route::get('addresses/list', [UserController::class, 'addressesList'])->name('addresses.list');
+        Route::get('addresses/{address}', [UserController::class, 'showAddress'])->name('addresses.show');
+        Route::put('addresses/{address}', [UserController::class, 'updateAddress'])->name('addresses.update');
+        Route::post('addresses/{address}/default', [UserController::class, 'setDefaultAddress'])->name('addresses.default');
+        Route::delete('addresses/{address}', [UserController::class, 'deleteAddress'])->name('addresses.delete');
+
+        // Location data routes
+        Route::get('countries', [UserController::class, 'getCountries'])->name('countries');
+        Route::get('states', [UserController::class, 'getStates'])->name('states');
+        Route::get('cities', [UserController::class, 'getCities'])->name('cities');
+
+        Route::post('update-profile', [UserController::class, 'updateProfile'])->name('update.profile');
+        Route::post('update-avatar', [UserController::class, 'updateAvatar'])->name('update.avatar');
+        Route::post('update-password', [UserController::class, 'updatePassword'])->name('update.password');
+    });
 });
 
 Route::group(['middleware' => 'guest'], function () {

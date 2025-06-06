@@ -35,7 +35,10 @@ class User extends Authenticatable
     const ROLE_USER = 'user';
     const ROLE_STAFF = 'staff';
 
-    
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

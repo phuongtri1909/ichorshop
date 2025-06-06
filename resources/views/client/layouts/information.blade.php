@@ -1,15 +1,15 @@
-@extends('layouts.app')
+@extends('client.layouts.app')
 
 @section('title')
-    @yield('info_title', 'Thông tin cá nhân')
+    @yield('info_title', 'User Information')
 @endsection
 
 @section('description')
-    @yield('info_description', 'Thông tin cá nhân của bạn')
+    @yield('info_description', 'Your personal information')
 @endsection
 
 @section('keywords')
-    @yield('info_keyword', 'Thông tin cá nhân, thông tin tài khoản')
+    @yield('info_keyword', 'user information, account details')
 @endsection
 
 @push('styles')
@@ -17,120 +17,59 @@
 @endpush
 
 @section('content')
-    @include('components.toast')
+    @include('components.breadcrumb', [
+        'title' => 'My Account',
+        'items' => [
+            ['title' => 'Home', 'url' => route('home')],
+            ['title' => 'My Account', 'url' => route('user.my.account'),'active' => true],
+          
+        ]
+    ])
 
-    <div class="container mt-80 mb-5 user-container">
+    <div class="container mt-5">
         <div class="row g-4">
             <!-- Sidebar -->
             <div class="col-12 col-lg-3">
-                <div class="user-sidebar">
-                    <div class="user-header rounded-4 mb-3 py-2">
-                        <div class="user-header-bg"></div>
-                        <div class="user-header-content ">
-                            <div class="d-flex align-items-center justify-content-center">
-                                <div class="user-avatar-wrapper">
-                                    @if (!empty(Auth::user()->avatar))
-                                        <img class="user-avatar" src="{{ Storage::url(Auth::user()->avatar) }}"
-                                            alt="Avatar">
-                                    @else
-                                        <div class="user-avatar d-flex align-items-center justify-content-center bg-light">
-                                            <i class="fa-solid fa-user user-avatar-icon"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="ms-3">
-                                    <h5 class="user-info-name">{{ Auth::user()->name }}</h5>
-                                    <div class="user-info-email">{{ Auth::user()->email }}</div>
-                                </div>
-                            </div>
-                            <div class="text-white text-shadow-custom px-4 mt-3 fs-24 fw-bold">
-                                <i class="fa-solid fa-sack-dollar"></i>
-                                <span>{{ number_format(Auth::user()->coins) }} <span class="fs-15"> Xu</span> </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="user-nav box-shadow-custom rounded-4">
+                <div class="user-sidebar pe-1 ">
+                    <div class="user-nav">
                         <div class="user-nav-item">
-                            <a href="{{ route('user.profile') }}"
-                                class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.profile') ? 'active' : '' }}">
-                                <i class="fa-solid fa-user user-nav-icon"></i>
-                                <span class="user-nav-text">Thông tin cá nhân</span>
+                            <a href=""
+                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.orders') ? 'active' : '' }}">
+                                <img src="{{ asset('assets/images/svg/orders.svg') }}" alt="Orders"
+                                    class="user-nav-icon">
+                                <span class="user-nav-text">Orders</span>
                             </a>
                         </div>
 
                         <div class="user-nav-item">
-                            @if (Auth::user()->role == 'author' || Auth::user()->role == 'admin')
-                                <a href="{{ route('user.author.stories.create') }}"
-                                    class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.author.stories.create') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-plus user-nav-icon"></i>
-                                    <span class="user-nav-text">Đăng truyện</span>
-                                </a>
-                                <a href="{{ route('user.author.stories') }}"
-                                    class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.author.stories') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-list user-nav-icon"></i>
-                                    <span class="user-nav-text">Danh sách truyện</span>
-                                </a>
-                                <a href="{{ route('user.author.revenue') }}"
-                                    class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.author.index', 'user.author.revenue') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-pen-nib user-nav-icon"></i>
-                                    <span class="user-nav-text">Khu vực tác giả</span>
-                                </a>
-                            @else
-                                <a href="{{ route('user.author.application') }}"
-                                    class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.author.application') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-pen-nib user-nav-icon"></i>
-                                    <span class="user-nav-text">Đăng ký làm tác giả</span>
-                                </a>
-                            @endif
-                        </div>
-
-                        <div class="user-nav-item">
-                            <a href="{{ route('user.reading.history') }}"
-                                class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.reading.history') ? 'active' : '' }}">
-                                <i class="fa-solid fa-book-open user-nav-icon"></i>
-                                <span class="user-nav-text">Lịch sử đọc truyện</span>
+                            <a href=""
+                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.wishlist') ? 'active' : '' }}">
+                                <i class="fa-regular fa-heart user-nav-icon"></i>
+                                <span class="user-nav-text">Wishlist</span>
                             </a>
                         </div>
 
                         <div class="user-nav-item">
-                            <a href="{{ route('user.purchases') }}"
-                                class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.purchases*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-shopping-cart user-nav-icon"></i>
-                                <span class="user-nav-text">Truyện đã mua</span>
+                            <a href="{{ route('user.addresses') }}"
+                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.addresses') ? 'active' : '' }}">
+                                <img src="{{ asset('assets/images/svg/express.svg') }}" alt="Address"
+                                    class="user-nav-icon">
+                                <span class="user-nav-text">Address</span>
                             </a>
                         </div>
 
                         <div class="user-nav-item">
-                            <a href="{{ route('user.bookmarks') }}"
-                                class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.bookmarks') ? 'active' : '' }}">
-                                <i class="fa-solid fa-bookmark user-nav-icon"></i>
-                                <span class="user-nav-text">Truyện đã lưu</span>
+                            <a href="{{ route('user.my.account') }}"
+                                class="user-nav-link color-primary-5 text-decoration-none  {{ request()->routeIs('user.my.account') ? 'active' : '' }}">
+                               <i class="fa-regular fa-user user-nav-icon"></i>
+                                <span class="user-nav-text">Account Detail</span>
                             </a>
                         </div>
-
-                        <div class="user-nav-item">
-                            <a href="{{ route('user.deposit') }}"
-                                class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.deposit*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-coins user-nav-icon"></i>
-                                <span class="user-nav-text">Nạp xu</span>
-                            </a>
-                        </div>
-
-                        @if (Auth::user()->role == 'author' || Auth::user()->role == 'admin')
-                            <div class="user-nav-item">
-                                <a href="{{ route('user.withdrawals.index') }}"
-                                    class="user-nav-link text-decoration-none hover-color-3 {{ request()->routeIs('user.withdrawals*') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-money-bill-transfer user-nav-icon"></i>
-                                    <span class="user-nav-text">Rút xu</span>
-                                </a>
-                            </div>
-                        @endif
 
                         <div class="user-nav-item user-nav-logout">
                             <a href="{{ route('logout') }}" class="user-nav-link text-danger text-decoration-none">
                                 <i class="fa-solid fa-arrow-right-from-bracket user-nav-icon"></i>
-                                <span class="user-nav-text">Đăng xuất</span>
+                                <span class="user-nav-text">Logout</span>
                             </a>
                         </div>
                     </div>
@@ -138,10 +77,10 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-12 col-lg-9">
-                <div class="user-content">
+            <div class="col-12 col-lg-9 border-start">
+                <div class="user-content ms-3">
                     <div class="content-header">
-                        <h4 class="content-title">@yield('info_section_title', 'Thông tin cá nhân')</h4>
+                        <h4 class="content-title">@yield('info_section_title', 'User Information')</h4>
                         @hasSection('info_section_desc')
                             <p class="content-desc">@yield('info_section_desc')</p>
                         @endif
@@ -160,42 +99,31 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Kiểm tra nếu là thiết bị di động (màn hình < 992px)
             function isMobile() {
                 return window.innerWidth < 992;
             }
 
-            // Hàm cuộn đến phần nội dung chính
             function scrollToContent() {
                 if (isMobile()) {
-                    // Lưu trạng thái đã cuộn vào session storage
                     const hasScrolled = sessionStorage.getItem('hasScrolledToContent');
 
-                    // Nếu chưa cuộn trong phiên này
                     if (!hasScrolled) {
-                        // Lấy vị trí của phần nội dung
                         const contentOffset = $('.user-content').offset().top;
 
-                        // Cuộn xuống vị trí này, trừ đi một chút để có khoảng cách
                         $('html, body').animate({
                             scrollTop: contentOffset - 20
                         }, 500);
 
-                        // Đánh dấu đã cuộn
                         sessionStorage.setItem('hasScrolledToContent', 'true');
                     }
                 }
             }
 
-            // Gọi hàm khi trang đã tải xong
             setTimeout(scrollToContent, 300);
 
-            // Thêm sự kiện cho các liên kết trong menu
             $('.user-nav-link').on('click', function() {
-                // Xóa trạng thái đã cuộn khi người dùng nhấp vào menu mới
                 sessionStorage.removeItem('hasScrolledToContent');
             });
-
         });
     </script>
     @stack('info_scripts')

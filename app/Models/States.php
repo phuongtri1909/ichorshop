@@ -16,4 +16,12 @@ class States extends Model
         return $this->belongsTo(Countries::class, 'country_code', 'code');
     }
 
+    /**
+     * Get the cities for the state.
+     */
+    public function cities()
+    {
+        return $this->hasMany(Cities::class, 'state_id', 'id');
+    }
+
 }

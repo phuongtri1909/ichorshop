@@ -166,7 +166,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end user-dropdown"
                                     aria-labelledby="userDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('my.account') }}">
+                                        <a class="dropdown-item" href="{{ route('user.my.account') }}">
                                             <i class="fas fa-user me-2"></i>
                                             My Account
                                         </a>

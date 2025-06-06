@@ -1,132 +1,138 @@
-@extends('layouts.information')
+@extends('client.layouts.information')
 
-@section('info_title', 'Thông tin cá nhân')
-@section('info_description', 'Thông tin cá nhân của bạn trên ' . request()->getHost())
-@section('info_keyword', 'Thông tin cá nhân, thông tin tài khoản, ' . request()->getHost())
-@section('info_section_title', 'Thông tin người dùng')
-@section('info_section_desc', 'Quản lý thông tin cá nhân của bạn')
+@section('info_title', 'My Account - ' . request()->getHost())
+@section('info_description', 'My Account - ' . request()->getHost())
+@section('info_keyword', 'My Account, User Information, ' . request()->getHost())
+@section('info_section_title', 'Account Details')
 
 @section('info_content')
-    <div class="row">
-        <div class="col-12 col-md-4">
-            <div class="text-center">
+    <div class="account-details">
+        <!-- Avatar Section -->
+        <div class="avatar-section mb-4">
+            <div class="d-flex align-items-center">
                 <div class="profile-avatar-edit" id="avatar">
                     @if (!empty($user->avatar))
                         <img id="avatarImage" class="profile-avatar" src="{{ Storage::url($user->avatar) }}" alt="Avatar">
                     @else
-                        <div class="profile-avatar d-flex align-items-center justify-content-center bg-light">
-                            <i class="fa-solid fa-user fa-2x" id="defaultIcon"></i>
+                        <div class="profile-avatar d-flex align-items-center justify-content-center bg-light" id="defaultAvatar">
+                            <span class="avatar-initials">{{ strtoupper(substr($user->full_name, 0, 2)) }}</span>
                         </div>
                     @endif
                     <div class="avatar-edit-overlay">
-                        <i class="fas fa-camera me-1"></i> Cập nhật
+                        <i class="fas fa-camera"></i>
                     </div>
                 </div>
-                <input type="file" id="avatarInput" style="display: none;" accept="image/*">
-                
-                <div class="mt-3">
-                    <h5 class="mb-1">{{ $user->name }}</h5>
-                    <div class="text-muted small">
-                        <i class="fas fa-calendar-alt me-1"></i> Tham gia từ: {{ $user->created_at->format('d/m/Y') }}
-                    </div>
+                <div class="ms-3">
+                    <h5 class="mb-1">{{ $user->full_name }}</h5>
+                    <p class="text-muted mb-0">{{ $user->email }}</p>
                 </div>
             </div>
+            <input type="file" id="avatarInput" style="display: none;" accept="image/*">
         </div>
-        
-        <div class="col-12 col-md-8 mt-3 mt-md-0">
-            <div class="profile-info-card">
-                <div class="profile-info-item">
-                    <div class="profile-info-label">
-                        <i class="fas fa-fingerprint"></i> ID
+
+        <!-- Account Information Form -->
+        <form id="accountForm" class="account-form">
+            @csrf
+            <div class="form-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="full_name" class="form-label">Full name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" 
+                                   value="{{ $user->full_name }}" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
                     </div>
-                    <div class="profile-info-value">
-                        {{ $user->id }}
-                    </div>
-                </div>
-                
-                <div class="profile-info-item">
-                    <div class="profile-info-label">
-                        <i class="fas fa-user"></i> <span class="d-none d-sm-inline">Họ và tên</span>
-                    </div>
-                    <div class="profile-info-value d-flex align-items-center">
-                        <span class="me-2">{{ $user->name ?: 'Chưa cập nhật' }}</span>
-                        <button class="btn btn-sm profile-edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-type="name">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="profile-info-item">
-                    <div class="profile-info-label">
-                        <i class="fas fa-envelope"></i> <span class="d-none d-sm-inline">Email</span>
-                    </div>
-                    <div class="profile-info-value">
-                        {{ $user->email }}
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   value="{{ $user->phone }}" placeholder="Enter phone number">
+                            <div class="invalid-feedback"></div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="profile-info-item">
-                    <div class="profile-info-label">
-                        <i class="fas fa-lock"></i> <span class="d-none d-sm-inline">Mật khẩu</span>
-                    </div>
-                    <div class="profile-info-value d-flex align-items-center">
-                        <span class="me-2">••••••••</span>
-                        <button class="btn btn-sm profile-edit-btn" data-bs-toggle="modal" data-bs-target="#otpPWModal">
-                            <i class="fas fa-key"></i>
-                        </button>
-                    </div>
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           value="{{ $user->email }}" readonly>
+                    <small class="text-muted">Email cannot be changed</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-pry" id="saveChangesBtn">
+                        <span class="btn-text">Save Changes</span>
+                        <span class="btn-spinner d-none">
+                            <i class="fas fa-spinner fa-spin me-2"></i>Saving...
+                        </span>
+                    </button>
                 </div>
             </div>
+        </form>
+
+        <!-- Password Change Section -->
+        <div class="password-section mt-5">
+            <h6 class="section-title">Change Password</h6>
+            <button type="button" class="btn btn-outline-secondary" id="changePasswordBtn">
+                <i class="fas fa-key me-2"></i>Change Password
+            </button>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <!-- Password Change Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Chỉnh sửa thông tin</h5>
+                    <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editForm" action="{{ route('user.update.name.or.phone') }}" method="post">
+                    <form id="passwordForm">
                         @csrf
-                        <div class="mb-3" id="formContent">
-                            <!-- Nội dung sẽ được cập nhật dựa trên loại dữ liệu được chọn -->
-                        </div>
-                        <div class="text-end">
-                            <button type="button" class="btn btn-outline-secondary"
-                                data-bs-dismiss="modal">Đóng</button>
-                            <button type="submit" class="btn btn-outline-success click-scroll"
-                                id="saveChanges">Lưu thay đổi</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="otpPWModal" tabindex="-1" aria-labelledby="otpPWModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="otpPWModalLabel">Xác thực OTP để đổi mật khẩu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="otpPWForm">
-                        @csrf
-                        <div class="mb-3 d-flex flex-column align-items-center" id="formOTPPWContent">
-                            <div class="spinner-border text-success" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                <button type="button" class="password-toggle" data-target="current_password">
+                                    <i class="fa fa-eye"></i>
+                                </button>
                             </div>
+                            <div class="invalid-feedback"></div>
                         </div>
-                        <div class="text-end box-button-update">
-                            <button type="button" class="btn btn-outline-secondary"
-                                data-bs-dismiss="modal">Đóng</button>
-                            <button type="submit" class="btn btn-outline-success" id="btn-send-otpPW">Tiếp tục</button>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" id="new_password" name="password" required>
+                                <button type="button" class="password-toggle" data-target="new_password">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" id="confirm_password" name="password_confirmation" required>
+                                <button type="button" class="password-toggle" data-target="confirm_password">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback"></div>
                         </div>
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-pry" id="updatePasswordBtn">
+                        <span class="btn-text">Update Password</span>
+                        <span class="btn-spinner d-none">
+                            <i class="fas fa-spinner fa-spin me-2"></i>Updating...
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -136,30 +142,83 @@
 @push('info_scripts')
     <script>
         $(document).ready(function() {
-            // Click vào avatar để mở file input
+          
+
+            // Toggle loading state
+            function toggleLoading(btn, loading) {
+                const text = btn.find('.btn-text');
+                const spinner = btn.find('.btn-spinner');
+                btn.prop('disabled', loading);
+                
+                if (loading) {
+                    text.addClass('d-none');
+                    spinner.removeClass('d-none');
+                } else {
+                    text.removeClass('d-none');
+                    spinner.addClass('d-none');
+                }
+            }
+
+            // Clear form errors
+            function clearErrors() {
+                $('.form-control').removeClass('is-invalid');
+                $('.invalid-feedback').text('').hide();
+            }
+
+            // Show field error
+            function showFieldError(fieldName, message) {
+                const field = $(`[name="${fieldName}"]`);
+                
+                // Find the invalid-feedback element - check multiple locations
+                let feedback = field.siblings('.invalid-feedback');
+                
+                // If not found as sibling, look in the parent container
+                if (feedback.length === 0) {
+                    feedback = field.closest('.mb-3').find('.invalid-feedback');
+                }
+                
+                // If still not found, look in the parent div
+                if (feedback.length === 0) {
+                    feedback = field.parent().siblings('.invalid-feedback');
+                }
+                
+                // If still not found, look in the parent's parent
+                if (feedback.length === 0) {
+                    feedback = field.parent().parent().find('.invalid-feedback');
+                }
+                
+                field.addClass('is-invalid');
+                
+                if (feedback.length > 0) {
+                    feedback.text(message).show();
+                } else {
+                    // If still no feedback element found, create one
+                    field.after(`<div class="invalid-feedback" style="display: block;">${message}</div>`);
+                }
+            }
+
+            // Avatar upload
             $('#avatar').on('click', function() {
                 $('#avatarInput').click();
             });
 
-            // Xử lý khi người dùng chọn ảnh
             $('#avatarInput').on('change', function() {
-                var file = this.files[0];
+                const file = this.files[0];
                 if (file) {
-                    var reader = new FileReader();
+                    const reader = new FileReader();
                     reader.onload = function(e) {
-                        // Hiển thị ảnh đã chọn
                         if (!$('#avatarImage').length) {
-                            // Nếu chưa có ảnh (chỉ có icon), tạo thẻ <img> mới
-                            $('#avatar').html('<img id="avatarImage" class="profile-avatar" src="' + e.target.result +
-                                '" alt="Avatar"><div class="avatar-edit-overlay"><i class="fas fa-camera me-1"></i> Cập nhật</div>');
-                            $('#defaultIcon').hide();
+                            $('#defaultAvatar').replaceWith(`
+                                <img id="avatarImage" class="profile-avatar" src="${e.target.result}" alt="Avatar">
+                            `);
                         } else {
-                            // Nếu đã có ảnh, chỉ cần thay đổi src của ảnh
-                            $('#avatarImage').attr('src', e.target.result).show();
+                            $('#avatarImage').attr('src', e.target.result);
                         }
                     };
                     reader.readAsDataURL(file);
-                    var formData = new FormData();
+
+                    // Upload avatar
+                    const formData = new FormData();
                     formData.append('avatar', file);
 
                     $.ajax({
@@ -178,125 +237,137 @@
                                 showToast(response.message, 'error');
                             }
                         },
-                        error: function(xhr, status, error) {
+                        error: function(xhr) {
                             const response = xhr.responseJSON;
-                            console.log('Error:', response);
-                            showToast('Có lỗi xảy ra khi cập nhật ảnh đại diện', 'error');
+                            if (response && response.message) {
+                                Object.keys(response.message).forEach(field => {
+                                    showToast(response.message[field][0], 'error');
+                                });
+                            } else {
+                                showToast('Error uploading avatar', 'error');
+                            }
                         }
                     });
                 }
             });
-        });
 
-        //update user info (name, phone)
-        $(document).ready(function() {
-            $('#editModal').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget);
-                var type = button.data('type');
-                var modal = $(this);
+            // Account form submission
+            $('#accountForm').on('submit', function(e) {
+                e.preventDefault();
+                clearErrors();
+                
+                const saveBtn = $('#saveChangesBtn');
+                toggleLoading(saveBtn, true);
 
-                var formContent = $('#formContent');
-                formContent.empty();
+                const formData = $(this).serialize();
 
-                if (type == 'name') {
-                    modal.find('.modal-title').text('Chỉnh sửa Họ và Tên');
-                    formContent.append(`
-                        <label for="editValue" class="form-label">Họ và Tên</label>
-                        <input type="text" class="form-control" id="editValue" name="name" value="{{ $user->name }}" required>
-                    `);
-                } else if (type == 'phone') {
-                    modal.find('.modal-title').text('Chỉnh sửa Số điện thoại');
-                    formContent.append(`
-                        <label for="editValue" class="form-label">Số điện thoại</label>
-                        <input type="number" class="form-control" id="editValue" name="phone" value="{{ $user->phone ?? '' }}" required>
-                    `);
-                } else {
-                    showToast('Thao tác sai, hãy thử lại', 'error');
-                }
-            });
-        });
-
-        //update user password
-        $(document).ready(function() {
-            $('#otpPWModal').on('show.bs.modal', function(event) {
-                var modal = $(this);
-                $('#btn-send-otpPW').text('Tiếp tục');
-
-                var formOTPContent = $('#formOTPPWContent');
-                formOTPContent.empty();
-                formOTPContent.append(`
-                    <p class="text-center mb-3">
-                        Chúng tôi sẽ gửi mã xác nhận OTP đến email của bạn. 
-                        Vui lòng nhập mã nhận được để tiếp tục.
-                    </p>
-                    <div class="spinner-border text-success mb-3" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <div class="otp-input-container" id="input-otp-pw">
-                        <input type="text" maxlength="1" class="otp-digit" oninput="handleInput(this)" />
-                        <input type="text" maxlength="1" class="otp-digit" oninput="handleInput(this)" />
-                        <input type="text" maxlength="1" class="otp-digit" oninput="handleInput(this)" />
-                        <input type="text" maxlength="1" class="otp-digit" oninput="handleInput(this)" />
-                        <input type="text" maxlength="1" class="otp-digit" oninput="handleInput(this)" />
-                        <input type="text" maxlength="1" class="otp-digit" oninput="handleInput(this)" />
-                    </div>
-                `);
-
-                // Rest of your existing code for OTP password update
                 $.ajax({
-                    url: "{{ route('user.update.password') }}",
+                    url: "{{ route('user.update.profile') }}",
                     type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
+                    data: formData,
                     success: function(response) {
-                        // Hide spinner when response received
-                        formOTPContent.find('.spinner-border').hide();
+                        if (response.status === 'success') {
+                            showToast(response.message, 'success');
+                        } else {
+                            showToast(response.message, 'error');
+                        }
                     },
-                    error: function(xhr, status, error) {
-                        // Hide spinner and show error
-                        formOTPContent.find('.spinner-border').hide();
-                        showToast('Có lỗi xảy ra khi gửi mã OTP', 'error');
+                    error: function(xhr) {
+                        const response = xhr.responseJSON;
+                        if (response && response.message) {
+                            Object.keys(response.message).forEach(field => {
+                                showFieldError(field, response.message[field][0]);
+                            });
+                        } else {
+                            showToast('Error updating profile', 'error');
+                        }
+                    },
+                    complete: function() {
+                        toggleLoading(saveBtn, false);
                     }
                 });
             });
-        });
 
-        //response save
-        @if (session('success'))
-            document.addEventListener('DOMContentLoaded', function() {
-                showToast('{{ session('success') }}', 'success');
-            });
-        @endif
-
-        @if (session('error'))
-            document.addEventListener('DOMContentLoaded', function() {
-                @if (is_array(session('error')))
-                    @foreach (session('error') as $message)
-                        @foreach ($message as $key => $value)
-                            showToast('{{ $value }}', 'error');
-                        @endforeach
-                    @endforeach
-                @else
-                    showToast('{{ session('error') }}', 'error');
-                @endif
-            });
-        @endif
-        
-        // Function to handle OTP input
-        function handleInput(input) {
-            let value = input.value;
-            
-            // Only allow numbers
-            input.value = value.replace(/[^0-9]/g, '');
-            
-            // Auto-move to next input
-            if (value.length === 1) {
-                let nextInput = input.nextElementSibling;
-                if (nextInput && nextInput.tagName === 'INPUT') {
-                    nextInput.focus();
+            // Password toggle functionality
+            $('.password-toggle').on('click', function() {
+                const target = $(this).data('target');
+                const input = $(`#${target}`);
+                const icon = $(this).find('i');
+                
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
                 }
-            }
-        }
+            });
+
+            // Show password modal
+            $('#changePasswordBtn').on('click', function() {
+                $('#passwordModal').modal('show');
+            });
+
+            // Password form submission
+            $('#updatePasswordBtn').on('click', function() {
+                clearErrors();
+                
+                const updateBtn = $(this);
+                const form = $('#passwordForm');
+                const formData = form.serialize();
+
+                // Client-side validation
+                const newPassword = $('#new_password').val();
+                const confirmPassword = $('#confirm_password').val();
+                
+                if (newPassword !== confirmPassword) {
+                    showFieldError('password_confirmation', 'Passwords do not match');
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    showFieldError('password', 'Password must be at least 6 characters');
+                    return;
+                }
+
+                toggleLoading(updateBtn, true);
+
+                $.ajax({
+                    url: "{{ route('user.update.password') }}",
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showToast(response.message, 'success');
+                            $('#passwordModal').modal('hide');
+                            form[0].reset();
+                        } else {
+                            showToast(response.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        const response = xhr.responseJSON;
+                        console.log('Password update error:', response);
+                        
+                        if (response && response.message) {
+                            Object.keys(response.message).forEach(field => {
+                                showFieldError(field, response.message[field][0]);
+                            });
+                        } else {
+                            showToast('Error updating password', 'error');
+                        }
+                    },
+                    complete: function() {
+                        toggleLoading(updateBtn, false);
+                    }
+                });
+            });
+
+            // Reset modal when closed
+            $('#passwordModal').on('hidden.bs.modal', function() {
+                $('#passwordForm')[0].reset();
+                clearErrors();
+            });
+        });
     </script>
 @endpush

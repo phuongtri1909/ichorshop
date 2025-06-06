@@ -30,7 +30,7 @@
                                     </li>
                                 @endif
                                 @if (!$loop->last)
-                                    <i class="fa-solid fa-chevron-right color-primary-2"></i>
+                                    <i class="fa-solid fa-chevron-right color-primary-5"></i>
                                 @endif
                             @endforeach
                         </ol>
