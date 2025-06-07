@@ -193,47 +193,6 @@ class UserController extends Controller
         }
     }
 
-    public function banIp(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'ban' => 'required|in:true,false,0,1'
-        ], [
-            'ban.required' => 'Trường ban không được để trống',
-            'ban.in' => 'Giá trị không hợp lệ'
-        ]);
-
-        if ($request->boolean('ban')) {
-            if (!$user->ip_address) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Không tìm thấy IP của người dùng'
-                ], 400);
-            }
-
-            // Check if IP already banned
-            if (!Banned_ip::where('ip_address', $user->ip_address)->exists()) {
-                Banned_ip::create([
-                    'ip_address' => $user->ip_address,
-                    'user_id' => $user->id
-                ]);
-            }
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Đã thêm IP vào danh sách cấm'
-            ]);
-        } else {
-            // Remove all banned IPs for this user
-            Banned_ip::where('user_id', $user->id)->delete();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Đã xóa IP khỏi danh sách cấm'
-            ]);
-        }
-    }
 
     public function index(Request $request)
     {
@@ -432,13 +391,6 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Gửi mã OTP thành công, vui lòng kiểm tra Email của bạn',
         ], 200);
-    }
-
-    public function userProfile()
-    {
-        $user = Auth::user();
-
-        return view('pages.information.profile', compact('user'));
     }
 
 

@@ -166,20 +166,27 @@
                                 <ul class="dropdown-menu dropdown-menu-end user-dropdown"
                                     aria-labelledby="userDropdown">
                                     <li>
+                                        <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                            <i class="fas fa-tachometer-alt me-2"></i>
+                                            Admin Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
                                         <a class="dropdown-item" href="{{ route('user.my.account') }}">
-                                            <i class="fas fa-user me-2"></i>
+                                            <i class="fa-regular fa-user me-2"></i>
                                             My Account
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="">
-                                            <i class="fas fa-box me-2"></i>
+                                            <img src="{{ asset('assets/images/svg/orders.svg') }}" alt="Orders"
+                                                 class="me-1">
                                             My Orders
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="">
-                                            <i class="fas fa-heart me-2"></i>
+                                            <i class="fa-regular fa-heart me-2"></i>
                                             Wishlist
                                         </a>
                                     </li>

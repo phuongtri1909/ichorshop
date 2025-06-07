@@ -1,7 +1,7 @@
 <form id="deleteForm{{ $id }}" action="{{ $route }}" method="POST" style="display: inline;">
     @csrf
     @method('DELETE')
-    <button type="button" class="delete-trigger action-icon delete-icon" 
+    <button type="button" class="delete-trigger action-icon delete-icon border-0" 
             data-form-id="deleteForm{{ $id }}"
             data-message="{{ isset($message) ? $message : 'Bạn có chắc chắn muốn xóa mục này?' }}" 
             title="Xóa">

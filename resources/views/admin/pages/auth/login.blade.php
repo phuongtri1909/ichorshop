@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <title>Đăng nhập - Cà Phê Tam Giao</title>
+    <title>Đăng nhập trang quản trị</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/logo/favicon.ico') }}" type="image/x-icon">
@@ -36,18 +36,19 @@
                 </div>
                 
                 <div class="login-body">
-                    @include('components.alert')
+                    @include('components.toast-main')
+                    @include('components.toast')
                     
-                    <form method="POST" action="{{ route('admin.login') }}">
+                    <form method="POST" action="{{ route('admin.login.post') }}">
                         @csrf
                         
                         <div class="mb-4">
-                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <label for="email" class="form-label">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username') }}" placeholder="admin" required autofocus>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="admin@example.com" required autofocus>
                             </div>
-                            @error('username')
+                            @error('email')
                                 <div class="invalid-feedback d-block">
                                     {{ $message }}
                                 </div>
@@ -83,7 +84,7 @@
                     </form>
                     
                     <div class="mt-4 text-center">
-                        <p class="form-text">© {{ date('Y') }} Cà Phê Tam Giao Admin. All rights reserved.</p>
+                        <p class="form-text">© {{ date('Y') }} IchorShop Admin. All rights reserved.</p>
                     </div>
                 </div>
             </div>
@@ -92,6 +93,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');

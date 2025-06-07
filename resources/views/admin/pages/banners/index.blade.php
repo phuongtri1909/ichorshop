@@ -98,7 +98,7 @@
                         Hiển thị {{ $banners->firstItem() ?? 0 }} đến {{ $banners->lastItem() ?? 0 }} của {{ $banners->total() }} banner
                     </div>
                     <div class="pagination-controls">
-                        {{ $banners->links('admin.components.paginate') }}
+                        {{ $banners->links('components.paginate') }}
                     </div>
                 </div>
             @endif

@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
-use App\Http\Controllers\Admin\LogoSiteController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\DressStyleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -12,6 +14,8 @@ use App\Http\Controllers\Admin\SocialController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\LogoSiteController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
@@ -23,7 +27,7 @@ Route::group(['as' => 'admin.'], function () {
         Artisan::call('route:clear');
         return 'Cache cleared';
     })->name('clear.cache');
-    
+
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', function () {
             return view('admin.pages.dashboard');
@@ -38,6 +42,25 @@ Route::group(['as' => 'admin.'], function () {
 
         Route::resource('products', ProductController::class)->except(['show']);
 
+        Route::get('/products/get-variant-component', [ProductController::class, 'getVariantComponent'])->name('products.get-variant-component');
+        Route::get('/products/get-image-component', [ProductController::class, 'getImageComponent'])->name('products.get-image-component');
+        Route::get('/products/get-image-color-options', [ProductController::class, 'getImageColorOptions'])->name('products.get-image-color-options');
+        Route::get('/products/get-existing-images', [ProductController::class, 'getExistingImages'])->name('products.get-existing-images');
+        
+        Route::resource('brands', BrandController::class)->except(['show']);
+        Route::resource('dress-styles', DressStyleController::class)->except(['show']);
+        Route::resource('product-variants', ProductVariantController::class)->except(['show']);
+
+        // Additional routes for product variants
+        Route::get('product-variants/create/{product?}', [ProductVariantController::class, 'create'])
+            ->name('product-variants.create');
+
+        // Route to manage variants for a specific product
+        Route::get('products/{product}/variants', [ProductVariantController::class, 'index'])
+            ->name('products.variants.index');
+
+        Route::resource('promotions', PromotionController::class)->except(['show']);
+
         Route::resource('reviews', ReviewController::class)->except(['show']);
 
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -51,12 +74,6 @@ Route::group(['as' => 'admin.'], function () {
 
         Route::post('/upload-image', [NewsController::class, 'uploadImage'])->name('news.upload.image');
 
-        Route::resource('franchise', FranchiseController::class)->except(['show']);
-
-        Route::get('/franchise-contacts', [FranchiseContactController::class, 'index'])->name('franchise-contacts.index');
-        Route::get('/franchise-contacts/{franchiseContact}', [FranchiseContactController::class, 'show'])->name('franchise-contacts.show');
-        Route::delete('/franchise-contacts/{franchiseContact}', [FranchiseContactController::class, 'destroy'])->name('franchise-contacts.destroy');
-        Route::patch('/franchise-contacts/{franchiseContact}/status', [FranchiseContactController::class, 'updateStatus'])->name('franchise-contacts.update-status');
 
         Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
         Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('contacts.show');
@@ -71,6 +88,6 @@ Route::group(['as' => 'admin.'], function () {
             return view('admin.pages.auth.login');
         })->name('login');
 
-        Route::post('login', [AuthController::class, 'login'])->name('login');
+        Route::post('login', [AuthController::class, 'login'])->name('login.post');
     });
 });

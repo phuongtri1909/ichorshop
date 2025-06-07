@@ -3,7 +3,7 @@
 @section('title', 'Chỉnh sửa sản phẩm')
 
 @section('main-content')
-    <div class="category-form-container">
+    <div class="product-form-container">
         <!-- Breadcrumb -->
         <div class="content-breadcrumb">
             <ol class="breadcrumb-list">
@@ -17,436 +17,262 @@
             <div class="form-header">
                 <div class="form-title">
                     <i class="fas fa-edit icon-title"></i>
-                    <h5>Chỉnh sửa sản phẩm</h5>
+                    <h5>Chỉnh sửa sản phẩm: {{ $product->name }}</h5>
                 </div>
-                <div class="product-meta">
-                    <div class="product-badge category">
-                        <i class="fas fa-list"></i>
-                        <span>{{ $product->category->name }}</span>
-                    </div>
-                    <div class="product-badge slug">
-                        <i class="fas fa-link"></i>
-                        <span>{{ $product->slug }}</span>
-                    </div>
-                    <div class="product-badge status {{ $product->is_active ? 'active' : 'inactive' }}">
-                        <i class="fas fa-{{ $product->is_active ? 'check-circle' : 'times-circle' }}"></i>
-                        <span>{{ $product->is_active ? 'Đang hiển thị' : 'Đã ẩn' }}</span>
-                    </div>
-                </div>
+                {{-- <div class="form-actions-header">
+                    <a href="{{ route('admin.product-variants.index', ['product_id' => $product->id]) }}"
+                        class="variant-button">
+                        <i class="fas fa-layer-group"></i> Quản lý biến thể ({{ $product->variants->count() }})
+                    </a>
+                </div> --}}
             </div>
             <div class="form-body">
                 @include('components.alert', ['alertType' => 'alert'])
+
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active title-tab-primary-5 color-primary-hover" id="basic-info-tab"
+                            data-bs-toggle="tab" data-bs-target="#basic-info" type="button" role="tab">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Thông tin cơ bản
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link title-tab-primary-5 color-primary-hover" id="variants-tab"
+                            data-bs-toggle="tab" data-bs-target="#variants" type="button" role="tab">
+                            <i class="fas fa-layer-group me-1"></i>
+                            Biến thể sản phẩm
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link title-tab-primary-5 color-primary-hover" id="images-tab"
+                            data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab">
+                            <i class="fas fa-images me-1"></i>
+                            Hình ảnh sản phẩm
+                        </button>
+                    </li>
+                </ul>
 
                 <form action="{{ route('admin.products.update', $product) }}" method="POST" class="product-form"
                     enctype="multipart/form-data" id="product-form">
                     @csrf
                     @method('PUT')
 
-                    <div class="form-tabs">
-                        <div class="tab-header">
-                            <div class="tab-btn active" data-tab="basic-info">Thông tin cơ bản</div>
-                            <div class="tab-btn" data-tab="pricing">Quy cách & Giá</div>
-                            <div class="tab-btn" data-tab="images">Hình ảnh</div>
-                            <div class="tab-btn" data-tab="seo">Mô tả & SEO</div>
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="productTabsContent">
+                        <!-- Tab 1: Thông tin cơ bản -->
+                        <div class="tab-pane fade show active" id="basic-info" role="tabpanel">
+                            <!-- Thông tin cơ bản -->
+                            <div class="form-section">
+                                <h6 class="section-title">Thông tin cơ bản</h6>
+
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="name" class="form-label required">
+                                            Tên sản phẩm <span class="required-asterisk">*</span>
+                                        </label>
+                                        <input type="text" id="name" name="name" class="custom-input"
+                                            placeholder="Nhập tên sản phẩm" value="{{ old('name', $product->name) }}">
+                                        <div class="error-message" id="name-error"></div>
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        <label for="status" class="form-label required">
+                                            Trạng thái <span class="required-asterisk">*</span>
+                                        </label>
+                                        <select id="status" name="status" class="custom-input">
+                                            <option value="">Chọn trạng thái</option>
+                                            <option value="active"
+                                                {{ old('status', $product->status) == 'active' ? 'selected' : '' }}>Đang bán
+                                            </option>
+                                            <option value="inactive"
+                                                {{ old('status', $product->status) == 'inactive' ? 'selected' : '' }}>Đã ẩn
+                                            </option>
+                                        </select>
+                                        <div class="error-message" id="status-error"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description_short" class="form-label">Mô tả ngắn</label>
+                                    <textarea id="description_short" name="description_short" class="custom-input" rows="3"
+                                        placeholder="Nhập mô tả ngắn về sản phẩm (tối đa 500 ký tự)" maxlength="500">{{ old('description_short', $product->description_short) }}</textarea>
+                                    <div class="error-message" id="description_short-error"></div>
+                                    <small class="form-text">Mô tả này sẽ hiển thị trong danh sách sản phẩm</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description_long" class="form-label">Mô tả chi tiết</label>
+                                    <textarea id="description_long" name="description_long" class="custom-input" rows="8"
+                                        placeholder="Nhập mô tả chi tiết về sản phẩm">{{ old('description_long', $product->description_long) }}</textarea>
+                                    <div class="error-message" id="description_long-error"></div>
+                                </div>
+                            </div>
+
+                            <!-- Phân loại sản phẩm -->
+                            <div class="form-section">
+                                <h6 class="section-title">Phân loại sản phẩm</h6>
+
+                                <div class="row">
+                                    <div class="form-group col-12 col-md-4">
+                                        <label for="categories" class="form-label required">
+                                            Danh mục <span class="required-asterisk">*</span>
+                                        </label>
+                                        <select id="categories" name="categories[]" class="custom-input" multiple>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}"
+                                                    {{ in_array($category->id, old('categories', $product->categories->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="error-message" id="categories-error"></div>
+                                        <small class="form-text">Chọn ít nhất một danh mục (Ctrl+Click để chọn
+                                            nhiều)</small>
+                                    </div>
+
+                                    <div class="form-group col-12 col-md-4">
+                                        <label for="brand_id" class="form-label">
+                                            Thương hiệu
+                                        </label>
+                                        <select id="brand_id" name="brand_id" class="custom-input">
+                                            <option value="">Chọn thương hiệu</option>
+                                            @foreach ($brands as $brand)
+                                                <option value="{{ $brand->id }}"
+                                                    {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
+                                                    {{ $brand->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="error-message" id="brand_id-error"></div>
+                                    </div>
+
+                                    <div class="form-group col-12 col-md-4">
+                                        <label for="dress_styles" class="form-label">Kiểu dáng</label>
+                                        <select id="dress_styles" name="dress_styles[]" class="custom-input" multiple>
+                                            @foreach ($dressStyles as $style)
+                                                <option value="{{ $style->id }}"
+                                                    {{ in_array($style->id, old('dress_styles', $product->dressStyles->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                                    {{ $style->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="form-text">Tùy chọn - có thể chọn nhiều kiểu dáng
+                                            (Ctrl+Click)</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ảnh đại diện -->
+                            <div class="form-section">
+                                <h6 class="section-title">Ảnh đại diện sản phẩm</h6>
+
+                                <div class="form-group d-flex flex-column">
+                                    <label for="avatar" class="form-label">
+                                        Ảnh đại diện <small class="text-muted">(Để trống nếu không muốn thay đổi)</small>
+                                    </label>
+                                    <div class="image-upload-container">
+                                        <div class="image-preview main-image {{ $product->avatar ? 'has-image' : '' }}"
+                                            id="avatarPreview"
+                                            @if ($product->avatar) style="background-image: url('{{ Storage::url($product->avatar_medium ?? $product->avatar) }}')" @endif>
+                                            @if (!$product->avatar)
+                                                <i class="fas fa-image"></i>
+                                                <span>Chọn ảnh đại diện</span>
+                                            @endif
+                                        </div>
+                                        <input type="file" id="avatar" name="avatar" accept="image/*"
+                                            class="image-input" style="display: none;">
+                                    </div>
+                                    <div class="error-message" id="avatar-error"></div>
+                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG</small>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="tab-content">
-                            <!-- Tab Thông tin cơ bản -->
-                            <div class="tab-pane active" id="basic-info">
-                                <div class="form-group">
-                                    <label for="name" class="form-label-custom">
-                                        Tên sản phẩm <span class="required-mark">*</span>
-                                    </label>
-                                    <input type="text"
-                                        class="custom-input {{ $errors->has('name') ? 'input-error' : '' }}" id="name"
-                                        name="name" value="{{ old('name', $product->name) }}" required>
-                                    <div class="error-message" id="error-name">
-                                        @error('name')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="category_id" class="form-label-custom">
-                                        Danh mục <span class="required-mark">*</span>
-                                    </label>
-                                    <select class="custom-input {{ $errors->has('category_id') ? 'input-error' : '' }}"
-                                        id="category_id" name="category_id" required>
-                                        <option value="">-- Chọn danh mục --</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}"
-                                                {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
-                                                {{ $category->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="error-message" id="error-category_id">
-                                        @error('category_id')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-check-group">
-                                    <div class="custom-checkbox">
-                                        <input type="checkbox" id="is_featured" name="is_featured" value="1"
-                                            {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
-                                        <label for="is_featured" class="form-label-custom mb-0">Sản phẩm nổi bật</label>
-                                    </div>
-
-                                    <div class="custom-checkbox">
-                                        <input type="checkbox" id="is_active" name="is_active" value="1"
-                                            {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
-                                        <label for="is_active" class="form-label-custom mb-0">Hiển thị sản phẩm</label>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="highlight" class="form-label-custom">Điểm nổi bật</label>
-                                    <div class="highlight-inputs">
-                                        @if (old('highlight', $product->highlight))
-                                            @foreach (old('highlight', $product->highlight) as $index => $highlight)
-                                                <div class="highlight-item">
-                                                    <input type="text" class="custom-input" name="highlight[]"
-                                                        value="{{ $highlight }}" placeholder="Ví dụ: Hương vị đậm đà">
-                                                    <button type="button" class="remove-highlight" title="Xóa"><i
-                                                            class="fas fa-times"></i></button>
-                                                </div>
-                                            @endforeach
-                                        @else
-                                            <div class="highlight-item">
-                                                <input type="text" class="custom-input" name="highlight[]"
-                                                    placeholder="Ví dụ: Hương vị đậm đà">
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <button type="button" id="add-highlight" class="btn btn-sm btn-light mt-2">
-                                        <i class="fas fa-plus"></i> Thêm điểm nổi bật
+                        <!-- Tab 2: Biến thể sản phẩm -->
+                        <div class="tab-pane fade" id="variants" role="tabpanel">
+                            <div class="form-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="section-title mb-0">
+                                        Biến thể sản phẩm <span class="required-asterisk">*</span>
+                                        <small class="text-muted">(Phải có ít nhất 1 biến thể)</small>
+                                    </h6>
+                                    <button type="button" class="btn btn-success btn-sm" onclick="addVariant()">
+                                        <i class="fas fa-plus me-1"></i> Thêm biến thể
                                     </button>
                                 </div>
-                            </div>
-                            <!-- Tab Quy cách & Giá -->
-                            <div class="tab-pane" id="pricing">
-                                <div class="weight-container" id="weights-container">
-                                    @if (old('weights'))
-                                        @foreach (old('weights') as $index => $weightData)
-                                            <div class="weight-item" data-index="{{ $index }}">
-                                                <div class="weight-header">
-                                                    <h5>Quy cách #{{ $index + 1 }}</h5>
-                                                    <button type="button" class="weight-remove-btn" title="Xóa quy cách"
-                                                        {{ count(old('weights')) <= 1 ? 'disabled' : '' }}>
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </div>
 
-                                                <div class="weight-content">
-                                                    <div class="form-row">
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">
-                                                                    Quy cách <span class="required-mark">*</span>
-                                                                </label>
-                                                                <input type="text" class="custom-input"
-                                                                    name="weights[{{ $index }}][weight]"
-                                                                    value="{{ $weightData['weight'] }}"
-                                                                    placeholder="Ví dụ: 250g, Túi 1kg" required>
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-weight">
-                                                                    @if ($errors->has("weights.$index.weight"))
-                                                                        {{ $errors->first("weights.$index.weight") }}
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">Mã SKU</label>
-                                                                <input type="text" class="custom-input"
-                                                                    name="weights[{{ $index }}][sku]"
-                                                                    value="{{ $weightData['sku'] ?? '' }}"
-                                                                    placeholder="Mã quản lý sản phẩm">
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-sku">
-                                                                    @if ($errors->has("weights.$index.sku"))
-                                                                        {{ $errors->first("weights.$index.sku") }}
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-row">
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">
-                                                                    Giá <span class="required-mark">*</span>
-                                                                </label>
-                                                                <div class="input-group">
-                                                                    <input type="number" class="custom-input"
-                                                                        name="weights[{{ $index }}][original_price]"
-                                                                        value="{{ $weight->original_price }}"
-                                                                        min="0" step="1000" required>
-                                                                    <span class="input-group-text">VNĐ</span>
-                                                                </div>
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-original_price">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">Giảm giá</label>
-                                                                <div class="input-group">
-                                                                    <input type="number" class="custom-input"
-                                                                        name="weights[{{ $index }}][discount_percent]"
-                                                                        value="{{ $weight->discount_percent }}"
-                                                                        min="0" max="100">
-                                                                    <span class="input-group-text">%</span>
-                                                                </div>
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-discount_percent">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="discounted-price-display">
-                                                        <span class="discounted-price-label">Giá sau giảm:</span>
-                                                        <span
-                                                            class="discounted-price-value">{{ number_format($weight->discounted_price) }}
-                                                            VNĐ</span>
-                                                    </div>
-
-                                                    <div class="form-check-group">
-                                                        <div class="custom-checkbox">
-                                                            <input type="checkbox"
-                                                                name="weights[{{ $index }}][is_default]"
-                                                                id="is_default_{{ $index }}" value="1"
-                                                                {{ isset($weightData['is_default']) && $weightData['is_default'] ? 'checked' : '' }}
-                                                                class="default-weight-checkbox">
-                                                            <label for="is_default_{{ $index }}"
-                                                                class="form-label-custom mb-0">Quy cách mặc định</label>
-                                                        </div>
-
-                                                        <div class="custom-checkbox">
-                                                            <input type="checkbox"
-                                                                name="weights[{{ $index }}][is_active]"
-                                                                id="is_active_{{ $index }}" value="1"
-                                                                {{ isset($weightData['is_active']) && $weightData['is_active'] ? 'checked' : '' }}>
-                                                            <label for="is_active_{{ $index }}"
-                                                                class="form-label-custom mb-0">Hiển thị quy cách</label>
-                                                        </div>
-                                                    </div>
-
-                                                    @if (isset($weightData['id']))
-                                                        <input type="hidden" name="weights[{{ $index }}][id]"
-                                                            value="{{ $weightData['id'] }}">
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        @foreach ($product->weights as $index => $weight)
-                                            <div class="weight-item" data-index="{{ $index }}">
-                                                <div class="weight-header">
-                                                    <h5>Quy cách #{{ $index + 1 }}</h5>
-                                                    <button type="button" class="weight-remove-btn" title="Xóa quy cách"
-                                                        {{ $product->weights->count() <= 1 ? 'disabled' : '' }}>
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </div>
-
-                                                <div class="weight-content">
-                                                    <div class="form-row">
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">
-                                                                    Quy cách <span class="required-mark">*</span>
-                                                                </label>
-                                                                <input type="text" class="custom-input"
-                                                                    name="weights[{{ $index }}][weight]"
-                                                                    value="{{ $weight->weight }}"
-                                                                    placeholder="Ví dụ: 250g, Túi 1kg" required>
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-weight"></div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">Mã SKU</label>
-                                                                <input type="text" class="custom-input"
-                                                                    name="weights[{{ $index }}][sku]"
-                                                                    value="{{ $weight->sku }}"
-                                                                    placeholder="Mã quản lý sản phẩm">
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-sku"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-row">
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">
-                                                                    Giá <span class="required-mark">*</span>
-                                                                </label>
-                                                                <div class="input-group">
-                                                                    <input type="number" class="custom-input"
-                                                                        name="weights[{{ $index }}][original_price]"
-                                                                        value="{{ $weight->original_price }}"
-                                                                        min="0" step="1000" required>
-                                                                    <span class="input-group-text">VNĐ</span>
-                                                                </div>
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-original_price">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label-custom">Giảm giá</label>
-                                                                <div class="input-group">
-                                                                    <input type="number" class="custom-input"
-                                                                        name="weights[{{ $index }}][discount_percent]"
-                                                                        value="{{ $weight->discount_percent }}"
-                                                                        min="0" max="100">
-                                                                    <span class="input-group-text">%</span>
-                                                                </div>
-                                                                <div class="error-message"
-                                                                    id="error-weights-{{ $index }}-discount_percent">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="discounted-price-display">
-                                                        <span class="discounted-price-label">Giá sau giảm:</span>
-                                                        <span
-                                                            class="discounted-price-value">{{ number_format($weight->discounted_price) }}
-                                                            VNĐ</span>
-                                                    </div>
-
-                                                    <div class="form-check-group">
-                                                        <div class="custom-checkbox">
-                                                            <input type="checkbox"
-                                                                name="weights[{{ $index }}][is_default]"
-                                                                id="is_default_{{ $index }}" value="1"
-                                                                {{ $weight->is_default ? 'checked' : '' }}
-                                                                class="default-weight-checkbox">
-                                                            <label for="is_default_{{ $index }}"
-                                                                class="form-label-custom mb-0">Quy cách mặc định</label>
-                                                        </div>
-
-                                                        <div class="custom-checkbox">
-                                                            <input type="checkbox"
-                                                                name="weights[{{ $index }}][is_active]"
-                                                                id="is_active_{{ $index }}" value="1"
-                                                                {{ $weight->is_active ? 'checked' : '' }}>
-                                                            <label for="is_active_{{ $index }}"
-                                                                class="form-label-custom mb-0">Hiển thị quy cách</label>
-                                                        </div>
-                                                    </div>
-
-                                                    <input type="hidden" name="weights[{{ $index }}][id]"
-                                                        value="{{ $weight->id }}">
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    @endif
+                                <div id="variants-container">
+                                    @foreach ($product->variants as $index => $variant)
+                                        @include('components.variant-item', [
+                                            'index' => $index,
+                                            'variant' => $variant,
+                                        ])
+                                    @endforeach
                                 </div>
 
-                                <button type="button" id="add-weight-btn" class="btn btn-light">
-                                    <i class="fas fa-plus"></i> Thêm quy cách
-                                </button>
+                                <div class="error-message" id="variants-error"></div>
                             </div>
+                        </div>
 
-                            <!-- Tab Hình ảnh -->
-                            <div class="tab-pane" id="images">
-                                <div class="form-group">
-                                    <label class="form-label-custom">Ảnh đại diện sản phẩm</label>
-                                    <div class="image-upload-container">
-                                        <div class="image-preview" id="mainImagePreview"
-                                            style="background-image: url('{{ $product->image ? asset('storage/' . $product->image) : '' }}');"
-                                            class="{{ $product->image ? 'has-image' : '' }}">
-                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                                            <span class="upload-text">Chọn ảnh</span>
-                                        </div>
-                                        <input type="file" name="image" id="main-image-upload"
-                                            class="image-upload-input" accept="image/*">
-                                    </div>
-                                    {{-- <div class="form-hint">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span>Kích thước đề xuất: 800x800px, tối đa 2MB.</span>
-                                    </div> --}}
-                                    <div class="error-message" id="error-image">
-                                        @error('image')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
+                        <!-- Tab 3: Hình ảnh sản phẩm -->
+                        <div class="tab-pane fade" id="images" role="tabpanel">
+                            <div class="form-section">
+                                <h6 class="section-title">Quản lý hình ảnh sản phẩm</h6>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <strong>Hướng dẫn:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Nếu bạn có biến thể có màu, hãy chọn màu tương ứng khi upload ảnh</li>
+                                        <li>Nếu không chọn màu, ảnh sẽ là ảnh chung cho tất cả biến thể</li>
+                                        <li>Mỗi ảnh tối đa định dạng JPG, PNG, JPEG</li>
+                                    </ul>
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label-custom">Ảnh chi tiết sản phẩm</label>
-                                    <div class="multi-image-upload-container">
-                                        <div class="multi-image-preview" id="additionalImagesPreview">
-                                            <div class="image-upload-item">
-                                                <i class="fas fa-plus"></i>
-                                            </div>
-
-                                            @foreach ($product->images as $image)
-                                                <div class="preview-image-item existing-image"
-                                                    data-image-id="{{ $image->id }}">
-                                                    <img src="{{ asset('storage/' . $image->image_path) }}"
-                                                        alt="Preview">
-                                                    <div class="remove-image" data-image-id="{{ $image->id }}">
-                                                        <i class="fas fa-times"></i>
+                                <!-- Existing Images -->
+                                @if($existingProductImages && $existingProductImages->count() > 0)
+                                    <div class="form-group">
+                                        <label class="form-label">Ảnh hiện tại</label>
+                                        <div class="existing-images-grid row">
+                                            @foreach($existingProductImages as $image)
+                                                <div class="mb-3">
+                                                    <div class="existing-image-item" data-image-id="{{ $image->id }}">
+                                                        <img src="{{ Storage::url($image->image_path_medium ?? $image->image_path) }}" alt="Product Image">
+                                                        <div class="image-info">
+                                                            @if($image->color)
+                                                                <span class="color-tag">{{ $image->color }}</span>
+                                                            @else
+                                                                <span class="color-tag general">Ảnh chung</span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="image-actions">
+                                                            <button type="button" class="delete-existing-image" data-image-id="{{ $image->id }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                        <input type="hidden" name="delete_images[]" value="" disabled>
                                                     </div>
-                                                    <input type="hidden" name="existing_images[]"
-                                                        value="{{ $image->id }}">
                                                 </div>
                                             @endforeach
                                         </div>
-                                        <input type="file" name="additional_images[]" id="additional-images-upload"
-                                            class="multi-image-upload-input" accept="image/*" multiple>
+                                    </div>
+                                @endif
 
-                                        <div id="delete-images-container">
-                                            <!-- Sẽ chứa các input hidden để xóa ảnh -->
-                                        </div>
-                                    </div>
-                                    <div class="form-hint">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span>Thêm tối đa 5 ảnh.</span>
-                                    </div>
-                                    <div class="error-message" id="error-additional_images">
-                                        @error('additional_images')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
-                                    <div class="error-message">
-                                        @error('additional_images.*')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tab Mô tả & SEO -->
-                            <div class="tab-pane" id="seo">
+                                <!-- Add New Images -->
                                 <div class="form-group">
-                                    <label for="description" class="form-label-custom">
-                                        Mô tả sản phẩm <span class="required-mark">*</span>
-                                    </label>
-                                    <textarea class="custom-input {{ $errors->has('description') ? 'input-error' : '' }}" id="description"
-                                        name="description" rows="10" placeholder="Nhập mô tả chi tiết sản phẩm...">{{ old('description', $product->description) }}</textarea>
-                                    <div class="error-message" id="error-description">
-                                        @error('description')
-                                            {{ $message }}
-                                        @enderror
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label mb-0">Thêm ảnh mới</label>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="addImageBtn">
+                                            <i class="fas fa-plus me-1"></i> Thêm ảnh
+                                        </button>
+                                    </div>
+
+                                    <div id="product-images-container">
+                                        <!-- Ảnh mới sẽ được thêm động ở đây -->
                                     </div>
                                 </div>
                             </div>
@@ -457,11 +283,9 @@
                         <a href="{{ route('admin.products.index') }}" class="back-button">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
-                        <div class="action-group">
-                            <button type="submit" class="save-button">
-                                <i class="fas fa-save"></i> Cập nhật
-                            </button>
-                        </div>
+                        <button type="submit" class="save-button">
+                            <i class="fas fa-save"></i> Cập nhật sản phẩm
+                        </button>
                     </div>
                 </form>
             </div>
@@ -471,457 +295,1700 @@
 
 @push('styles')
     <style>
-        #description {
-            min-height: 250px;
-            line-height: 1.5;
-            padding: 12px 15px;
-            font-size: 14px;
-            resize: vertical;
-            border-color: #e0e0e0;
-            border-radius: 4px;
+        /* Copy all styles from create.blade.php */
+        .color-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
-        #description:focus {
-            border-color: #D1A66E;
-            box-shadow: 0 0 0 0.2rem rgba(209, 166, 110, 0.25);
+        .color-picker {
+            width: 50px;
+            height: 38px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border: none;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 3px;
+        }
+
+        .color-name-input {
+            flex: 1;
+        }
+
+        /* Product Images Upload Styles */
+        .product-image-upload-item {
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .product-image-upload-item:hover {
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+        }
+
+        .product-image-preview-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .product-image-preview {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image-preview:hover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+
+        .product-image-preview.has-image {
+            border: 2px solid #28a745;
+        }
+
+        .product-image-preview.has-image i,
+        .product-image-preview.has-image span {
+            display: none !important;
+        }
+
+        .product-image-preview i {
+            font-size: 24px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .product-image-preview span {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .remove-product-image-btn {
+            position: absolute;
+            top: -14px;
+            right: -2px;
+            width: 24px;
+            height: 24px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .remove-product-image-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .color-selector-group {
+            background: #f8f9fa;
+            border: 1px solid #e0e6ed;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .color-option:hover {
+            background-color: #e3f2fd;
+            border-color: #007bff;
+        }
+
+        .color-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .color-option input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+
+        .color-label {
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .color-display-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .no-color-option .color-label {
+            font-style: italic;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* Existing Images Styles */
+        .existing-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .existing-image-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .existing-image-item.marked-for-deletion {
+            border-color: #dc3545;
+            opacity: 0.5;
+        }
+
+        .existing-image-item.marked-for-deletion:after {
+            content: 'Sẽ xóa';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 3;
+        }
+
+        .existing-image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: scale-down;
+            display: block;
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 8px;
+            text-align: center;
+        }
+
+        .color-tag {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .color-tag.general {
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .delete-existing-image {
+            width: 28px;
+            height: 28px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .delete-existing-image:hover {
+            background: #dc3545;
+            transform: scale(1.1);
+        }
+
+        .form-actions-header {
+            display: flex;
+            gap: 12px;
+        }
+
+        .variant-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .variant-button:hover {
+            background: #ffeaa7;
+            color: #6c5d00;
+            text-decoration: none;
+        }
+
+        /* Avatar styles - separate and distinct */
+        .avatar-upload-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .avatar-image-preview {
+            width: 180px;
+            height: 180px;
+            border: 3px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-image-preview:hover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+
+        .avatar-image-preview.has-image {
+            border-color: #28a745;
+        }
+
+        .avatar-image-preview.has-image i,
+        .avatar-image-preview.has-image span {
+            display: none !important;
+        }
+
+        .avatar-image-preview i {
+            font-size: 32px;
+            color: #6c757d;
+            margin-bottom: 12px;
+        }
+
+        .avatar-image-preview span {
+            font-size: 14px;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .product-image-upload-item .row {
+                flex-direction: column;
+            }
+
+            .product-image-upload-item .col-md-3,
+            .product-image-upload-item .col-md-9 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .product-image-preview-container {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+
+            .color-input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .color-picker {
+                width: 100%;
+                height: 45px;
+            }
+
+            .existing-images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* Tab error indication */
+        .nav-link.tab-error {
+            color: #dc3545 !important;
+            border-color: #dc3545;
+            position: relative;
+        }
+
+        .nav-link.tab-error::after {
+            content: '!';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Error message styling */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .input-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        /* Form section error indication */
+        .form-section.has-error {
+            border-left: 3px solid #dc3545;
+            background-color: #fff5f5;
+            padding-left: 15px;
+        }
+
+        .form-section.has-error .section-title {
+            color: #dc3545;
+        }
+
+        /* Variant item error indication */
+        .variant-item.has-error {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+
+        .variant-item.has-error .card-header {
+            background-color: #f8d7da;
+            border-bottom-color: #dc3545;
+        }
+
+        /* Copy all validation error popup styles from create.blade.php */
+        .validation-error-popup {
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .validation-error-title {
+            color: #dc3545 !important;
+            font-weight: 600 !important;
+            font-size: 1.25rem !important;
+        }
+
+        .validation-error-content {
+            text-align: left !important;
+            padding: 0 !important;
+        }
+
+        .validation-errors-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .error-section {
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+            padding: 15px;
+            animation: slideInLeft 0.3s ease-out;
+        }
+
+        .error-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .error-section-title {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .error-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .error-list li {
+            padding: 6px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .error-list li:last-child {
+            padding-bottom: 0;
+        }
+
+        .error-list li i {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .tab-switch-notice {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin: 10px 0 0 0;
+            color: #1976d2;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .tab-switch-notice i {
+            color: #2196f3;
+        }
+
+        /* Custom scrollbar for validation container */
+        .validation-errors-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .validation-errors-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .validation-errors-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .validation-errors-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            .validation-error-popup {
+                width: 95% !important;
+                margin: 0 auto !important;
+            }
+
+            .validation-errors-container {
+                max-height: 300px;
+            }
+
+            .error-section {
+                padding: 10px;
+            }
+
+            .error-section-title {
+                font-size: 0.9rem;
+            }
+
+            .error-list li {
+                font-size: 0.85rem;
+                padding: 4px 0;
+            }
+        }
+
+        .tab-require-attention {
+            color: #ffc107 !important;
+            position: relative;
+        }
+
+        .tab-require-attention::after {
+            content: '!';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ffc107;
+            color: #212529;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .existing-image-item.marked-for-deletion {
+            opacity: 0.5;
+            position: relative;
+            background: #f8f9fa;
+            border: 2px dashed #dc3545;
+        }
+
+        .existing-image-item.marked-for-deletion::before {
+            content: 'SẼ XÓA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .existing-image-item {
+            position: relative;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .color-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .color-tag.general {
+            background: rgba(0, 123, 255, 0.8);
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+
+        .delete-existing-image {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-existing-image:hover {
+            background: #dc3545;
+            transform: scale(1.1);
+        }
+
+        #image-requirement-alert {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 @endpush
 
 @push('scripts')
     <script>
+        let variantCount = {{ $product->variants->count() }};
+        let imageCount = 0;
+        let currentTab = 'basic-info';
+
         $(document).ready(function() {
+            // Remove all HTML5 required attributes to prevent browser validation
+            $('input[required], select[required], textarea[required]').removeAttr('required');
 
-            // Tab handling
-            $('.tab-btn').click(function() {
-                $('.tab-btn').removeClass('active');
-                $(this).addClass('active');
-
-                const targetTab = $(this).data('tab');
-                $('.tab-pane').removeClass('active');
-                $('#' + targetTab).addClass('active');
+            // Track current active tab
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+                currentTab = e.target.getAttribute('data-bs-target').replace('#', '');
             });
 
-            // Weights handling
-            let weightIndex = {{ isset($product) ? count(old('weights', $product->weights)) - 1 : 0 }};
-
-            $('#add-weight-btn').click(function() {
-                weightIndex++;
-                addWeightItem(weightIndex);
+            // Avatar image handling
+            $('#avatarPreview').click(function() {
+                $('#avatar').click();
             });
 
-            function updateDiscountedPrice(weightItem) {
-                const originalPrice = parseFloat($(weightItem).find('[name$="[original_price]"]').val()) || 0;
-                const discountPercent = parseFloat($(weightItem).find('[name$="[discount_percent]"]').val()) || 0;
-                const discountedPrice = originalPrice - (originalPrice * (discountPercent / 100));
-
-                $(weightItem).find('.discounted-price-value').text(formatCurrency(discountedPrice));
-            }
-
-            function formatCurrency(amount) {
-                return new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
-            }
-
-            // Thêm sự kiện theo dõi thay đổi giá và discount
-            $(document).on('input', '[name$="[original_price]"], [name$="[discount_percent]"]', function() {
-                const weightItem = $(this).closest('.weight-item');
-                updateDiscountedPrice(weightItem);
-            });
-
-            function addWeightItem(index) {
-
-                const template = `
-                <div class="weight-item" data-index="${index}">
-                    <div class="weight-header">
-                        <h5>Quy cách #${index + 1}</h5>
-                        <button type="button" class="weight-remove-btn" title="Xóa quy cách">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="weight-content">
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label-custom">
-                                        Quy cách <span class="required-mark">*</span>
-                                    </label>
-                                    <input type="text" class="custom-input weight-input" 
-                                        name="weights[${index}][weight]" 
-                                        placeholder="Ví dụ: 250g, Túi 1kg" required>
-                                    <div class="error-message" id="error-weights-${index}-weight"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label-custom">Mã SKU</label>
-                                    <input type="text" class="custom-input" 
-                                        name="weights[${index}][sku]" 
-                                        placeholder="Mã quản lý sản phẩm">
-                                    <div class="error-message" id="error-weights-${index}-sku"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label-custom">
-                                        Giá <span class="required-mark">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="number" class="custom-input price-input" 
-                                            name="weights[${index}][original_price]" 
-                                            min="0" step="1000" required>
-                                        <span class="input-group-text">VNĐ</span>
-                                    </div>
-                                    <div class="error-message" id="error-weights-${index}-original_price"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label-custom">Giảm giá</label>
-                                    <div class="input-group">
-                                        <input type="number" class="custom-input" 
-                                            name="weights[${index}][discount_percent]" 
-                                            value="0" min="0" max="100">
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                    <div class="error-message" id="error-weights-${index}-discount_percent"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="discounted-price-display">
-                            <span class="discounted-price-label">Giá sau giảm:</span>
-                            <span class="discounted-price-value">0 VNĐ</span>
-                        </div>
-                        
-                        <div class="form-check-group">
-                            <div class="custom-checkbox">
-                                <input type="checkbox" 
-                                    name="weights[${index}][is_default]" 
-                                    id="is_default_${index}" 
-                                    value="1"
-                                    class="default-weight-checkbox">
-                                <label for="is_default_${index}" class="form-label-custom mb-0">Quy cách mặc định</label>
-                            </div>
-                            
-                            <div class="custom-checkbox">
-                                <input type="checkbox" 
-                                    name="weights[${index}][is_active]" 
-                                    id="is_active_${index}" 
-                                    value="1" checked>
-                                <label for="is_active_${index}" class="form-label-custom mb-0">Hiển thị quy cách</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                `;
-
-                $('#weights-container').append(template);
-
-                // Enable all remove buttons when we have more than one weight
-                if ($('.weight-item').length > 1) {
-                    $('.weight-remove-btn').prop('disabled', false);
-                }
-            }
-
-            // Handle weight removal
-            $(document).on('click', '.weight-remove-btn', function() {
-                $(this).closest('.weight-item').remove();
-
-                // Disable removal if only one weight left
-                if ($('.weight-item').length <= 1) {
-                    $('.weight-remove-btn').prop('disabled', true);
-                }
-
-                // Rename weight headers
-                $('.weight-item').each(function(index) {
-                    $(this).find('h5').text(`Quy cách #${index + 1}`);
-                });
-            });
-
-            // Ensure only one default weight is selected
-            $(document).on('change', '.default-weight-checkbox', function() {
-                if ($(this).is(':checked')) {
-                    $('.default-weight-checkbox').not(this).prop('checked', false);
-                }
-            });
-
-            // Highlight fields handling
-            $('#add-highlight').click(function() {
-                addHighlightItem();
-            });
-
-            function addHighlightItem(value = '') {
-                const highlightTemplate = `
-                <div class="highlight-item">
-                    <input type="text" class="custom-input" name="highlight[]" 
-                        value="${value}" placeholder="Ví dụ: Hương vị đậm đà">
-                    <button type="button" class="remove-highlight" title="Xóa"><i class="fas fa-times"></i></button>
-                </div>
-            `;
-                $('.highlight-inputs').append(highlightTemplate);
-            }
-
-            $(document).on('click', '.remove-highlight', function() {
-                $(this).closest('.highlight-item').remove();
-            });
-
-            // Image handling
-            $('#main-image-upload').change(function() {
+            $('#avatar').change(function() {
                 previewMainImage(this);
             });
 
-            function previewMainImage(input) {
-                if (input.files && input.files[0]) {
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        $('#mainImagePreview').css('background-image', `url('${e.target.result}')`);
-                        $('#mainImagePreview').addClass('has-image');
-                    }
-
-                    reader.readAsDataURL(input.files[0]);
-                }
-            }
-
-            // Additional images handling
-            const additionalImagesInput = document.getElementById('additional-images-upload');
-            const previewContainer = document.getElementById('additionalImagesPreview');
-            const deleteImagesContainer = document.getElementById('delete-images-container');
-            const maxAdditionalImages = 5;
-            let additionalImageFiles = [];
-
-            additionalImagesInput.addEventListener('change', function() {
-                const files = Array.from(this.files);
-                const existingImageCount = document.querySelectorAll('.existing-image').length;
-                const totalAllowed = maxAdditionalImages - existingImageCount;
-
-                additionalImageFiles = [...additionalImageFiles, ...files].slice(0, totalAllowed);
-                updateAdditionalImagesPreviews();
+            // Add image button
+            $('#addImageBtn').click(function() {
+                addImageUpload();
             });
 
-            function updateAdditionalImagesPreviews() {
-                // Keep existing images and upload item
-                const existingImages = document.querySelectorAll('.existing-image');
-                const uploadItem = document.querySelector('.image-upload-item');
-
-                // Clear new image previews
-                document.querySelectorAll('.preview-image-item:not(.existing-image)').forEach(el => el.remove());
-
-                // Add new preview images
-                additionalImageFiles.forEach((file, index) => {
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const previewItem = document.createElement('div');
-                        previewItem.className = 'preview-image-item';
-                        previewItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview">
-                        <div class="remove-image" data-index="${index}">
-                            <i class="fas fa-times"></i>
-                        </div>
-                    `;
-
-                        // Insert before upload button
-                        previewContainer.insertBefore(previewItem, uploadItem);
-                    };
-
-                    reader.readAsDataURL(file);
-                });
-
-                // Hide upload button if reached max
-                const totalImages = existingImages.length + additionalImageFiles.length;
-                if (totalImages >= maxAdditionalImages) {
-                    uploadItem.style.display = 'none';
-                } else {
-                    uploadItem.style.display = 'flex';
-                }
-            }
-
-            // Remove new image preview
-            $(document).on('click', '.remove-image[data-index]', function() {
-                const index = $(this).data('index');
-                additionalImageFiles.splice(index, 1);
-
-                // Reset the file input
-                additionalImagesInput.value = '';
-
-                // Regenerate the input with the current files
-                const dataTransfer = new DataTransfer();
-                additionalImageFiles.forEach(file => {
-                    dataTransfer.items.add(file);
-                });
-                additionalImagesInput.files = dataTransfer.files;
-
-                updateAdditionalImagesPreviews();
-            });
-
-            // Remove existing image
-            $(document).on('click', '.remove-image[data-image-id]', function() {
+            // Delete existing images
+            $('.delete-existing-image').click(function() {
                 const imageId = $(this).data('image-id');
-                $(this).closest('.preview-image-item').remove();
+                const imageItem = $(this).closest('.existing-image-item');
 
-                const deleteInput = document.createElement('input');
-                deleteInput.type = 'hidden';
-                deleteInput.name = 'delete_images[]';
-                deleteInput.value = imageId;
-                deleteImagesContainer.appendChild(deleteInput);
-
-                const remainingImages = document.querySelectorAll('.preview-image-item').length;
-                if (remainingImages < maxAdditionalImages) {
-                    document.querySelector('.image-upload-item').style.display = 'flex';
+                if (imageItem.hasClass('marked-for-deletion')) {
+                    // Unmark for deletion
+                    imageItem.removeClass('marked-for-deletion');
+                    imageItem.find('input[name="delete_images[]"]').prop('disabled', true).val('');
+                    $(this).html('<i class="fas fa-trash"></i>');
+                } else {
+                    // Mark for deletion
+                    imageItem.addClass('marked-for-deletion');
+                    imageItem.find('input[name="delete_images[]"]').prop('disabled', false).val(imageId);
+                    $(this).html('<i class="fas fa-undo"></i>');
                 }
             });
 
-            // AJAX form submission
-            $('#product-form').submit(function(e) {
-                e.preventDefault();
-                submitForm();
+            // Handle color picker changes
+            $(document).on('input', '.color-picker', function() {
+                updateAllImageColorOptions();
             });
 
-            function submitForm() {
-                // Clear previous errors
-                $('.error-message').empty();
-                $('.input-error').removeClass('input-error');
+            // Handle color name changes  
+            $(document).on('input', '.color-name-input', function() {
+                updateAllImageColorOptions();
+            });
 
-                // Create FormData object
-                const formData = new FormData(document.getElementById('product-form'));
-                const submitBtn = $('.save-button');
-                const originalBtnText = submitBtn.html();
+            // Handle product image click - delegated event
+            $(document).on('click', '.product-image-preview', function() {
+                const index = $(this).closest('.product-image-upload-item').data('index');
+                selectProductImage(index);
+            });
 
-                // Disable button and show loading state
-                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
-                submitBtn.prop('disabled', true);
+            // Handle product image file change - delegated event
+            $(document).on('change', '.product-image-upload-item input[type="file"]', function() {
+                const index = $(this).closest('.product-image-upload-item').data('index');
+                previewProductImage(this, index);
+            });
 
-                $.ajax({
-                    url: $('#product-form').attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        // Reset button
-                        submitBtn.html(originalBtnText);
-                        submitBtn.prop('disabled', false);
+            // Handle remove product image - delegated event
+            $(document).on('click', '.remove-product-image-btn', function() {
+                const index = $(this).closest('.product-image-upload-item').data('index');
+                removeProductImage(index);
+            });
 
-                        // Show success message using SweetAlert
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công',
-                            text: response.message || 'Sản phẩm đã được cập nhật thành công',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            // Redirect after success
-                            window.location.href = response.redirect ||
-                                "{{ route('admin.products.index') }}";
-                        });
-                    },
-                    error: function(xhr) {
-                        // Reset button
-                        submitBtn.html(originalBtnText);
-                        submitBtn.prop('disabled', false);
+            // Character counter for short description
+            $('#description_short').on('input', function() {
+                const maxLength = 500;
+                const currentLength = $(this).val().length;
+                const remaining = maxLength - currentLength;
 
-                        // Handle validation errors
-                        if (xhr.status === 422) {
-                            const errors = xhr.responseJSON.errors;
-                            let firstErrorTab = null;
+                let counterText = $(this).siblings('.form-text');
+                if (counterText.find('.char-counter').length === 0) {
+                    counterText.append(' <span class="char-counter"></span>');
+                }
 
-                            // Handle and display each error
-                            $.each(errors, function(field, messages) {
-                                // Handle nested fields (weights)
-                                if (field.includes('.')) {
-                                    const parts = field.split('.');
-                                    if (parts[0] === 'weights') {
-                                        const index = parts[1];
-                                        const attribute = parts[2];
-                                        const errorId = `error-weights-${index}-${attribute}`;
-                                        $(`#${errorId}`).text(messages[0]);
-                                        $(`[name="weights[${index}][${attribute}]"]`).addClass(
-                                            'input-error');
+                counterText.find('.char-counter').text(`(${remaining} ký tự còn lại)`);
 
-                                        firstErrorTab = firstErrorTab || 'pricing';
-                                    }
-                                } else {
-                                    // Basic fields
-                                    $(`#${field}`).addClass('input-error');
-                                    $(`#error-${field}`).text(messages[0]);
+                if (remaining < 50) {
+                    counterText.find('.char-counter').css('color', '#dc3545');
+                } else {
+                    counterText.find('.char-counter').css('color', '#6c757d');
+                }
+            });
 
-                                    // Determine which tab has the error
-                                    if (field === 'name' || field === 'category_id') {
-                                        firstErrorTab = firstErrorTab || 'basic-info';
-                                    } else if (field === 'image') {
-                                        firstErrorTab = firstErrorTab || 'images';
-                                    } else if (field === 'description') {
-                                        firstErrorTab = firstErrorTab || 'seo';
-                                        $('.note-editor').addClass('input-error');
-                                    } else if (field.startsWith('weights')) {
-                                        firstErrorTab = firstErrorTab || 'pricing';
-                                    }
-                                }
-                            });
+            // Trigger counter on page load
+            $('#description_short').trigger('input');
 
-                            // Switch to first tab with error
-                            if (firstErrorTab) {
-                                $('.tab-btn').removeClass('active');
-                                $('.tab-btn[data-tab="' + firstErrorTab + '"]').addClass('active');
-                                $('.tab-pane').removeClass('active');
-                                $('#' + firstErrorTab).addClass('active');
-                            }
+            // Initialize existing variant count and update image color options
+            updateAllImageColorOptions();
 
-                            // Show error message using SweetAlert
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: 'Vui lòng kiểm tra lại thông tin nhập vào',
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            // Server or other errors
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: xhr.responseJSON?.message ||
-                                    'Đã xảy ra lỗi khi lưu sản phẩm',
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
+            // Form submission handler
+            $('#product-form').on('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const validationResult = validateForm();
+                if (!validationResult.isValid) {
+                    markTabsWithErrors(validationResult);
+
+                    if (validationResult.errorTab && validationResult.errorTab !== currentTab) {
+                        $(`#${validationResult.errorTab}-tab`).tab('show');
+                        currentTab = validationResult.errorTab;
+                    }
+                    return false;
+                }
+
+                submitForm();
+                return false;
+            });
+        });
+
+        // ======================== MAIN FUNCTIONS ========================
+
+        // Main image preview function
+        function previewMainImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi định dạng',
+                        text: 'Vui lòng chọn tệp hình ảnh (JPG, PNG, JPEG)'
+                    });
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#avatarPreview').css('background-image', `url('${e.target.result}')`);
+                    $('#avatarPreview').addClass('has-image');
+                    $('#avatarPreview').find('i, span').hide();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Get available colors from variants
+        function getAvailableColors() {
+            const colors = [];
+            $('.variant-item .color-name-input').each(function() {
+                const colorName = $(this).val().trim();
+                if (colorName && !colors.includes(colorName)) {
+                    colors.push(colorName);
+                }
+            });
+            return colors;
+        }
+
+        // ======================== VARIANT FUNCTIONS ========================
+
+        // Add new variant
+        function addVariant() {
+            $.ajax({
+                url: "{{ route('admin.products.get-variant-component') }}",
+                type: 'GET',
+                data: {
+                    index: variantCount,
+                    variant: {}
+                },
+                success: function(html) {
+                    $('#variants-container').append(html);
+                    variantCount++;
+                    $('.remove-variant-btn').removeClass('d-none');
+                    updateAllImageColorOptions();
+                },
+                error: function() {
+                    addVariantFallback();
+                }
+            });
+        }
+
+        // Fallback method to add variant
+        function addVariantFallback() {
+            const container = $('#variants-container');
+            const newVariant = $(`
+                <div class="variant-item mb-3 form-card p-2" data-index="${variantCount}">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <h6 class="mb-0">Biến thể #${variantCount + 1}</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn" onclick="removeVariant(${variantCount})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label class="form-label">Kích thước</label>
+                                <input type="text" name="variants[${variantCount}][size]" class="custom-input" placeholder="Ví dụ: S, M, L, XL">
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label class="form-label">Màu sắc</label>
+                                <div class="color-input-group">
+                                    <input type="color" name="variants[${variantCount}][color]" class="color-picker" value="#000000" title="Chọn màu">
+                                    <input type="text" name="variants[${variantCount}][color_name]" class="custom-input color-name-input" placeholder="Tên màu (VD: Đỏ, Xanh)">
+                                </div>
+                                <small class="form-text text-muted">Chọn màu và nhập tên màu hiển thị</small>
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label class="form-label">Trạng thái</label>
+                                <select name="variants[${variantCount}][status]" class="custom-input">
+                                    <option value="active" selected>Hoạt động</option>
+                                    <option value="inactive">Không hoạt động</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label class="form-label required">Giá bán <span class="required-asterisk">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" name="variants[${variantCount}][price]" class="custom-input" placeholder="0.00" min="0" step="0.01">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label class="form-label required">Số lượng <span class="required-asterisk">*</span></label>
+                                <input type="number" name="variants[${variantCount}][quantity]" class="custom-input" placeholder="0" min="0">
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label class="form-label">SKU</label>
+                                <input type="text" name="variants[${variantCount}][sku]" class="custom-input" placeholder="Mã SKU (tùy chọn)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            container.append(newVariant);
+            variantCount++;
+            $('.remove-variant-btn').removeClass('d-none');
+            updateAllImageColorOptions();
+        }
+
+        // Remove variant
+        function removeVariant(index) {
+            $(`.variant-item[data-index="${index}"]`).remove();
+
+            if ($('.variant-item').length === 1) {
+                $('.remove-variant-btn').addClass('d-none');
+            }
+
+            // Renumber variants
+            $('.variant-item').each(function(i) {
+                $(this).find('.card-header h6').text(`Biến thể #${i + 1}`);
+            });
+
+            updateAllImageColorOptions();
+        }
+
+        // ======================== IMAGE FUNCTIONS ========================
+
+        // Add image upload
+        function addImageUpload() {
+            addImageUploadFallback();
+        }
+
+        // Add image upload fallback
+        function addImageUploadFallback() {
+            const variantColors = [];
+            $('.variant-item .color-name-input').each(function() {
+                const colorName = $(this).val().trim();
+                if (colorName && !variantColors.includes(colorName)) {
+                    variantColors.push(colorName);
+                }
+            });
+
+            let colorOptionsHtml = '<div class="color-selector-title"><strong>Chọn màu cho ảnh này:</strong></div>';
+
+            // Add "No color" option
+            colorOptionsHtml += `
+                <div class="color-option no-color-option">
+                    <input type="radio" name="product_images[${imageCount}][color]" value="" checked id="no_color_${imageCount}">
+                    <label for="no_color_${imageCount}" class="color-label">
+                        Không chọn màu (ảnh chung)
+                    </label>
+                </div>
+            `;
+
+            // Add color options from variants
+            variantColors.forEach(function(colorName) {
+                const optionId = `color_${imageCount}_${colorName.replace(/\s+/g, '_')}`;
+                colorOptionsHtml += `
+                    <div class="color-option">
+                        <input type="radio" name="product_images[${imageCount}][color]" value="${colorName}" id="${optionId}">
+                        <label for="${optionId}" class="color-label">
+                            ${colorName}
+                        </label>
+                    </div>
+                `;
+            });
+
+            if (variantColors.length === 0) {
+                colorOptionsHtml += '<p class="text-muted mb-0"><small>Chưa có biến thể nào có màu</small></p>';
+            }
+
+            const newImageUpload = $(`
+                <div class="product-image-upload-item" data-index="${imageCount}">
+                    <div class="row position-relative">
+                        <div class="col-md-3">
+                            <div class="product-image-preview-container">
+                                <div class="product-image-preview">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Chọn ảnh</span>
+                                </div>
+                               
+                                <input type="file" name="product_images[${imageCount}][file]" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="color-selector-group">
+                                ${colorOptionsHtml}
+                            </div>
+                        </div>
+                         <button type="button" class="remove-product-image-btn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                    </div>
+                </div>
+            `);
+
+            $('#product-images-container').append(newImageUpload);
+            imageCount++;
+        }
+
+        // Select product image
+        function selectProductImage(index) {
+            const fileInput = $(`.product-image-upload-item[data-index="${index}"] input[type="file"]`);
+            if (fileInput.length > 0) {
+                fileInput.click();
+            }
+        }
+
+        // Preview product image
+        function previewProductImage(input, index) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi định dạng',
+                        text: 'Vui lòng chọn tệp hình ảnh (JPG, PNG, JPEG)'
+                    });
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = $(`.product-image-upload-item[data-index="${index}"] .product-image-preview`);
+                    preview.css('background-image', `url('${e.target.result}')`);
+                    preview.addClass('has-image');
+                    preview.find('i, span').hide();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove product image
+        function removeProductImage(index) {
+            $(`.product-image-upload-item[data-index="${index}"]`).remove();
+        }
+
+        // Update all image color options
+        function updateAllImageColorOptions() {
+            $('.product-image-upload-item').each(function() {
+                const imageIndex = $(this).data('index');
+                if (imageIndex !== undefined) {
+                    updateImageColorOptions(imageIndex);
+                }
+            });
+        }
+
+        // Update image color options for specific image
+        function updateImageColorOptions(imageIndex) {
+            updateImageColorOptionsFallback(imageIndex);
+        }
+
+        // Update image color options fallback
+        function updateImageColorOptionsFallback(imageIndex) {
+            const colorContainer = $(`.product-image-upload-item[data-index="${imageIndex}"] .color-selector-group`);
+            if (colorContainer.length === 0) return;
+
+            const currentSelected = colorContainer.find('input[name*="[color]"]:checked').val();
+
+            // Get all unique colors from variants (using color names)
+            const variantColors = [];
+            $('.variant-item .color-name-input').each(function() {
+                const colorName = $(this).val().trim();
+                if (colorName && !variantColors.includes(colorName)) {
+                    variantColors.push(colorName);
+                }
+            });
+
+            let colorOptionsHtml = '<div class="color-selector-title"><strong>Chọn màu cho ảnh này:</strong></div>';
+
+            // Add "No color" option
+            const noColorChecked = !currentSelected || currentSelected === '' ? 'checked' : '';
+            colorOptionsHtml += `
+                <div class="color-option no-color-option">
+                    <input type="radio" name="product_images[${imageIndex}][color]" value="" ${noColorChecked} id="no_color_${imageIndex}">
+                    <label for="no_color_${imageIndex}" class="color-label">
+                        Không chọn màu (ảnh chung)
+                    </label>
+                </div>
+            `;
+
+            // Add color options from variants
+            variantColors.forEach(function(colorName) {
+                const colorChecked = currentSelected === colorName ? 'checked' : '';
+                const optionId = `color_${imageIndex}_${colorName.replace(/\s+/g, '_')}`;
+                colorOptionsHtml += `
+                    <div class="color-option">
+                        <input type="radio" name="product_images[${imageIndex}][color]" value="${colorName}" ${colorChecked} id="${optionId}">
+                        <label for="${optionId}" class="color-label">
+                            ${colorName}
+                        </label>
+                    </div>
+                `;
+            });
+
+            if (variantColors.length === 0) {
+                colorOptionsHtml += '<p class="text-muted mb-0"><small>Chưa có biến thể nào có màu</small></p>';
+            }
+
+            colorContainer.html(colorOptionsHtml);
+        }
+
+        // ======================== VALIDATION FUNCTIONS ========================
+
+        function markTabsWithErrors(validationResult) {
+            // Clear all error indicators first
+            $('.nav-link').removeClass('tab-error');
+
+            // Add error indicators to tabs with errors
+            if (validationResult.errorTab) {
+                $(`#${validationResult.errorTab}-tab`).addClass('tab-error');
+            }
+
+            // Check other tabs for errors too
+            const basicInfoErrors = validationResult.errors.filter(error =>
+                error.includes('Tên sản phẩm') ||
+                error.includes('trạng thái') ||
+                error.includes('danh mục') ||
+                error.includes('Mô tả ngắn')
+            );
+
+            const variantErrors = validationResult.errors.filter(error =>
+                error.includes('Biến thể') ||
+                error.includes('biến thể')
+            );
+
+            const imageErrors = validationResult.errors.filter(error =>
+                error.includes('màu') && error.includes('ảnh')
+            );
+
+            if (basicInfoErrors.length > 0) {
+                $('#basic-info-tab').addClass('tab-error');
+            }
+            if (variantErrors.length > 0) {
+                $('#variants-tab').addClass('tab-error');
+            }
+            if (imageErrors.length > 0) {
+                $('#images-tab').addClass('tab-error');
+            }
+        }
+
+        function validateForm() {
+            let validationResult = {
+                isValid: true,
+                errorTab: null,
+                errors: []
+            };
+
+            // Clear previous errors
+            $('.error-message').empty();
+            $('.input-error').removeClass('input-error');
+            $('.nav-link').removeClass('tab-error');
+
+            // Validate basic info tab
+            const basicInfoErrors = validateBasicInfo();
+            if (basicInfoErrors.length > 0) {
+                validationResult.isValid = false;
+                if (!validationResult.errorTab) {
+                    validationResult.errorTab = 'basic-info';
+                }
+                validationResult.errors = validationResult.errors.concat(basicInfoErrors);
+            }
+
+            // Validate variants tab
+            const variantErrors = validateVariants();
+            if (variantErrors.length > 0) {
+                validationResult.isValid = false;
+                if (!validationResult.errorTab) {
+                    validationResult.errorTab = 'variants';
+                }
+                validationResult.errors = validationResult.errors.concat(variantErrors);
+            }
+
+            // Validate images tab
+            const imageErrors = validateImages();
+            if (imageErrors.length > 0) {
+                validationResult.isValid = false;
+                if (!validationResult.errorTab) {
+                    validationResult.errorTab = 'images';
+                }
+                validationResult.errors = validationResult.errors.concat(imageErrors);
+            }
+
+            // Show errors
+            if (!validationResult.isValid) {
+                showValidationErrors(validationResult);
+            }
+
+            return validationResult;
+        }
+
+        function validateBasicInfo() {
+            const errors = [];
+
+            // Validate name
+            const name = $('#name').val().trim();
+            if (!name) {
+                $('#name').addClass('input-error');
+                $('#name-error').text('Tên sản phẩm là bắt buộc');
+                errors.push('Tên sản phẩm là bắt buộc');
+            }
+
+            // Validate status
+            const status = $('#status').val();
+            if (!status) {
+                $('#status').addClass('input-error');
+                $('#status-error').text('Vui lòng chọn trạng thái sản phẩm');
+                errors.push('Vui lòng chọn trạng thái sản phẩm');
+            }
+
+            // Validate categories
+            const categories = $('#categories').val();
+            if (!categories || categories.length === 0) {
+                $('#categories').addClass('input-error');
+                $('#categories-error').text('Vui lòng chọn ít nhất một danh mục');
+                errors.push('Vui lòng chọn ít nhất một danh mục');
+            }
+
+            // Validate short description length
+            const shortDesc = $('#description_short').val();
+            if (shortDesc && shortDesc.length > 500) {
+                $('#description_short').addClass('input-error');
+                $('#description_short-error').text('Mô tả ngắn không được vượt quá 500 ký tự');
+                errors.push('Mô tả ngắn không được vượt quá 500 ký tự');
+            }
+
+            return errors;
+        }
+
+        function validateVariants() {
+            const errors = [];
+
+            // Check if has at least one variant
+            if ($('.variant-item').length === 0) {
+                $('#variants-error').text('Phải có ít nhất một biến thể sản phẩm');
+                errors.push('Phải có ít nhất một biến thể sản phẩm');
+                return errors;
+            }
+
+            // Validate each variant
+            let hasValidVariant = false;
+            const skus = [];
+
+            $('.variant-item').each(function(index) {
+                let variantErrors = [];
+                let variantHasErrors = false;
+                const variantNumber = index + 1;
+
+                // Validate price
+                const priceInput = $(this).find('input[name*="[price]"]');
+                const price = priceInput.val();
+                if (!price || parseFloat(price) < 0) {
+                    priceInput.addClass('input-error');
+                    variantErrors.push(`Biến thể #${variantNumber}: Giá bán phải lớn hơn hoặc bằng 0`);
+                    variantHasErrors = true;
+                }
+
+                // Validate quantity
+                const quantityInput = $(this).find('input[name*="[quantity]"], input[name*="[stock_quantity]"]');
+                const quantity = quantityInput.val();
+                if (quantity === '' || parseInt(quantity) < 0) {
+                    quantityInput.addClass('input-error');
+                    variantErrors.push(`Biến thể #${variantNumber}: Số lượng phải lớn hơn hoặc bằng 0`);
+                    variantHasErrors = true;
+                }
+
+                // Validate status
+                const statusSelect = $(this).find('select[name*="[status]"]');
+                const status = statusSelect.val();
+                if (!status) {
+                    statusSelect.addClass('input-error');
+                    variantErrors.push(`Biến thể #${variantNumber}: Vui lòng chọn trạng thái`);
+                    variantHasErrors = true;
+                }
+
+                // Validate SKU uniqueness
+                const skuInput = $(this).find('input[name*="[sku]"]');
+                const sku = skuInput.val().trim();
+                if (sku) {
+                    if (skus.includes(sku)) {
+                        skuInput.addClass('input-error');
+                        variantErrors.push(`Biến thể #${variantNumber}: Mã SKU đã trùng lặp`);
+                        variantHasErrors = true;
+                    } else {
+                        skus.push(sku);
+                    }
+                }
+
+                // Mark variant as having errors
+                if (variantHasErrors) {
+                    $(this).addClass('has-error');
+                } else {
+                    $(this).removeClass('has-error');
+                    hasValidVariant = true;
+                }
+
+                errors.push(...variantErrors);
+            });
+
+            if (!hasValidVariant && $('.variant-item').length > 0) {
+                $('#variants-error').text('Ít nhất một biến thể phải hợp lệ');
+                errors.push('Ít nhất một biến thể phải hợp lệ');
+            }
+
+            return errors;
+        }
+
+        function validateImages() {
+            const errors = [];
+
+            // Đếm số ảnh hiện tại sau khi xóa
+            let remainingImages = 0;
+            $('.existing-image-item:not(.marked-for-deletion)').each(function() {
+                remainingImages++;
+            });
+
+            // Đếm số ảnh mới được upload
+            let newImages = 0;
+            $('.product-image-upload-item').each(function() {
+                const fileInput = $(this).find('input[type="file"]')[0];
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    newImages++;
+                }
+            });
+
+            const totalImages = remainingImages + newImages;
+
+            // Kiểm tra phải có ít nhất 1 ảnh
+            if (totalImages === 0) {
+                $('#product-images-error').text('Sản phẩm phải có ít nhất 1 ảnh');
+                errors.push('Sản phẩm phải có ít nhất 1 ảnh');
+            }
+
+            // Kiểm tra ảnh chung (color = null hoặc rỗng)
+            let hasGeneralImage = false;
+
+            // Kiểm tra ảnh hiện tại còn lại
+            $('.existing-image-item:not(.marked-for-deletion)').each(function() {
+                const colorTag = $(this).find('.color-tag').text().trim();
+                if (colorTag === 'Ảnh chung' || colorTag === '' || colorTag === 'General') {
+                    hasGeneralImage = true;
+                }
+            });
+
+            // Kiểm tra ảnh mới
+            if (!hasGeneralImage) {
+                $('.product-image-upload-item').each(function() {
+                    const fileInput = $(this).find('input[type="file"]')[0];
+                    const colorInput = $(this).find('input[name*="[color]"]');
+
+                    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                        const colorValue = colorInput.val();
+                        if (!colorValue || colorValue.trim() === '') {
+                            hasGeneralImage = true;
                         }
                     }
                 });
             }
 
-            // Initial setup - already existing highlights from old input
-            // @if (isset($product) && count($product->highlight ?? []) > 0)
-            //     @foreach ($product->highlight as $highlight)
-            //         @if (!empty($highlight))
-            //             addHighlightItem("{{ $highlight }}");
-            //         @endif
-            //     @endforeach
-            // @elseif (old('highlight'))
-            //     @foreach (old('highlight') as $highlight)
-            //         @if (!empty($highlight))
-            //             addHighlightItem("{{ $highlight }}");
-            //         @endif
-            //     @endforeach
-            // @else
-            //     // Add default empty highlight
-            //     addHighlightItem();
-            // @endif
-
-            // Add an initial weight if none exists
-            if ($('.weight-item').length === 0) {
-                $('#add-weight-btn').click();
+            if (!hasGeneralImage && totalImages > 0) {
+                $('#product-images-error').text('Phải có ít nhất 1 ảnh chung (không gắn với màu cụ thể nào)');
+                errors.push('Phải có ít nhất 1 ảnh chung (không gắn với màu cụ thể nào)');
             }
 
-            $('.weight-item').each(function() {
-                updateDiscountedPrice(this);
+            return errors;
+        }
+
+        function showValidationErrors(validationResult) {
+            // Group errors by tab
+            const basicInfoErrors = validationResult.errors.filter(error =>
+                error.includes('Tên sản phẩm') ||
+                error.includes('trạng thái') ||
+                error.includes('danh mục') ||
+                error.includes('Mô tả ngắn')
+            );
+
+            const variantErrors = validationResult.errors.filter(error =>
+                error.includes('Biến thể') ||
+                error.includes('biến thể')
+            );
+
+            const imageErrors = validationResult.errors.filter(error =>
+                error.includes('màu') && error.includes('ảnh')
+            );
+
+            // Create HTML content for better formatting
+            let htmlContent = '<div class="validation-errors-container">';
+
+            if (basicInfoErrors.length > 0) {
+                htmlContent += `
+                    <div class="error-section">
+                        <h6 class="error-section-title">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Thông tin cơ bản
+                        </h6>
+                        <ul class="error-list">
+                `;
+                basicInfoErrors.forEach(error => {
+                    htmlContent += `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
+                });
+                htmlContent += '</ul></div>';
+            }
+
+            if (variantErrors.length > 0) {
+                htmlContent += `
+                    <div class="error-section">
+                        <h6 class="error-section-title">
+                            <i class="fas fa-layer-group text-warning me-2"></i>
+                            Biến thể sản phẩm
+                        </h6>
+                        <ul class="error-list">
+                `;
+                variantErrors.forEach(error => {
+                    htmlContent += `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
+                });
+                htmlContent += '</ul></div>';
+            }
+
+            if (imageErrors.length > 0) {
+                htmlContent += `
+                    <div class="error-section">
+                        <h6 class="error-section-title">
+                            <i class="fas fa-images text-info me-2"></i>
+                            Hình ảnh sản phẩm
+                        </h6>
+                        <ul class="error-list">
+                `;
+                imageErrors.forEach(error => {
+                    htmlContent += `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
+                });
+                htmlContent += '</ul></div>';
+            }
+
+            htmlContent += '</div>';
+
+            // Add footer message if switching tabs
+            let footerMessage = '';
+            if (validationResult.errorTab !== currentTab) {
+                footerMessage = `
+                    <div class="tab-switch-notice">
+                        <i class="fas fa-arrow-right me-1"></i>
+                        Đã chuyển đến tab "<strong>${getTabName(validationResult.errorTab)}</strong>" để sửa lỗi
+                    </div>
+                `;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Thông tin chưa hợp lệ',
+                html: htmlContent,
+                footer: footerMessage,
+                width: '650px',
+                confirmButtonText: 'Đã hiểu',
+                confirmButtonColor: '#dc3545',
+                customClass: {
+                    popup: 'validation-error-popup',
+                    title: 'validation-error-title',
+                    htmlContainer: 'validation-error-content'
+                },
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                }
+            });
+        }
+
+        function getTabName(tabId) {
+            const tabNames = {
+                'basic-info': 'Thông tin cơ bản',
+                'variants': 'Biến thể sản phẩm',
+                'images': 'Hình ảnh sản phẩm'
+            };
+            return tabNames[tabId] || tabId;
+        }
+
+        function submitForm() {
+            $('.error-message').empty();
+            $('.input-error').removeClass('input-error');
+            $('.nav-link').removeClass('tab-error');
+
+            const formData = new FormData(document.getElementById('product-form'));
+            const submitBtn = $('.save-button');
+            const originalBtnText = submitBtn.html();
+
+            submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+            submitBtn.prop('disabled', true);
+
+            $.ajax({
+                url: $('#product-form').attr('action'),
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    submitBtn.html(originalBtnText);
+                    submitBtn.prop('disabled', false);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: response.message || 'Sản phẩm đã được cập nhật thành công',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = response.redirect ||
+                            "{{ route('admin.products.index') }}";
+                    });
+                },
+                error: function(xhr) {
+                    submitBtn.html(originalBtnText);
+                    submitBtn.prop('disabled', false);
+
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        let errorTab = 'basic-info';
+
+                        $.each(errors, function(field, messages) {
+                            const fieldElement = $(`[name="${field}"]`).first();
+                            const errorElement = $(`#${field.replace(/\[|\]/g, '')}-error`);
+
+                            fieldElement.addClass('input-error');
+                            if (errorElement.length > 0) {
+                                errorElement.text(messages[0]);
+                            }
+
+                            // Determine which tab the error belongs to
+                            if (field.startsWith('variants')) {
+                                errorTab = 'variants';
+                            } else if (field.startsWith('product_images')) {
+                                errorTab = 'images';
+                            }
+                        });
+
+                        // Switch to error tab if different from current
+                        if (errorTab !== currentTab) {
+                            $(`#${errorTab}-tab`).tab('show');
+                            currentTab = errorTab;
+                        }
+
+                        // Show summary error message
+                        let errorMessage = 'Vui lòng kiểm tra và sửa các lỗi trong form';
+                        if (xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi validation',
+                            text: errorMessage
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: xhr.responseJSON?.message || 'Có lỗi xảy ra, vui lòng thử lại sau.'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Thêm function để kiểm tra và cảnh báo real-time
+        function checkImageRequirements() {
+            const alertContainer = $('#image-requirement-alert');
+
+            // Remove existing alert
+            alertContainer.remove();
+
+            // Đếm ảnh hiện tại và mới
+            let remainingImages = 0;
+            let hasGeneralImage = false;
+
+            // Kiểm tra ảnh hiện tại còn lại
+            $('.existing-image-item:not(.marked-for-deletion)').each(function() {
+                remainingImages++;
+                const colorTag = $(this).find('.color-tag').text().trim();
+                if (colorTag === 'Ảnh chung' || colorTag === '' || colorTag === 'General') {
+                    hasGeneralImage = true;
+                }
+            });
+
+            // Kiểm tra ảnh mới
+            let newImages = 0;
+            $('.product-image-upload-item').each(function() {
+                const fileInput = $(this).find('input[type="file"]')[0];
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    newImages++;
+
+                    const colorInput = $(this).find('input[name*="[color]"]');
+                    const colorValue = colorInput.val();
+                    if (!colorValue || colorValue.trim() === '') {
+                        hasGeneralImage = true;
+                    }
+                }
+            });
+
+            const totalImages = remainingImages + newImages;
+
+            // Hiển thị cảnh báo nếu cần
+            let alertHtml = '';
+            let alertClass = 'alert-warning';
+
+            if (totalImages === 0) {
+                alertHtml = `
+            <div id="image-requirement-alert" class="alert alert-danger mt-3">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <strong>Cảnh báo:</strong> Sản phẩm sẽ không còn ảnh nào sau khi xóa. 
+                Bạn <strong>bắt buộc</strong> phải upload ít nhất 1 ảnh.
+            </div>
+        `;
+            } else if (!hasGeneralImage) {
+                alertHtml = `
+            <div id="image-requirement-alert" class="alert alert-warning mt-3">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Chú ý:</strong> Sản phẩm sẽ không còn ảnh chung nào. 
+                Khuyến nghị có ít nhất 1 ảnh chung (không gắn với màu cụ thể).
+            </div>
+        `;
+            }
+
+            if (alertHtml) {
+                $('.form-section').last().append(alertHtml);
+                $('#images-tab').addClass('tab-require-attention');
+            } else {
+                $('#images-tab').removeClass('tab-require-attention');
+            }
+        }
+
+        // Gọi kiểm tra khi có thay đổi
+        $(document).ready(function() {
+            // Check on load
+            checkImageRequirements();
+
+            // Check when marking images for deletion
+            $(document).on('click', '.delete-existing-image', function() {
+                setTimeout(checkImageRequirements, 100); // Delay để DOM update
+            });
+
+            // Check when adding/removing new images
+            $(document).on('change', '.product-image-upload-item input[type="file"]', function() {
+                setTimeout(checkImageRequirements, 100);
+            });
+
+            $(document).on('click', '.remove-product-image-btn', function() {
+                setTimeout(checkImageRequirements, 100);
+            });
+
+            $('#addProductImageBtn').click(function() {
+                setTimeout(checkImageRequirements, 100);
             });
         });
     </script>

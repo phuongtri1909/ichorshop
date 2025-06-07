@@ -12,16 +12,17 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required',
+            'email' => 'required|email',
             'password' => 'required|string|min:6',
         ],
         [
-            'username.required' => 'Tên đăng nhập không được để trống',
+            'email.required' => 'Email không được để trống',
+            'email.email' => 'Email không hợp lệ',
             'password.required' => 'Mật khẩu không được để trống',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
         ]);
-        
-        if (Auth::attempt($request->only('username', 'password'))) {
+
+        if (Auth::attempt($request->only('email', 'password'))) {
             if ($request->hasSession()) {
                 $request->session()->put('auth.password_confirmed_at', time());
             }
@@ -31,9 +32,9 @@ class AuthController extends Controller
         }
         
         return back()
-            ->withInput($request->only('username'))
+            ->withInput($request->only('email'))
             ->withErrors([
-                'username' => 'Tên đăng nhập hoặc mật khẩu không chính xác.',
+                'email' => 'Email hoặc mật khẩu không chính xác.',
             ]);
     }
 
@@ -51,7 +52,7 @@ class AuthController extends Controller
         
         $request->session()->regenerateToken();
         
-        return redirect()->route('login')
+        return redirect()->route('admin.login')
             ->with('success', 'Đăng xuất thành công!');
     }
 

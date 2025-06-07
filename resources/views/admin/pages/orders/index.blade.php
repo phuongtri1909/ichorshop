@@ -237,7 +237,7 @@
                             {{ $orders->total() }} đơn hàng
                         </div>
                         <div class="pagination-controls">
-                            {{ $orders->appends(request()->query())->links('admin.components.paginate') }}
+                            {{ $orders->appends(request()->query())->links('components.paginate') }}
                         </div>
                     </div>
                 @endif

@@ -193,7 +193,7 @@
                             {{ $reviews->total() }} đánh giá
                         </div>
                         <div class="pagination-controls">
-                            {{ $reviews->appends(request()->query())->links('admin.components.paginate') }}
+                            {{ $reviews->appends(request()->query())->links('components.paginate') }}
                         </div>
                     </div>
                 @endif

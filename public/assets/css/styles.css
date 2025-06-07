@@ -37,6 +37,10 @@ body {
     border-color: var(--primary-color-5) !important;
 }
 
+.title-tab-primary-5 {
+    color: var(--primary-color-5);
+}
+
 .bg-success-custom {
     background-color: #3ac73a !important;
 }
@@ -299,7 +303,8 @@ body {
 
 /* Hover state */
 .sidebar-menu ul li a:hover {
-    background-color: #e9ecef;
+    background-color: var(--primary-color-2);
+    color: var(--primary-color);
 }
 
 /* Active state */
@@ -548,10 +553,6 @@ body {
 
 .category-form {
     max-width: 100%;
-}
-
-.form-group {
-    margin-bottom: 24px;
 }
 
 .form-label-custom {
@@ -955,19 +956,6 @@ body {
     to { opacity: 1; }
 }
 
-.form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -10px;
-    margin-left: -10px;
-}
-
-.col-md-6 {
-    flex: 0 0 50%;
-    max-width: 50%;
-    padding: 0 10px;
-}
-
 .form-check-group {
     display: flex;
     gap: 20px;
@@ -1161,7 +1149,7 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    background-size: cover;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     overflow: hidden;
@@ -1286,14 +1274,6 @@ body {
 
 /* Responsive styles for product forms */
 @media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-    }
-    
-    .col-md-6 {
-        max-width: 100%;
-        flex: 0 0 100%;
-    }
     
     .form-check-group {
         flex-direction: column;
@@ -1610,7 +1590,7 @@ body {
 .thumbnail {
     width: 80px;
     height: 60px;
-    object-fit: cover;
+    object-fit: scale-down;
     border-radius: 6px;
     border: 1px solid #eee;
 }
@@ -2145,3 +2125,16 @@ body {
     }
 }
 /* FranchiseContact Styles - End */
+
+
+/* admin */
+.required-asterisk {
+        color: #dc3545;
+        font-weight: bold;
+        margin-left: 2px;
+    }
+    
+    .image-upload-container {
+        position: relative;
+        display: inline-block;
+    }

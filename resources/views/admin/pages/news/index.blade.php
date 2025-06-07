@@ -170,7 +170,7 @@
                         Hiển thị {{ $news->firstItem() ?? 0 }} đến {{ $news->lastItem() ?? 0 }} của {{ $news->total() }} tin tức
                     </div>
                     <div class="pagination-controls">
-                        {{ $news->appends(request()->query())->links('admin.components.paginate') }}
+                        {{ $news->appends(request()->query())->links('components.paginate') }}
                     </div>
                 </div>
             @endif
