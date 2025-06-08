@@ -86,4 +86,49 @@ class Product extends Model
             }
         });
     }
+
+    // Lấy biến thể có giá thấp nhất
+    public function getCheapestVariant()
+    {
+        return $this->variants()
+            ->where('status', ProductVariant::STATUS_ACTIVE)
+            ->orderBy('price', 'asc')
+            ->first();
+    }
+
+    // Lấy giá thấp nhất
+    public function getMinPrice()
+    {
+        $cheapestVariant = $this->getCheapestVariant();
+        return $cheapestVariant ? $cheapestVariant->price : 0;
+    }
+
+    // Lấy giá đã giảm thấp nhất (nếu có khuyến mãi)
+    public function getMinDiscountedPrice()
+    {
+        $cheapestVariant = $this->getCheapestVariant();
+        return $cheapestVariant ? $cheapestVariant->getDiscountedPrice() : 0;
+    }
+
+    // Kiểm tra xem có khuyến mãi không
+    public function hasDiscount()
+    {
+        $cheapestVariant = $this->getCheapestVariant();
+      
+        if (!$cheapestVariant) return false;
+
+        return $cheapestVariant->getDiscountedPrice() < $cheapestVariant->price;
+    }
+
+    // Tính phần trăm giảm giá
+    public function getDiscountPercentage()
+    {
+        $cheapestVariant = $this->getCheapestVariant();
+        if (!$cheapestVariant || !$this->hasDiscount()) return 0;
+
+        $original = $cheapestVariant->price;
+        $discounted = $cheapestVariant->getDiscountedPrice();
+
+        return round((($original - $discounted) / $original) * 100);
+    }
 }

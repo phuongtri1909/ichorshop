@@ -41,7 +41,8 @@
                         <thead>
                             <tr>
                                 <th class="column-small">STT</th>
-                                <th class="column-large">Tên kiểu dáng</th>
+                                <th class="column-medium">Tên kiểu dáng</th>
+                                <th class="column-medium">Banner</th>
                                 <th class="column-large">Mô tả</th>
                                 <th class="column-small text-center">Thao tác</th>
                             </tr>
@@ -51,6 +52,15 @@
                                 <tr>
                                     <td class="text-center">{{ ($dressStyles->currentPage() - 1) * $dressStyles->perPage() + $index + 1 }}</td>
                                     <td class="item-name">{{ $style->name }}</td>
+                                    <td>
+                                        @if($style->banner)
+                                            <div class="banner-thumbnail">
+                                                <img src="{{ Storage::url($style->banner) }}" alt="{{ $style->name }}" class="img-thumbnail">
+                                            </div>
+                                        @else
+                                            <span class="text-muted">Không có banner</span>
+                                        @endif
+                                    </td>
                                     <td class="item-description">{{ Str::limit($style->description, 80) }}</td>
                                     <td>
                                         <div class="action-buttons-wrapper">
@@ -83,3 +93,22 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    /* Styling for banner thumbnail */
+    .banner-thumbnail {
+        width: 100px;
+        height: 60px;
+        overflow: hidden;
+        border-radius: 4px;
+        border: 1px solid #eee;
+    }
+    
+    .banner-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
+@endpush

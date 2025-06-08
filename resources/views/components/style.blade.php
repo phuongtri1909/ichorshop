@@ -9,9 +9,12 @@
                     $isTall = in_array($mod, [1, 2]);
                 @endphp
 
-                <div class="style-card {{ $isTall ? 'tall' : 'short' }}">
-                    <img src="{{ $style['image'] }}" alt="{{ $style['name'] }}" class="img-fluid">
-                    <div class="style-label">{{ $style['name'] }}</div>
+                <div class="style-card {{ $isTall ? 'tall' : 'short' }} bg-white">
+                    @if($style->banner)
+                    <img src="{{ $style->banner ? Storage::url($style->banner) : asset('assets/images/default/style-default-' . ($index % 4 + 1) . '.jpg') }}" alt="{{ $style->name }}" class="img-fluid">
+                    @endif
+                    
+                    <div class="style-label">{{ $style->name }}</div>
                 </div>
             @endforeach
         </div>

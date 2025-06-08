@@ -23,7 +23,7 @@
             <div class="form-body">
                 @include('components.alert', ['alertType' => 'alert'])
 
-                <form action="{{ route('admin.dress-styles.update', $dressStyle) }}" method="POST" class="dress-style-form" id="dress-style-form">
+                <form action="{{ route('admin.dress-styles.update', $dressStyle) }}" method="POST" class="dress-style-form" id="dress-style-form" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -42,6 +42,33 @@
                             <textarea id="description" name="description" class="custom-input" rows="4" 
                                       placeholder="Nhập mô tả về kiểu dáng">{{ old('description', $dressStyle->description) }}</textarea>
                             <div class="error-message" id="description-error"></div>
+                        </div>
+                        
+                        <div class="form-group d-flex flex-column">
+                            <label for="banner" class="form-label">Banner kiểu dáng</label>
+                            <div class="image-upload-container">
+                                <div class="image-preview banner-preview" id="bannerPreview" 
+                                   @if($dressStyle->banner) 
+                                     style="background-image: url('{{ Storage::url($dressStyle->banner) }}');"
+                                     class="has-image" 
+                                   @endif
+                                >
+                                    @if(!$dressStyle->banner)
+                                        <i class="fas fa-image"></i>
+                                        <span>Chọn banner</span>
+                                    @endif
+                                </div>
+                                <input type="file" id="banner" name="banner" accept="image/*" class="image-input" style="display: none;">
+                            </div>
+                            <div class="error-message" id="banner-error"></div>
+                            <small class="form-text">
+                                @if($dressStyle->banner)
+                                    Banner hiện tại: {{ basename($dressStyle->banner) }}<br>
+                                    Chọn ảnh mới để thay thế hoặc giữ nguyên banner hiện tại.
+                                @else
+                                    Định dạng: JPG, PNG, JPEG.
+                                @endif
+                            </small>
                         </div>
                     </div>
 
@@ -62,6 +89,41 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        // Image preview handling - click to open file dialog
+        $('#bannerPreview').click(function() {
+            $('#banner').click();
+        });
+        
+        // Handle file selection
+        $('#banner').change(function() {
+            previewImage(this);
+        });
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+              
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    $('#bannerPreview').css('background-image', `url('${e.target.result}')`);
+                    $('#bannerPreview').addClass('has-image');
+                    $('#bannerPreview').find('i, span').hide();
+                    
+                    // Show file info
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    $('.form-text').html(`
+                        Định dạng: JPG, PNG, JPEG.<br>
+                        <small class="text-success">Đã chọn: ${file.name} (${fileSize}MB)</small>
+                    `);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
         // AJAX form submission
         $('#dress-style-form').submit(function(e) {
             e.preventDefault();
@@ -132,4 +194,55 @@
         }
     });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    /* Styling for the image upload */
+    .image-upload-container {
+        margin-top: 5px;
+    }
+    
+    .image-preview {
+        width: 100%;
+        height: 150px;
+        background-color: #f8f9fa;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        transition: all 0.3s ease;
+    }
+    
+    .image-preview:hover {
+        border-color: #D1A66E;
+    }
+    
+    .image-preview i {
+        font-size: 2rem;
+        color: #aaa;
+        margin-bottom: 10px;
+    }
+    
+    .image-preview span {
+        color: #777;
+    }
+    
+    .image-preview.has-image {
+        border-style: solid;
+        border-color: #D1A66E;
+    }
+    
+    .form-text {
+        margin-top: 5px;
+        font-size: 0.85rem;
+        color: #666;
+    }
+</style>
 @endpush

@@ -55,7 +55,7 @@
                                 <input type="file" id="logo" name="logo" accept="image/*" class="image-input" style="display: none;">
                             </div>
                             <div class="error-message" id="logo-error"></div>
-                            <small class="form-text">Định dạng: JPG, PNG, GIF. Kích thước tối đa: 4MB</small>
+                            <small class="form-text">Định dạng: JPG, PNG, JPEG</small>
                         </div>
                     </div>
 

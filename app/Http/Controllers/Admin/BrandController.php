@@ -28,13 +28,12 @@ class BrandController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:brands,name',
             'description' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096'
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg'
         ], [
             'name.required' => 'Tên thương hiệu là bắt buộc',
             'name.unique' => 'Tên thương hiệu đã tồn tại',
             'logo.image' => 'Logo phải là ảnh',
-            'logo.mimes' => 'Chỉ chấp nhận ảnh định dạng jpeg, png, jpg hoặc gif',
-            'logo.max' => 'Dung lượng logo không được vượt quá 4MB'
+            'logo.mimes' => 'Chỉ chấp nhận ảnh định dạng jpeg, png, jpg',
         ]);
 
         $data = [
@@ -67,13 +66,12 @@ class BrandController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
             'description' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096'
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg'
         ], [
             'name.required' => 'Tên thương hiệu là bắt buộc',
             'name.unique' => 'Tên thương hiệu đã tồn tại',
             'logo.image' => 'Logo phải là ảnh',
-            'logo.mimes' => 'Chỉ chấp nhận ảnh định dạng jpeg, png, jpg hoặc gif',
-            'logo.max' => 'Dung lượng logo không được vượt quá 4MB'
+            'logo.mimes' => 'Chỉ chấp nhận ảnh định dạng jpeg, png, jpg',
         ]);
 
         $data = [

@@ -61,11 +61,19 @@ class ProductVariant extends Model
             ->first();
     }
 
+    protected $cachedDiscountedPrice = null;
+
     public function getDiscountedPrice()
     {
+        // Sử dụng cache nếu đã tính toán
+        if ($this->cachedDiscountedPrice !== null) {
+            return $this->cachedDiscountedPrice;
+        }
+
         $promotion = $this->getActivePromotion();
 
         if (!$promotion) {
+            $this->cachedDiscountedPrice = $this->price;
             return $this->price;
         }
 
@@ -74,9 +82,11 @@ class ProductVariant extends Model
             if ($promotion->max_discount_amount > 0) {
                 $discount = min($discount, $promotion->max_discount_amount);
             }
-            return $this->price - $discount;
+            $this->cachedDiscountedPrice = $this->price - $discount;
         } else {
-            return max(0, $this->price - $promotion->value);
+            $this->cachedDiscountedPrice = max(0, $this->price - $promotion->value);
         }
+
+        return $this->cachedDiscountedPrice;
     }
 }

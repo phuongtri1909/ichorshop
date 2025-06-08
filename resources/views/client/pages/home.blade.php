@@ -96,24 +96,7 @@
 
     <!-- Browse by Style Section -->
     @include('components.style', [
-        'styles' => [
-            [
-                'name' => 'Casual',
-                'image' => 'https://picsum.photos/400/300?random=10',
-            ],
-            [
-                'name' => 'Formal',
-                'image' => 'https://picsum.photos/400/300?random=11',
-            ],
-            [
-                'name' => 'Party',
-                'image' => 'https://picsum.photos/400/300?random=12',
-            ],
-            [
-                'name' => 'Gym',
-                'image' => 'https://picsum.photos/400/300?random=13',
-            ],
-        ],
+        'styles' => $styles
     ])
 
     <!-- Features Section -->
