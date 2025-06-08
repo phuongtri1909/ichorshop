@@ -44,12 +44,12 @@ Route::group(['middleware' => 'guest'], function () {
         return view('client.pages.auth.login');
     })->name('login');
 
-    Route::post('login', [AuthController::class, 'login'])->name('login');
+    Route::post('login', [AuthController::class, 'login'])->name('login.post');
 
     Route::get('/register', function () {
         return view('client.pages.auth.register');
     })->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
     Route::get('/forgot-password', function () {
         return view('client.pages.auth.forgot-password');

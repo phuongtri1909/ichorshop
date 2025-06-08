@@ -15,7 +15,7 @@
             <div class="row justify-content-center">
                 <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
                     <div class="auth-card p-4 p-md-5">
-                        <form action="{{ route('login') }}" method="post">
+                        <form action="{{ route('login.post') }}" method="post">
                             @csrf
 
                             <div class="text-center mb-4">

@@ -23,7 +23,7 @@ class Product extends Model
         return $this->belongsTo(Brand::class);
     }
 
-     public function categories()
+    public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_products');
     }
@@ -79,7 +79,7 @@ class Product extends Model
                 Storage::disk('public')->delete($product->avatar);
                 Storage::disk('public')->delete($product->avatar_medium);
             }
-            
+
             foreach ($product->images as $image) {
                 Storage::disk('public')->delete($image->image_path);
                 Storage::disk('public')->delete($image->image_path_medium);

@@ -1,14 +1,16 @@
  <a href="{{ route('product.details', ['slug' => 't-shirt-with-tape-details']) }}"
      class="product-card text-decoration-none">
      <div class="product-image">
-         <img src="https://picsum.photos/300/400?random=2" alt="T-shirt" class="img-fluid">
+
+         <img src="{{ $product->avatar ? Storage::url($product->avatar) : asset('assets/images/default/product-default.png') }}"
+             alt="T-shirt" class="img-fluid">
      </div>
      <div class="product-info">
-         <h5 class="product-name">T-shirt with Tape Details</h5>
+         <h5 class="product-name">{{ $product->name }}</h5>
          <div class="d-flex">
              <span class="rating-stars text-sm color-primary-5" title="5 sao">
                  @php
-                     $rating = 4.5 ?? 0;
+                     $rating = $product->rating ?? 0;
 
                      $displayRating = round($rating * 2) / 2;
                  @endphp
@@ -32,6 +34,7 @@
          </div>
      </div>
  </a>
+@once
  @push('styles')
      <style>
          .product-name {
@@ -52,7 +55,7 @@
          .product-image img {
              width: 100%;
              height: 100%;
-             object-fit: cover;
+             object-fit: scale-down;
              transition: transform 0.3s ease;
          }
 
@@ -76,3 +79,4 @@
          }
      </style>
  @endpush
+@endonce

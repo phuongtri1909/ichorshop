@@ -79,7 +79,7 @@
                                         <td>
                                             <div class="action-buttons-wrapper">
                                                 <a href="{{ route('admin.socials.edit', $social->id) }}"
-                                                    class="action-icon edit-icon" title="Chỉnh sửa">
+                                                    class="action-icon edit-icon text-decoration-none"  title="Chỉnh sửa">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
                                                 @include('components.delete-form', [

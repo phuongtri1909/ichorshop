@@ -149,7 +149,7 @@
                                     </td>
                                     <td>
                                         <div class="action-buttons-wrapper">
-                                            <a href="{{ route('admin.news.edit', $item) }}" class="action-icon edit-icon" title="Chỉnh sửa">
+                                            <a href="{{ route('admin.news.edit', $item) }}" class="action-icon edit-icon text-decoration-none" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @include('components.delete-form', [

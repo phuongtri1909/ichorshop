@@ -297,7 +297,7 @@
                 const formData = new FormData(this);
 
                 try {
-                    const response = await fetch('{{ route("register") }}', {
+                    const response = await fetch('{{ route("register.post") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {

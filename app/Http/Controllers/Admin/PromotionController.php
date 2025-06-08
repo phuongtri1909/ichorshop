@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use App\Models\Product;
 use App\Models\Promotion;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use App\Models\ProductVariant;
+use App\Http\Controllers\Controller;
+use App\Models\ProductVariantPromotion;
 
 class PromotionController extends Controller
 {
@@ -23,7 +26,7 @@ class PromotionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-             'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:percentage,fixed',
             'value' => 'required|numeric|min:0',
@@ -32,7 +35,7 @@ class PromotionController extends Controller
             'start_date' => 'required|date|after_or_equal:now',
             'end_date' => 'required|date|after:start_date',
             'usage_limit' => 'nullable|integer|min:1',
-        ],[
+        ], [
             'name.required' => 'Tên khuyến mãi là bắt buộc',
             'name.string' => 'Tên khuyến mãi phải là chuỗi',
             'name.max' => 'Tên khuyến mãi không được vượt quá 255 ký tự',
@@ -130,8 +133,8 @@ class PromotionController extends Controller
         $data = $request->all();
         $data['start_date'] = Carbon::parse($request->start_date);
         $data['end_date'] = Carbon::parse($request->end_date);
-        $data['status'] = $data['status'] ? Promotion::STATUS_ACTIVE : Promotion::STATUS_INACTIVE;
-        
+        $data['status'] = $request->has('status') ? Promotion::STATUS_ACTIVE : Promotion::STATUS_INACTIVE;
+
         $promotion->update($data);
 
         return response()->json([
@@ -148,6 +151,154 @@ class PromotionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Khuyến mãi đã được xóa thành công'
+        ]);
+    }
+
+    public function variants(Promotion $promotion)
+    {
+        // Lấy tất cả các biến thể đang áp dụng khuyến mãi này
+        $appliedVariants = ProductVariantPromotion::with(['productVariant.product'])
+            ->where('promotion_id', $promotion->id)
+            ->get()
+            ->groupBy('productVariant.product_id');
+
+        // Lấy tất cả sản phẩm có thể áp dụng khuyến mãi (chưa được áp dụng)
+        $availableProducts = Product::active()->get();
+
+        return view('admin.pages.promotions.variants', compact('promotion', 'appliedVariants', 'availableProducts'));
+    }
+
+    public function applyToVariants(Request $request, Promotion $promotion)
+    {
+        $validated = $request->validate([
+            'product_id' => 'nullable|exists:products,id',
+            'variant_ids' => 'required_without:product_id|array',
+            'variant_ids.*' => 'exists:product_variants,id',
+        ]);
+
+        $appliedCount = 0;
+        $alreadyAppliedToCurrentCount = 0;
+        $alreadyAppliedToOtherCount = 0;
+        $appliedVariantNames = [];
+        $alreadyAppliedToOtherNames = [];
+
+        if (isset($validated['product_id'])) {
+            // Áp dụng cho tất cả biến thể của sản phẩm
+            $variants = ProductVariant::where('product_id', $validated['product_id'])
+                ->where('status', ProductVariant::STATUS_ACTIVE)
+                ->get();
+        } else {
+            // Áp dụng cho các biến thể đã chọn
+            $variants = ProductVariant::whereIn('id', $validated['variant_ids'])
+                ->where('status', ProductVariant::STATUS_ACTIVE)
+                ->get();
+        }
+
+        foreach ($variants as $variant) {
+            // Kiểm tra xem biến thể đã có khuyến mãi khác chưa
+            $existingPromotion = ProductVariantPromotion::where('product_variant_id', $variant->id)
+                ->first();
+
+            // Nếu chưa có khuyến mãi nào hoặc đã áp dụng khuyến mãi hiện tại
+            if (!$existingPromotion || $existingPromotion->promotion_id == $promotion->id) {
+                if ($existingPromotion && $existingPromotion->promotion_id == $promotion->id) {
+                    $alreadyAppliedToCurrentCount++;
+                } else {
+                    ProductVariantPromotion::firstOrCreate([
+                        'product_variant_id' => $variant->id,
+                        'promotion_id' => $promotion->id,
+                    ]);
+                    $appliedCount++;
+                }
+            } else {
+                $alreadyAppliedToOtherCount++;
+            }
+        }
+
+        // Xác định thông báo chính dựa trên kết quả
+        if ($appliedCount > 0) {
+            return redirect()->route('admin.promotions.variants', $promotion)
+                ->with('success', "Đã áp dụng khuyến mãi thành công cho {$appliedCount} biến thể.");
+        } elseif ($alreadyAppliedToCurrentCount > 0 && $alreadyAppliedToOtherCount == 0) {
+            return redirect()->route('admin.promotions.variants', $promotion)
+                ->with('info', "{$alreadyAppliedToCurrentCount} biến thể đã được áp dụng khuyến mãi này trước đó.");
+        } elseif ($alreadyAppliedToOtherCount > 0) {
+            return redirect()->route('admin.promotions.variants', $promotion)
+                ->with('warning', "{$alreadyAppliedToOtherCount} biến thể không thể áp dụng vì đã có khuyến mãi khác.");
+        } else {
+            return redirect()->route('admin.promotions.variants', $promotion)
+                ->with('error', 'Không có biến thể nào được xử lý.');
+        }
+    }
+
+    public function removeVariant(ProductVariantPromotion $promotionVariant)
+    {
+        $promotion = $promotionVariant->promotion;
+        $variant = $promotionVariant->productVariant;
+        $variantName = $variant->color_name . ' (' . $variant->size . ')';
+        $productName = $variant->product->name;
+
+        $promotionVariant->delete();
+
+        return redirect()
+            ->route('admin.promotions.variants', $promotion)
+            ->with('success', "Đã xóa biến thể {$variantName} của sản phẩm {$productName} khỏi khuyến mãi thành công.");
+    }
+
+    public function removeProductVariants($promotionId, $productId)
+    {
+        $promotion = Promotion::findOrFail($promotionId);
+        $product = Product::findOrFail($productId);
+        // Lấy tất cả biến thể của sản phẩm
+        $variantIds = ProductVariant::where('product_id', $product->id)->pluck('id');
+
+        // Đếm số biến thể bị ảnh hưởng
+        $affectedCount = ProductVariantPromotion::where('promotion_id', $promotion->id)
+            ->whereIn('product_variant_id', $variantIds)
+            ->count();
+
+        // Xóa tất cả các áp dụng khuyến mãi của các biến thể này
+        ProductVariantPromotion::where('promotion_id', $promotion->id)
+            ->whereIn('product_variant_id', $variantIds)
+            ->delete();
+
+        return redirect()
+            ->route('admin.promotions.variants', $promotion)
+            ->with('success', "Đã xóa {$affectedCount} biến thể của sản phẩm {$product->name} khỏi khuyến mãi thành công.");
+    }
+
+    public function getProductVariants(Request $request)
+    {
+        $productId = $request->input('product_id');
+        $promotionId = $request->input('promotion_id');
+
+        // Lấy tất cả biến thể của sản phẩm
+        $variants = ProductVariant::where('product_id', $productId)
+            ->where('status', ProductVariant::STATUS_ACTIVE)
+            ->get();
+
+        // Kiểm tra xem biến thể nào đã được áp dụng khuyến mãi
+        foreach ($variants as $variant) {
+            // Kiểm tra nếu biến thể đã được áp dụng khuyến mãi hiện tại
+            $variant->applied_to_current = ProductVariantPromotion::where('product_variant_id', $variant->id)
+                ->where('promotion_id', $promotionId)
+                ->exists();
+
+            // Kiểm tra nếu biến thể được áp dụng khuyến mãi khác
+            $otherPromotion = ProductVariantPromotion::where('product_variant_id', $variant->id)
+                ->where('promotion_id', '!=', $promotionId)
+                ->first();
+
+            if ($otherPromotion) {
+                $variant->other_promotion = Promotion::find($otherPromotion->promotion_id);
+            } else {
+                $variant->other_promotion = null;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'variants' => $variants
         ]);
     }
 }

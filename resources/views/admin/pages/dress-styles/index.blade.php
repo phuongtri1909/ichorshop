@@ -54,7 +54,7 @@
                                     <td class="item-description">{{ Str::limit($style->description, 80) }}</td>
                                     <td>
                                         <div class="action-buttons-wrapper">
-                                            <a href="{{ route('admin.dress-styles.edit', $style) }}" class="action-icon edit-icon" title="Chỉnh sửa">
+                                            <a href="{{ route('admin.dress-styles.edit', $style) }}" class="action-icon edit-icon text-decoration-none" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @include('components.delete-form', [

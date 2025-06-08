@@ -100,6 +100,41 @@
 
 /* Brands Section */
 
+.brands-carousel {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.brands-track {
+    display: flex;
+    align-items: center;
+    animation: scroll 30s linear infinite;
+}
+
+.brand-item {
+    flex: 0 0 auto;
+    width: calc(16.666%);
+    padding: 0 15px;
+    text-align: center;
+}
+
+
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pause animation on hover */
+.brands-carousel:hover .brands-track {
+    animation-play-state: paused;
+}
+
 .brand-logo {
     width: 100%;
     max-width: 120px;
@@ -108,6 +143,7 @@
     transition: all 0.3s ease;
     display: block;
     margin: 0 auto;
+    transition: transform 0.3s ease;
 }
 
 .brand-logo:hover {

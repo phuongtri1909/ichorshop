@@ -28,7 +28,7 @@
                             <div class="row g-2">
                                 <div class="col-4">
                                     <div class="stat-item text-center">
-                                        <h3 class="stat-number">200+</h3>
+                                        <h3 class="stat-number">{{ $brandCount }} + </h3>
                                         <p class="stat-label">International Brands</p>
                                     </div>
                                 </div>
@@ -36,13 +36,13 @@
                                     <div class="stat-item text-center position-relative">
                                         <div class="stat-line-left"></div>
                                         <div class="stat-line-right"></div>
-                                        <h3 class="stat-number">2,000+</h3>
+                                        <h3 class="stat-number">{{ $productCount }} + </h3>
                                         <p class="stat-label">High-Quality Products</p>
                                     </div>
                                 </div>
                                 <div class="col-4">
                                     <div class="stat-item text-center">
-                                        <h3 class="stat-number">30,000+</h3>
+                                        <h3 class="stat-number">{{ $customerCount }} + </h3>
                                         <p class="stat-label">Happy Customers</p>
                                     </div>
                                 </div>
@@ -64,21 +64,19 @@
     <!-- Brands Section -->
     <section class="brands-section py-4 my-lg-5">
         <div class="container">
-            <div class="row justify-content-center align-items-center g-3">
-                <div class="col-3 col-sm-4 col-md-2">
-                    <img src="{{ asset('assets/images/dev/chanel.png') }}" alt="Chanel" class="brand-logo">
-                </div>
-                <div class="col-3 col-sm-4 col-md-2">
-                    <img src="{{ asset('assets/images/dev/lv.png') }}" alt="Louis Vuitton" class="brand-logo">
-                </div>
-                <div class="col-3 col-sm-4 col-md-2">
-                    <img src="{{ asset('assets/images/dev/prada.png') }}" alt="Prada" class="brand-logo">
-                </div>
-                <div class="col-3 col-sm-4 col-md-2">
-                    <img src="{{ asset('assets/images/dev/gucci.png') }}" alt="Gucci" class="brand-logo">
-                </div>
-                <div class="col-3 col-sm-4 col-md-2">
-                    <img src="{{ asset('assets/images/dev/calvin-klein.png') }}" alt="Calvin Klein" class="brand-logo">
+            <div class="brands-carousel">
+                <div class="brands-track">
+                    @foreach ($brands as $item)
+                        <div class="brand-item">
+                            <img src="{{ Storage::url($item->logo) }}" alt="{{ $item->name }}" class="brand-logo">
+                        </div>
+                    @endforeach
+                    <!-- Duplicate brands for seamless loop -->
+                    @foreach ($brands as $item)
+                        <div class="brand-item">
+                            <img src="{{ Storage::url($item->logo) }}" alt="{{ $item->name }}" class="brand-logo">
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -86,132 +84,14 @@
 
     @include('components.list_product_home', [
         'title' => 'NEW ARRIVALS',
-        'products' => [
-            [
-                'image' => 'https://picsum.photos/300/400?random=3',
-                'name' => 'Skinny Fit Jeans',
-                'rating' => '3.5/5',
-                'current_price' => '$240',
-                'original_price' => '$260',
-                'discount' => '-20%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=4',
-                'name' => 'Checkered Shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$180',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=5',
-                'name' => 'Sleeve Striped T-shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$130',
-                'original_price' => '$160',
-                'discount' => '-30%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=3',
-                'name' => 'Skinny Fit Jeans',
-                'rating' => '3.5/5',
-                'current_price' => '$240',
-                'original_price' => '$260',
-                'discount' => '-20%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=4',
-                'name' => 'Checkered Shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$180',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=5',
-                'name' => 'Sleeve Striped T-shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$130',
-                'original_price' => '$160',
-                'discount' => '-30%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=3',
-                'name' => 'Skinny Fit Jeans',
-                'rating' => '3.5/5',
-                'current_price' => '$240',
-                'original_price' => '$260',
-                'discount' => '-20%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=4',
-                'name' => 'Checkered Shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$180',
-            ],
-        ],
+        'products' => $newProducts
     ])
 
     <hr class="container my-0 color-primary-5">
 
     @include('components.list_product_home', [
         'title' => 'TOP SELLING',
-        'products' => [
-            [
-                'image' => 'https://picsum.photos/300/400?random=3',
-                'name' => 'Skinny Fit Jeans',
-                'rating' => '3.5/5',
-                'current_price' => '$240',
-                'original_price' => '$260',
-                'discount' => '-20%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=4',
-                'name' => 'Checkered Shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$180',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=5',
-                'name' => 'Sleeve Striped T-shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$130',
-                'original_price' => '$160',
-                'discount' => '-30%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=3',
-                'name' => 'Skinny Fit Jeans',
-                'rating' => '3.5/5',
-                'current_price' => '$240',
-                'original_price' => '$260',
-                'discount' => '-20%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=4',
-                'name' => 'Checkered Shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$180',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=5',
-                'name' => 'Sleeve Striped T-shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$130',
-                'original_price' => '$160',
-                'discount' => '-30%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=3',
-                'name' => 'Skinny Fit Jeans',
-                'rating' => '3.5/5',
-                'current_price' => '$240',
-                'original_price' => '$260',
-                'discount' => '-20%',
-            ],
-            [
-                'image' => 'https://picsum.photos/300/400?random=4',
-                'name' => 'Checkered Shirt',
-                'rating' => '4.5/5',
-                'current_price' => '$180',
-            ],
-        ],
+        'products' => $topSellingProducts
     ])
 
     <!-- Browse by Style Section -->

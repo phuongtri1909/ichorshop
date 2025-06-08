@@ -105,8 +105,12 @@
                                         </td>
                                         <td>
                                             <div class="action-buttons-wrapper">
+                                                <a href="{{ route('admin.promotions.variants', $promotion) }}"
+                                                    class="action-icon view-icon text-decoration-none" title="Xem sản phẩm áp dụng">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                                 <a href="{{ route('admin.promotions.edit', $promotion) }}"
-                                                    class="action-icon edit-icon" title="Chỉnh sửa">
+                                                    class="action-icon edit-icon text-decoration-none" title="Chỉnh sửa">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 @include('components.delete-form', [
@@ -157,7 +161,7 @@
         }
 
         .date-range {
-           
+
             font-size: 13px;
         }
 

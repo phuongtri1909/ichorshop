@@ -46,20 +46,21 @@ Route::group(['as' => 'admin.'], function () {
         Route::get('/products/get-image-component', [ProductController::class, 'getImageComponent'])->name('products.get-image-component');
         Route::get('/products/get-image-color-options', [ProductController::class, 'getImageColorOptions'])->name('products.get-image-color-options');
         Route::get('/products/get-existing-images', [ProductController::class, 'getExistingImages'])->name('products.get-existing-images');
-        
+
         Route::resource('brands', BrandController::class)->except(['show']);
         Route::resource('dress-styles', DressStyleController::class)->except(['show']);
         Route::resource('product-variants', ProductVariantController::class)->except(['show']);
 
-        // Additional routes for product variants
-        Route::get('product-variants/create/{product?}', [ProductVariantController::class, 'create'])
-            ->name('product-variants.create');
-
-        // Route to manage variants for a specific product
-        Route::get('products/{product}/variants', [ProductVariantController::class, 'index'])
-            ->name('products.variants.index');
-
         Route::resource('promotions', PromotionController::class)->except(['show']);
+        Route::prefix('promotions')->name('promotions.')->group(function () {
+            Route::get('{promotion}/variants', [PromotionController::class, 'variants'])->name('variants');
+            Route::post('{promotion}/apply-variants', [PromotionController::class, 'applyToVariants'])->name('apply-variants');
+            Route::delete('variant-promotions/{promotionVariant}', [PromotionController::class, 'removeVariant'])->name('remove-variant');
+            Route::delete('{promotionId}/remove-product/{productId}', [PromotionController::class, 'removeProductVariants'])
+                ->name('remove-product-variants');
+
+            Route::get('product-variants', [PromotionController::class, 'getProductVariants'])->name('product-variants');
+        });
 
         Route::resource('reviews', ReviewController::class)->except(['show']);
 
