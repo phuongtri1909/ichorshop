@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('products/{slug}', [HomeController::class, 'productDetails'])->name('product.details');
+Route::get('/product-images/{slug}/{color?}', [ProductController::class, 'getProductImages']);
+
 Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->name('category.products');
 
 Route::group(['middleware' => 'auth'], function () {

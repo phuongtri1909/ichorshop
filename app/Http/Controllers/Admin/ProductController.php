@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Brand;
 use App\Models\DressStyle;
-use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\ProductImage;
+use Illuminate\Http\Request;
+use App\Models\ProductVariant;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -89,46 +90,51 @@ class ProductController extends Controller
             'product_images.*.color' => 'nullable|string|max:50'
         ], [
             'name.required' => 'Tên sản phẩm là bắt buộc',
-            'categories.required' => 'Vui lòng chọn ít nhất một danh mục',
-            'avatar.required' => 'Vui lòng chọn ảnh đại diện sản phẩm',
-            'variants.required' => 'Phải có ít nhất một biến thể sản phẩm',
+            'name.string' => 'Tên sản phẩm phải là chuỗi',
+            'name.max' => 'Tên sản phẩm không được vượt quá 255 ký tự',
+            'description_short.max' => 'Mô tả ngắn không được vượt quá 500 ký tự',
+            'description_long.string' => 'Mô tả dài phải là chuỗi',
+            'brand_id.exists' => 'Thương hiệu không tồn tại',
+            'status.required' => 'Trạng thái sản phẩm là bắt buộc',
+            'status.in' => 'Trạng thái sản phẩm không hợp lệ',
+            'categories.array' => 'Danh mục phải là một mảng',
+            'categories.min' => 'Vui lòng chọn ít nhất một danh mục',
+            'categories.*.exists' => 'Danh mục không tồn tại',
+            'dress_styles.array' => 'Kiểu dáng phải là một mảng',
+            'dress_styles.*.exists' => 'Kiểu dáng không tồn tại',
+            'avatar.required' => 'Ảnh đại diện là bắt buộc',
+            'avatar.image' => 'Ảnh đại diện phải là một tệp hình ảnh',
+            'avatar.mimes' => 'Ảnh đại diện phải có định dạng jpeg, png hoặc jpg',
+            'variants.array' => 'Biến thể sản phẩm phải là một mảng',
             'variants.min' => 'Phải có ít nhất một biến thể sản phẩm',
+            'variants.*.size.max' => 'Kích thước không được vượt quá 50 ký tự',
+            'variants.*.color.max' => 'Màu sắc không được vượt quá 7 ký tự (hex)',
+            'variants.*.color_name.max' => 'Tên màu không được vượt quá 50 ký tự',
             'variants.*.status.required' => 'Trạng thái biến thể là bắt buộc',
             'variants.*.status.in' => 'Trạng thái biến thể không hợp lệ',
-            'variants.*.sku.unique' => 'Mã SKU đã tồn tại trong hệ thống'
+            'variants.*.price.required' => 'Giá bán là bắt buộc',
+            'variants.*.price.numeric' => 'Giá bán phải là một số',
+            'variants.*.price.min' => 'Giá bán phải lớn hơn hoặc bằng 0',
+            'variants.*.quantity.required' => 'Số lượng là bắt buộc',
+            'variants.*.quantity.integer' => 'Số lượng phải là một số nguyên',
+            'variants.*.quantity.min' => 'Số lượng phải lớn hơn hoặc bằng 0',
+            'variants.*.sku.max' => 'Mã SKU không được vượt quá 100 ký tự',
+            'variants.*.sku.unique' => 'Mã SKU đã tồn tại trong hệ thống',
+            'product_images.*.file.image' => 'Ảnh sản phẩm phải là một tệp hình ảnh',
+            'product_images.*.file.mimes' => 'Ảnh sản phẩm phải có định dạng jpeg, png hoặc jpg',
+            'product_images.*.color.max' => 'Màu sắc ảnh không được vượt quá 50 ký tự',
+            'categories.required' => 'Vui lòng chọn ít nhất một danh mục',
+            'variants.required' => 'Phải có ít nhất một biến thể sản phẩm',
         ]);
 
+        // Validate for single default variant
+        $this->validateSingleDefaultVariant($request->variants);
+
+        // Validate for duplicate variants (same color and size)
+        $this->validateDuplicateVariants($request->variants);
+
         // Custom validation for images based on variant color names
-        $variantColorNames = collect($request->variants)->pluck('color_name')->filter()->map(function ($colorName) {
-            return strtolower(trim($colorName));
-        })->unique()->values();
-
-        if ($variantColorNames->isNotEmpty()) {
-            // Has colored variants - must have images for each color
-            $imageColors = collect($request->product_images ?? [])->pluck('color')->filter()->map(function ($color) {
-                return strtolower(trim($color));
-            });
-
-            $missingColors = $variantColorNames->diff($imageColors);
-            if ($missingColors->isNotEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Các màu sau cần có ảnh: ' . $missingColors->join(', ')
-                ], 422);
-            }
-        } else {
-            // No colored variants - must have at least one general image
-            $hasGeneralImage = collect($request->product_images ?? [])->contains(function ($image) {
-                return empty($image['color']) || trim($image['color']) === '';
-            });
-
-            if (!$hasGeneralImage && empty($request->product_images)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vì không có biến thể nào có màu, bạn phải thêm ít nhất một ảnh chung'
-                ], 422);
-            }
-        }
+        $this->validateVariantImages($request->variants, $request->product_images ?? []);
 
         DB::beginTransaction();
         try {
@@ -160,12 +166,21 @@ class ProductController extends Controller
 
             // Create variants
             foreach ($request->variants as $variantData) {
+
+                $color = !empty($variantData['color']) ? $variantData['color'] : null;
+                $colorName = !empty($variantData['color_name']) ? $variantData['color_name'] : null;
+
+                if (empty($color) || empty($colorName)) {
+                    $color = null;
+                    $colorName = null;
+                }
+
                 ProductVariant::create([
                     'product_id' => $product->id,
                     'size' => $variantData['size'],
-                    'color' => $variantData['color'], // Hex color
-                    'color_name' => $variantData['color_name'], // Display name
-                    'status' => $variantData['status'], // Status instead of material
+                    'color' => $color,
+                    'color_name' => $colorName,
+                    'status' => $variantData['status'],
                     'price' => $variantData['price'],
                     'quantity' => $variantData['quantity'],
                     'sku' => $variantData['sku']
@@ -233,7 +248,7 @@ class ProductController extends Controller
             'dress_styles.*' => 'exists:dress_styles,id',
             'description_short' => 'nullable|string|max:500',
             'description_long' => 'nullable|string',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg',
 
             // Validate variants
             'variants' => 'required|array|min:1',
@@ -246,20 +261,63 @@ class ProductController extends Controller
             'variants.*.sku' => 'nullable|string|max:100',
 
             // Validate product images
-            'product_images.*.file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'product_images.*.file' => 'nullable|image|mimes:jpeg,png,jpg',
             'product_images.*.color' => 'nullable|string|max:50',
             'delete_images' => 'nullable|array',
             'delete_images.*' => 'exists:product_images,id'
         ], [
             'name.required' => 'Tên sản phẩm là bắt buộc',
-            'categories.required' => 'Vui lòng chọn ít nhất một danh mục',
-            'variants.required' => 'Phải có ít nhất một biến thể sản phẩm',
+            'name.string' => 'Tên sản phẩm phải là chuỗi',
+            'name.max' => 'Tên sản phẩm không được vượt quá 255 ký tự',
+            'description_short.max' => 'Mô tả ngắn không được vượt quá 500 ký tự',
+            'description_long.string' => 'Mô tả dài phải là chuỗi',
+            'brand_id.exists' => 'Thương hiệu không tồn tại',
+            'status.required' => 'Trạng thái sản phẩm là bắt buộc',
+            'status.in' => 'Trạng thái sản phẩm không hợp lệ',
+            'categories.array' => 'Danh mục phải là một mảng',
+            'categories.min' => 'Vui lòng chọn ít nhất một danh mục',
+            'categories.*.exists' => 'Danh mục không tồn tại',
+            'dress_styles.array' => 'Kiểu dáng phải là một mảng',
+            'dress_styles.*.exists' => 'Kiểu dáng không tồn tại',
+            'avatar.required' => 'Ảnh đại diện là bắt buộc',
+            'avatar.image' => 'Ảnh đại diện phải là một tệp hình ảnh',
+            'avatar.mimes' => 'Ảnh đại diện phải có định dạng jpeg, png hoặc jpg',
+            'variants.array' => 'Biến thể sản phẩm phải là một mảng',
             'variants.min' => 'Phải có ít nhất một biến thể sản phẩm',
+            'variants.*.size.max' => 'Kích thước không được vượt quá 50 ký tự',
+            'variants.*.color.max' => 'Màu sắc không được vượt quá 7 ký tự (hex)',
+            'variants.*.color_name.max' => 'Tên màu không được vượt quá 50 ký tự',
             'variants.*.status.required' => 'Trạng thái biến thể là bắt buộc',
             'variants.*.status.in' => 'Trạng thái biến thể không hợp lệ',
             'variants.*.price.required' => 'Giá bán là bắt buộc',
-            'variants.*.quantity.required' => 'Số lượng là bắt buộc'
+            'variants.*.price.numeric' => 'Giá bán phải là một số',
+            'variants.*.price.min' => 'Giá bán phải lớn hơn hoặc bằng 0',
+            'variants.*.quantity.required' => 'Số lượng là bắt buộc',
+            'variants.*.quantity.integer' => 'Số lượng phải là một số nguyên',
+            'variants.*.quantity.min' => 'Số lượng phải lớn hơn hoặc bằng 0',
+            'variants.*.sku.max' => 'Mã SKU không được vượt quá 100 ký tự',
+            'variants.*.sku.unique' => 'Mã SKU đã tồn tại trong hệ thống',
+            'product_images.*.file.image' => 'Ảnh sản phẩm phải là một tệp hình ảnh',
+            'product_images.*.file.mimes' => 'Ảnh sản phẩm phải có định dạng jpeg, png hoặc jpg',
+            'product_images.*.color.max' => 'Màu sắc ảnh không được vượt quá 50 ký tự',
+            'categories.required' => 'Vui lòng chọn ít nhất một danh mục',
+            'variants.required' => 'Phải có ít nhất một biến thể sản phẩm',
         ]);
+
+
+        // Validate for single default variant
+        $this->validateSingleDefaultVariant($request->variants);
+
+        // Validate for duplicate variants (same color and size)
+        $this->validateDuplicateVariants($request->variants);
+
+        // Validate variant images
+        $this->validateVariantImages(
+            $request->variants,
+            $request->product_images ?? [],
+            $product,
+            $request->delete_images ?? []
+        );
 
         $this->validateProductImages($request, $product);
 
@@ -324,14 +382,23 @@ class ProductController extends Controller
             // Update variants
             $submittedVariantIds = [];
             foreach ($request->variants as $variantData) {
+
+                $color = !empty($variantData['color']) ? $variantData['color'] : null;
+                $colorName = !empty($variantData['color_name']) ? $variantData['color_name'] : null;
+
+                if (empty($color) || empty($colorName)) {
+                    $color = null;
+                    $colorName = null;
+                }
+
                 if (isset($variantData['id'])) {
                     // Update existing variant
                     $variant = ProductVariant::find($variantData['id']);
                     if ($variant && $variant->product_id == $product->id) {
                         $variant->update([
                             'size' => $variantData['size'],
-                            'color' => $variantData['color'],
-                            'color_name' => $variantData['color_name'],
+                            'color' => $color,
+                            'color_name' => $colorName,
                             'status' => $variantData['status'],
                             'price' => $variantData['price'],
                             'quantity' => $variantData['quantity'],
@@ -344,8 +411,8 @@ class ProductController extends Controller
                     $newVariant = ProductVariant::create([
                         'product_id' => $product->id,
                         'size' => $variantData['size'],
-                        'color' => $variantData['color'],
-                        'color_name' => $variantData['color_name'],
+                        'color' => $color, // Có thể là null
+                        'color_name' => $colorName,
                         'status' => $variantData['status'],
                         'price' => $variantData['price'],
                         'quantity' => $variantData['quantity'],
@@ -400,6 +467,144 @@ class ProductController extends Controller
                 'success' => false,
                 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Validate that there is only one default variant (null color and size)
+     */
+    private function validateSingleDefaultVariant($variants)
+    {
+        $defaultVariantCount = 0;
+
+        foreach ($variants as $index => $variantData) {
+            $hasSize = !empty($variantData['size']);
+            $hasColor = !empty($variantData['color']) && !empty($variantData['color_name']);
+
+            if (!$hasSize && !$hasColor) {
+                $defaultVariantCount++;
+            }
+
+            if ($defaultVariantCount > 1) {
+                throw ValidationException::withMessages([
+                    'variants' => ['Chỉ được phép có một biến thể mặc định (không có màu và kích thước)']
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Validate that there are no duplicate variants (same color and size)
+     */
+    private function validateDuplicateVariants($variants)
+    {
+        $variantSignatures = [];
+
+        foreach ($variants as $index => $variantData) {
+            $size = $variantData['size'] ?? null;
+            $colorName = $variantData['color_name'] ?? null;
+
+            // Create a unique signature for this variant
+            $signature = "{$size}_{$colorName}";
+
+            if (in_array($signature, $variantSignatures)) {
+                throw ValidationException::withMessages([
+                    'variants' => ['Không thể có hai biến thể với cùng màu sắc và kích thước']
+                ]);
+            }
+
+            $variantSignatures[] = $signature;
+        }
+    }
+
+    /**
+     * Validate proper image coverage for variants
+     */
+    private function validateVariantImages($variants, $newImages, $product = null, $imagesToDelete = [])
+    {
+        $hasDefaultVariant = false;
+        $hasSizeOnlyVariant = false;
+        $colorVariants = [];
+
+        // Analyze variant types
+        foreach ($variants as $variant) {
+            $hasSize = !empty($variant['size']);
+            $hasColor = !empty($variant['color']) && !empty($variant['color_name']);
+
+            if (!$hasSize && !$hasColor) {
+                $hasDefaultVariant = true;
+            } elseif ($hasSize && !$hasColor) {
+                $hasSizeOnlyVariant = true;
+            } elseif ($hasColor) {
+                $colorVariants[strtolower($variant['color_name'])] = true;
+            }
+        }
+
+        // Get colors that have images
+        $imageColors = [];
+
+        // Check new images
+        foreach ($newImages as $image) {
+            if (!empty($image['file']) && isset($image['color']) && !empty($image['color'])) {
+                $imageColors[strtolower($image['color'])] = true;
+            }
+        }
+
+        // Check existing images (for update)
+        if ($product) {
+            $existingImages = ProductImage::where('product_id', $product->id)
+                ->whereNotIn('id', $imagesToDelete)
+                ->get();
+
+            foreach ($existingImages as $image) {
+                if ($image->color) {
+                    $imageColors[strtolower($image->color)] = true;
+                }
+            }
+        }
+
+        // Validate that each color variant has an image
+        foreach (array_keys($colorVariants) as $colorName) {
+            if (!isset($imageColors[$colorName])) {
+                throw ValidationException::withMessages([
+                    'product_images' => ["Biến thể màu '{$colorName}' cần có ít nhất một ảnh"]
+                ]);
+            }
+        }
+
+        // Check if we need a general image (when there's a default variant or size-only variant)
+        if (($hasDefaultVariant || $hasSizeOnlyVariant) && count($newImages) === 0 && !$product) {
+            // For new product creation
+            throw ValidationException::withMessages([
+                'product_images' => ['Cần có ít nhất một ảnh chung khi có biến thể mặc định hoặc biến thể chỉ có kích thước']
+            ]);
+        }
+
+        if (($hasDefaultVariant || $hasSizeOnlyVariant) && $product) {
+            // For product update - verify if there's at least one general image
+            $hasGeneralImage = false;
+
+            // Check new images
+            foreach ($newImages as $image) {
+                if (!isset($image['color']) || empty($image['color'])) {
+                    $hasGeneralImage = true;
+                    break;
+                }
+            }
+
+            // Check existing images
+            if (!$hasGeneralImage) {
+                $hasGeneralImage = ProductImage::where('product_id', $product->id)
+                    ->whereNull('color')
+                    ->whereNotIn('id', $imagesToDelete)
+                    ->exists();
+            }
+
+            if (!$hasGeneralImage) {
+                throw ValidationException::withMessages([
+                    'product_images' => ['Cần có ít nhất một ảnh chung khi có biến thể mặc định hoặc biến thể chỉ có kích thước']
+                ]);
+            }
         }
     }
 
@@ -529,47 +734,47 @@ class ProductController extends Controller
     }
 
     private function validateProductImages(Request $request, Product $product)
-{
-    // Get images that will be deleted
-    $imagesToDelete = $request->delete_images ?? [];
-    
-    // Count remaining existing images
-    $remainingImagesCount = ProductImage::where('product_id', $product->id)
-        ->whereNotIn('id', $imagesToDelete)
-        ->count();
-    
-    // Count new images
-    $newImagesCount = $request->product_images ? count($request->product_images) : 0;
-    
-    $totalImages = $remainingImagesCount + $newImagesCount;
-    
-    // Must have at least 1 image
-    if ($totalImages === 0) {
-        throw ValidationException::withMessages([
-            'product_images' => ['Sản phẩm phải có ít nhất 1 ảnh']
-        ]);
-    }
-    
-    // Check for general images (color = null)
-    $hasGeneralImage = ProductImage::where('product_id', $product->id)
-        ->whereNull('color')
-        ->whereNotIn('id', $imagesToDelete)
-        ->exists();
-    
-    // Check new images for general image
-    if (!$hasGeneralImage && $request->product_images) {
-        foreach ($request->product_images as $imageData) {
-            if (!isset($imageData['color']) || empty($imageData['color'])) {
-                $hasGeneralImage = true;
-                break;
+    {
+        // Get images that will be deleted
+        $imagesToDelete = $request->delete_images ?? [];
+
+        // Count remaining existing images
+        $remainingImagesCount = ProductImage::where('product_id', $product->id)
+            ->whereNotIn('id', $imagesToDelete)
+            ->count();
+
+        // Count new images
+        $newImagesCount = $request->product_images ? count($request->product_images) : 0;
+
+        $totalImages = $remainingImagesCount + $newImagesCount;
+
+        // Must have at least 1 image
+        if ($totalImages === 0) {
+            throw ValidationException::withMessages([
+                'product_images' => ['Sản phẩm phải có ít nhất 1 ảnh']
+            ]);
+        }
+
+        // Check for general images (color = null)
+        $hasGeneralImage = ProductImage::where('product_id', $product->id)
+            ->whereNull('color')
+            ->whereNotIn('id', $imagesToDelete)
+            ->exists();
+
+        // Check new images for general image
+        if (!$hasGeneralImage && $request->product_images) {
+            foreach ($request->product_images as $imageData) {
+                if (!isset($imageData['color']) || empty($imageData['color'])) {
+                    $hasGeneralImage = true;
+                    break;
+                }
             }
         }
+
+        if (!$hasGeneralImage) {
+            throw ValidationException::withMessages([
+                'product_images' => ['Phải có ít nhất 1 ảnh chung (không gắn với màu cụ thể nào)']
+            ]);
+        }
     }
-    
-    if (!$hasGeneralImage) {
-        throw ValidationException::withMessages([
-            'product_images' => ['Phải có ít nhất 1 ảnh chung (không gắn với màu cụ thể nào)']
-        ]);
-    }
-}
 }

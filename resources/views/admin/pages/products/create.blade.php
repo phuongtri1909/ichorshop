@@ -26,26 +26,29 @@
                 <!-- Tabs Navigation -->
                 <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active title-tab-primary-5 color-primary-hover" id="basic-info-tab" data-bs-toggle="tab" data-bs-target="#basic-info" type="button" role="tab">
+                        <button class="nav-link active title-tab-primary-5 color-primary-hover" id="basic-info-tab"
+                            data-bs-toggle="tab" data-bs-target="#basic-info" type="button" role="tab">
                             <i class="fas fa-info-circle me-1"></i>
                             Thông tin cơ bản
                         </button>
                     </li>
-                    
+
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link title-tab-primary-5 color-primary-hover" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants" type="button" role="tab">
+                        <button class="nav-link title-tab-primary-5 color-primary-hover" id="variants-tab"
+                            data-bs-toggle="tab" data-bs-target="#variants" type="button" role="tab">
                             <i class="fas fa-layer-group me-1"></i>
                             Biến thể sản phẩm
                         </button>
                     </li>
 
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link title-tab-primary-5 color-primary-hover" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab">
+                        <button class="nav-link title-tab-primary-5 color-primary-hover" id="images-tab"
+                            data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab">
                             <i class="fas fa-images me-1"></i>
                             Hình ảnh sản phẩm
                         </button>
                     </li>
-                    
+
                 </ul>
 
                 <form action="{{ route('admin.products.store') }}" method="POST" class="product-form"
@@ -76,8 +79,11 @@
                                         </label>
                                         <select id="status" name="status" class="custom-input">
                                             <option value="">Chọn trạng thái</option>
-                                            <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Đang bán</option>
-                                            <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Đã ẩn</option>
+                                            <option value="active"
+                                                {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Đang bán
+                                            </option>
+                                            <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Đã
+                                                ẩn</option>
                                         </select>
                                         <div class="error-message" id="status-error"></div>
                                     </div>
@@ -88,7 +94,7 @@
                                     <textarea id="description_short" name="description_short" class="custom-input" rows="3"
                                         placeholder="Nhập mô tả ngắn về sản phẩm (tối đa 500 ký tự)" maxlength="500">{{ old('description_short') }}</textarea>
                                     <div class="error-message" id="description_short-error"></div>
-                                    <small class="form-text">Mô tả này sẽ hiển thị trong danh sách sản phẩm</small>
+                                    
                                 </div>
 
                                 <div class="form-group">
@@ -118,7 +124,8 @@
                                             @endforeach
                                         </select>
                                         <div class="error-message" id="categories-error"></div>
-                                        <small class="form-text">Chọn ít nhất một danh mục (Ctrl+Click để chọn nhiều)</small>
+                                        <small class="form-text">Chọn ít nhất một danh mục (Ctrl+Click để chọn
+                                            nhiều)</small>
                                     </div>
 
                                     <div class="form-group col-12 col-md-4">
@@ -137,7 +144,7 @@
                                         <div class="error-message" id="brand_id-error"></div>
                                     </div>
 
-                                    
+
 
                                     <div class="form-group col-12 col-md-4">
                                         <label for="dress_styles" class="form-label">Kiểu dáng</label>
@@ -149,7 +156,8 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="form-text">Tùy chọn - có thể chọn nhiều kiểu dáng (Ctrl+Click)</small>
+                                        <small class="form-text">Tùy chọn - có thể chọn nhiều kiểu dáng
+                                            (Ctrl+Click)</small>
                                     </div>
                                 </div>
                             </div>
@@ -171,7 +179,7 @@
                                             class="image-input" style="display: none;" required>
                                     </div>
                                     <div class="error-message" id="avatar-error"></div>
-                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG</small>
+                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG, Tỉ lệ 1:1</small>
                                 </div>
                             </div>
                         </div>
@@ -188,11 +196,11 @@
                                         <i class="fas fa-plus me-1"></i> Thêm biến thể
                                     </button>
                                 </div>
-                                
+
                                 <div id="variants-container">
                                     @include('components.variant-item', ['index' => 0, 'variant' => []])
                                 </div>
-                                
+
                                 <div class="error-message" id="variants-error"></div>
                             </div>
                         </div>
@@ -201,25 +209,25 @@
                         <div class="tab-pane fade" id="images" role="tabpanel">
                             <div class="form-section">
                                 <h6 class="section-title">Quản lý hình ảnh sản phẩm</h6>
-                                
+
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle me-1"></i>
                                     <strong>Hướng dẫn:</strong>
                                     <ul class="mb-0 mt-2">
                                         <li>Nếu bạn có biến thể có màu, hãy chọn màu tương ứng khi upload ảnh</li>
                                         <li>Nếu không chọn màu, ảnh sẽ là ảnh chung cho tất cả biến thể</li>
-                                        <li>Mỗi ảnh tối đa định dạng JPG, PNG, JPEG</li>
+                                        <li>Mỗi ảnh tối đa định dạng JPG, PNG, JPEG, Tỉ lệ 3:4</li>
                                     </ul>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="form-label mb-0">Ảnh sản phẩm</label>
+                                        <label class="form-label mb-0">Ảnh sản phẩm: Tỉ lệ 3:4</label>
                                         <button type="button" class="btn btn-outline-primary btn-sm" id="addImageBtn">
                                             <i class="fas fa-plus me-1"></i> Thêm ảnh
                                         </button>
                                     </div>
-                                    
+
                                     <div id="product-images-container">
                                         <!-- Ảnh sẽ được thêm động ở đây -->
                                     </div>
@@ -481,13 +489,13 @@
             .product-image-upload-item .row {
                 flex-direction: column;
             }
-            
+
             .product-image-upload-item .col-md-3,
             .product-image-upload-item .col-md-9 {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
-            
+
             .product-image-preview-container {
                 display: flex;
                 justify-content: center;
@@ -566,149 +574,166 @@
         }
 
         /* Validation Error Popup Styles */
-    .validation-error-popup {
-        border-radius: 12px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
-    }
-
-    .validation-error-title {
-        color: #dc3545 !important;
-        font-weight: 600 !important;
-        font-size: 1.25rem !important;
-    }
-
-    .validation-error-content {
-        text-align: left !important;
-        padding: 0 !important;
-    }
-
-    .validation-errors-container {
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 10px 0;
-    }
-
-    .error-section {
-        margin-bottom: 20px;
-        border: 1px solid #e9ecef;
-        border-radius: 8px;
-        background: #f8f9fa;
-        padding: 15px;
-    }
-
-    .error-section:last-child {
-        margin-bottom: 0;
-    }
-
-    .error-section-title {
-        margin: 0 0 12px 0;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #495057;
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 8px;
-        display: flex;
-        align-items: center;
-    }
-
-    .error-list {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    .error-list li {
-        padding: 6px 0;
-        color: #6c757d;
-        font-size: 0.9rem;
-        line-height: 1.4;
-        display: flex;
-        align-items: flex-start;
-    }
-
-    .error-list li:last-child {
-        padding-bottom: 0;
-    }
-
-    .error-list li i {
-        margin-top: 2px;
-        flex-shrink: 0;
-    }
-
-    .tab-switch-notice {
-        background: #e3f2fd;
-        border: 1px solid #2196f3;
-        border-radius: 6px;
-        padding: 10px 15px;
-        margin: 10px 0 0 0;
-        color: #1976d2;
-        font-size: 0.85rem;
-        text-align: center;
-    }
-
-    .tab-switch-notice i {
-        color: #2196f3;
-    }
-
-    /* Custom scrollbar for validation container */
-    .validation-errors-container::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .validation-errors-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-    }
-
-    .validation-errors-container::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 3px;
-    }
-
-    .validation-errors-container::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-    }
-
-    /* Animation for error sections */
-    .error-section {
-        animation: slideInLeft 0.3s ease-out;
-    }
-
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    /* Responsive design for mobile */
-    @media (max-width: 768px) {
         .validation-error-popup {
-            width: 95% !important;
-            margin: 0 auto !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
         }
-        
+
+        .validation-error-title {
+            color: #dc3545 !important;
+            font-weight: 600 !important;
+            font-size: 1.25rem !important;
+        }
+
+        .validation-error-content {
+            text-align: left !important;
+            padding: 0 !important;
+        }
+
         .validation-errors-container {
-            max-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px 0;
         }
-        
+
         .error-section {
-            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+            padding: 15px;
         }
-        
+
+        .error-section:last-child {
+            margin-bottom: 0;
+        }
+
         .error-section-title {
-            font-size: 0.9rem;
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
         }
-        
+
+        .error-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
         .error-list li {
-            font-size: 0.85rem;
-            padding: 4px 0;
+            padding: 6px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
         }
-    }
+
+        .error-list li:last-child {
+            padding-bottom: 0;
+        }
+
+        .error-list li i {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .tab-switch-notice {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin: 10px 0 0 0;
+            color: #1976d2;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .tab-switch-notice i {
+            color: #2196f3;
+        }
+
+        /* Custom scrollbar for validation container */
+        .validation-errors-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .validation-errors-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .validation-errors-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .validation-errors-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Animation for error sections */
+        .error-section {
+            animation: slideInLeft 0.3s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            .validation-error-popup {
+                width: 95% !important;
+                margin: 0 auto !important;
+            }
+
+            .validation-errors-container {
+                max-height: 300px;
+            }
+
+            .error-section {
+                padding: 10px;
+            }
+
+            .error-section-title {
+                font-size: 0.9rem;
+            }
+
+            .error-list li {
+                font-size: 0.85rem;
+                padding: 4px 0;
+            }
+        }
+
+        .color-toggle-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-check-input.color-toggle {
+            height: 1.5rem;
+            width: 3rem;
+        }
+
+        .form-check-label {
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
     </style>
 @endpush
 
@@ -721,9 +746,9 @@
         $(document).ready(function() {
             // Remove all HTML5 required attributes to prevent browser validation
             $('input[required], select[required], textarea[required]').removeAttr('required');
-            
+
             // Track current active tab
-            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
                 currentTab = e.target.getAttribute('data-bs-target').replace('#', '');
             });
 
@@ -797,23 +822,23 @@
             $('#product-form').on('submit', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const validationResult = validateForm();
                 if (!validationResult.isValid) {
 
-                    
+
                     // Mark tabs with errors
                     markTabsWithErrors(validationResult);
-                    
+
                     // Switch to the tab with errors if current tab is different
                     if (validationResult.errorTab && validationResult.errorTab !== currentTab) {
-                       
+
                         $(`#${validationResult.errorTab}-tab`).tab('show');
                         currentTab = validationResult.errorTab;
                     }
                     return false;
                 }
-                
+
                 submitForm();
                 return false;
             });
@@ -821,27 +846,27 @@
             function markTabsWithErrors(validationResult) {
                 // Clear all error indicators first
                 $('.nav-link').removeClass('tab-error');
-                
+
                 // Add error indicators to tabs with errors
                 if (validationResult.errorTab) {
                     $(`#${validationResult.errorTab}-tab`).addClass('tab-error');
                 }
-                
+
                 // Check other tabs for errors too
-                const basicInfoErrors = validationResult.errors.filter(error => 
-                    error.includes('Tên sản phẩm') || 
-                    error.includes('trạng thái') || 
-                    error.includes('danh mục') || 
-                    error.includes('ảnh đại diện') || 
+                const basicInfoErrors = validationResult.errors.filter(error =>
+                    error.includes('Tên sản phẩm') ||
+                    error.includes('trạng thái') ||
+                    error.includes('danh mục') ||
+                    error.includes('ảnh đại diện') ||
                     error.includes('Mô tả ngắn')
                 );
-                
-                const variantErrors = validationResult.errors.filter(error => 
-                    error.includes('Biến thể') || 
+
+                const variantErrors = validationResult.errors.filter(error =>
+                    error.includes('Biến thể') ||
                     error.includes('biến thể')
                 );
-                
-                const imageErrors = validationResult.errors.filter(error => 
+
+                const imageErrors = validationResult.errors.filter(error =>
                     error.includes('màu') && error.includes('ảnh')
                 );
 
@@ -981,7 +1006,8 @@
                     }
 
                     // Validate quantity - kiểm tra cả stock_quantity và quantity
-                    const quantityInput = $(this).find('input[name*="[quantity]"], input[name*="[stock_quantity]"]');
+                    const quantityInput = $(this).find(
+                        'input[name*="[quantity]"], input[name*="[stock_quantity]"]');
                     const quantity = quantityInput.val();
                     if (quantity === '' || parseInt(quantity) < 0) {
                         quantityInput.addClass('input-error');
@@ -1036,9 +1062,13 @@
                 // Get all unique colors from variants (using color names)
                 const variantColors = [];
                 $('.variant-item').each(function() {
-                    const colorName = $(this).find('.color-name-input').val().trim();
-                    if (colorName && !variantColors.includes(colorName.toLowerCase())) {
-                        variantColors.push(colorName.toLowerCase());
+                    const colorToggle = $(this).find('.color-toggle');
+                    // Chỉ lấy màu từ các biến thể không có checkbox "Không màu"
+                    if (colorToggle.length > 0 && !colorToggle.is(':checked')) {
+                        const colorName = $(this).find('.color-name-input').val().trim();
+                        if (colorName && !variantColors.includes(colorName.toLowerCase())) {
+                            variantColors.push(colorName.toLowerCase());
+                        }
                     }
                 });
 
@@ -1063,18 +1093,18 @@
                 // Validation logic for images
                 if (variantColors.length > 0) {
                     // Has colored variants - must have images for each color
-                    const missingColors = variantColors.filter(color => 
+                    const missingColors = variantColors.filter(color =>
                         !imageColors.includes(color)
                     );
-                    
+
                     if (missingColors.length > 0) {
-                        errors.push(`Các màu sau cần có ảnh: ${missingColors.join(', ')}`);
+                        errors.push(`Các màu sau cần có ảnh 1: ${missingColors.join(', ')}`);
                     }
-                } else {
-                    // No colored variants - must have at least one general image
-                    if (!hasGeneralImage && !hasAnyImage) {
-                        errors.push('Vì không có biến thể nào có màu, bạn phải thêm ít nhất một ảnh chung');
-                    }
+                }
+
+                // Luôn phải có ít nhất một ảnh (chung hoặc theo màu)
+                if (!hasAnyImage) {
+                    errors.push('Bạn phải thêm ít nhất một ảnh cho sản phẩm');
                 }
 
                 return errors;
@@ -1082,26 +1112,26 @@
 
             function showValidationErrors(validationResult) {
                 // Group errors by tab
-                const basicInfoErrors = validationResult.errors.filter(error => 
-                    error.includes('Tên sản phẩm') || 
-                    error.includes('trạng thái') || 
-                    error.includes('danh mục') || 
-                    error.includes('ảnh đại diện') || 
+                const basicInfoErrors = validationResult.errors.filter(error =>
+                    error.includes('Tên sản phẩm') ||
+                    error.includes('trạng thái') ||
+                    error.includes('danh mục') ||
+                    error.includes('ảnh đại diện') ||
                     error.includes('Mô tả ngắn')
                 );
-                
-                const variantErrors = validationResult.errors.filter(error => 
-                    error.includes('Biến thể') || 
+
+                const variantErrors = validationResult.errors.filter(error =>
+                    error.includes('Biến thể') ||
                     error.includes('biến thể')
                 );
-                
-                const imageErrors = validationResult.errors.filter(error => 
+
+                const imageErrors = validationResult.errors.filter(error =>
                     error.includes('màu') && error.includes('ảnh')
                 );
 
                 // Create HTML content for better formatting
                 let htmlContent = '<div class="validation-errors-container">';
-                
+
                 if (basicInfoErrors.length > 0) {
                     htmlContent += `
                         <div class="error-section">
@@ -1112,7 +1142,8 @@
                             <ul class="error-list">
                     `;
                     basicInfoErrors.forEach(error => {
-                        htmlContent += `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
+                        htmlContent +=
+                            `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
                     });
                     htmlContent += '</ul></div>';
                 }
@@ -1127,7 +1158,8 @@
                             <ul class="error-list">
                     `;
                     variantErrors.forEach(error => {
-                        htmlContent += `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
+                        htmlContent +=
+                            `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
                     });
                     htmlContent += '</ul></div>';
                 }
@@ -1142,7 +1174,8 @@
                             <ul class="error-list">
                     `;
                     imageErrors.forEach(error => {
-                        htmlContent += `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
+                        htmlContent +=
+                            `<li><i class="fas fa-times-circle text-danger me-1"></i>${error}</li>`;
                     });
                     htmlContent += '</ul></div>';
                 }
@@ -1219,7 +1252,8 @@
                             timer: 2000,
                             showConfirmButton: false
                         }).then(() => {
-                            window.location.href = response.redirect || "{{ route('admin.products.index') }}";
+                            window.location.href = response.redirect ||
+                                "{{ route('admin.products.index') }}";
                         });
                     },
                     error: function(xhr) {
@@ -1234,34 +1268,38 @@
 
                             $.each(errors, function(field, messages) {
                                 console.log('Processing error for field:', field); // Debug log
-                                
+
                                 // Xử lý lỗi variant
                                 if (field.startsWith('variants.')) {
                                     hasVariantErrors = true;
                                     errorTab = 'variants';
-                                    
+
                                     // Parse variant field để lấy index và field name
                                     // Ví dụ: variants.0.price -> index: 0, fieldName: price
                                     const matches = field.match(/variants\.(\d+)\.(.+)/);
                                     if (matches) {
                                         const variantIndex = matches[1];
                                         const fieldName = matches[2];
-                                        
+
                                         // Tìm variant element theo index thực tế trong DOM
-                                        const variantElement = $(`.variant-item`).eq(variantIndex);
+                                        const variantElement = $(`.variant-item`).eq(
+                                            variantIndex);
                                         if (variantElement.length > 0) {
                                             // Tìm input field trong variant này
-                                            const fieldInput = variantElement.find(`[name*="[${fieldName}]"]`);
+                                            const fieldInput = variantElement.find(
+                                                `[name*="[${fieldName}]"]`);
                                             if (fieldInput.length > 0) {
                                                 fieldInput.addClass('input-error');
-                                                
+
                                                 // Tìm error message container
-                                                const errorContainer = variantElement.find(`#variants-${variantElement.data('index')}-${fieldName}-error`);
+                                                const errorContainer = variantElement.find(
+                                                    `#variants-${variantElement.data('index')}-${fieldName}-error`
+                                                );
                                                 if (errorContainer.length > 0) {
                                                     errorContainer.text(messages[0]);
                                                 }
                                             }
-                                            
+
                                             // Mark variant as having error
                                             variantElement.addClass('has-error');
                                         }
@@ -1273,16 +1311,19 @@
                                     if (errorTab === 'basic-info') {
                                         errorTab = 'images';
                                     }
-                                    
+
                                     // Parse image field
                                     const matches = field.match(/product_images\.(\d+)\.(.+)/);
                                     if (matches) {
                                         const imageIndex = matches[1];
                                         const fieldName = matches[2];
-                                        
-                                        const imageElement = $(`.product-image-upload-item[data-index="${imageIndex}"]`);
+
+                                        const imageElement = $(
+                                            `.product-image-upload-item[data-index="${imageIndex}"]`
+                                        );
                                         if (imageElement.length > 0) {
-                                            const fieldInput = imageElement.find(`[name*="[${fieldName}]"]`);
+                                            const fieldInput = imageElement.find(
+                                                `[name*="[${fieldName}]"]`);
                                             fieldInput.addClass('input-error');
                                         }
                                     }
@@ -1291,11 +1332,11 @@
                                 else {
                                     const fieldElement = $(`[name="${field}"]`).first();
                                     const errorElement = $(`#${field}-error`);
-                                    
+
                                     if (fieldElement.length > 0) {
                                         fieldElement.addClass('input-error');
                                     }
-                                    
+
                                     if (errorElement.length > 0) {
                                         errorElement.text(messages[0]);
                                     }
@@ -1332,7 +1373,8 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Lỗi',
-                                text: xhr.responseJSON?.message || 'Có lỗi xảy ra, vui lòng thử lại sau.'
+                                text: xhr.responseJSON?.message ||
+                                    'Có lỗi xảy ra, vui lòng thử lại sau.'
                             });
                         }
                     }
@@ -1383,10 +1425,18 @@
                             <div class="form-group col-md-4">
                                 <label class="form-label">Màu sắc</label>
                                 <div class="color-input-group">
-                                    <input type="color" name="variants[${variantCount}][color]" class="color-picker color-input" value="#000000" title="Chọn màu">
-                                    <input type="text" name="variants[${variantCount}][color_name]" class="custom-input color-name-input" placeholder="Tên màu (VD: Đỏ, Xanh)">
+                                    <div class="color-toggle-wrapper mb-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input color-toggle" type="checkbox" id="colorToggle${variantCount}">
+                                            <label class="form-check-label" for="colorToggle${variantCount}">Không màu</label>
+                                        </div>
+                                    </div>
+                                    <div class="color-inputs">
+                                        <input type="color" name="variants[${variantCount}][color]" class="color-picker color-input" value="" title="Chọn màu">
+                                        <input type="text" name="variants[${variantCount}][color_name]" class="custom-input color-name-input" placeholder="Tên màu (VD: Đỏ, Xanh)">
+                                    </div>
                                 </div>
-                                <small class="form-text text-muted">Chọn màu và nhập tên màu hiển thị</small>
+                                <small class="form-text text-muted">Chọn màu và nhập tên màu hiển thị, hoặc chọn "Không màu"</small>
                                 <div class="error-message" id="variants-${variantCount}-color_name-error"></div>
                             </div>
                             
@@ -1426,33 +1476,77 @@
                     </div>
                 </div>
             `);
-            
+
             container.append(newVariant);
+
+            // Xử lý color toggle
+            $(`#colorToggle${variantCount}`).on('change', function() {
+                const colorInputs = $(this).closest('.color-input-group').find('.color-inputs');
+                const colorPicker = colorInputs.find('.color-picker');
+                const colorName = colorInputs.find('.color-name-input');
+
+                if ($(this).is(':checked')) {
+                    // Lưu giá trị cũ trước khi xóa
+                    colorPicker.data('old-value', colorPicker.val());
+                    colorName.data('old-value', colorName.val());
+
+                    // Xóa giá trị
+                    colorPicker.val('');
+                    colorName.val('');
+                    colorInputs.hide();
+                } else {
+                    // Khôi phục giá trị cũ nếu có
+                    if (colorPicker.data('old-value')) {
+                        colorPicker.val(colorPicker.data('old-value'));
+                    }
+                    if (colorName.data('old-value')) {
+                        colorName.val(colorName.data('old-value'));
+                    }
+                    colorInputs.show();
+                }
+
+                updateAllImageColorOptions();
+            });
+
             variantCount++;
-            
+
             // Hiển thị nút xóa cho tất cả variants nếu có nhiều hơn 1
             if ($('.variant-item').length > 1) {
                 $('.remove-variant-btn').removeClass('d-none');
             }
-            
+
             updateAllImageColorOptions();
         }
 
         function removeVariant(index) {
             $(`.variant-item[data-index="${index}"]`).remove();
-            
+
             if ($('.variant-item').length === 1) {
                 $('.remove-variant-btn').addClass('d-none');
             }
-            
+
             $('.variant-item').each(function(i) {
                 $(this).find('.card-header h6').text(`Biến thể #${i + 1}`);
             });
-            
+
             updateAllImageColorOptions();
         }
 
         function updateAllImageColorOptions() {
+            const variantColors = [];
+
+            $('.variant-item').each(function() {
+                const colorToggle = $(this).find('.color-toggle');
+                // Chỉ lấy màu từ các biến thể không có checkbox "Không màu"
+                if (colorToggle.length > 0 && !colorToggle.is(':checked')) {
+                    const colorName = $(this).find('.color-name-input').val().trim();
+                    if (colorName && !variantColors.includes(colorName)) {
+                        variantColors.push(colorName);
+                    }
+                }
+            });
+
+            // Cập nhật color options cho mỗi ảnh
             $('.product-image-upload-item').each(function() {
                 const imageIndex = $(this).data('index');
                 updateImageColorOptions(imageIndex);
@@ -1475,10 +1569,13 @@
                 data: {
                     index: imageIndex,
                     colors: variantColors,
-                    currentSelected: $(`.product-image-upload-item[data-index="${imageIndex}"] input[name*="[color]"]:checked`).val()
+                    currentSelected: $(
+                            `.product-image-upload-item[data-index="${imageIndex}"] input[name*="[color]"]:checked`)
+                        .val()
                 },
                 success: function(html) {
-                    $(`.product-image-upload-item[data-index="${imageIndex}"] .color-selector-group`).html(html);
+                    $(`.product-image-upload-item[data-index="${imageIndex}"] .color-selector-group`).html(
+                        html);
                 },
                 error: function() {
                     updateImageColorOptionsFallback(imageIndex);
@@ -1489,7 +1586,7 @@
         function updateImageColorOptionsFallback(imageIndex) {
             const colorContainer = $(`.product-image-upload-item[data-index="${imageIndex}"] .color-selector-group`);
             const currentSelected = colorContainer.find('input[name*="[color]"]:checked').val();
-            
+
             const variantColors = [];
             const colorData = [];
             $('.variant-item').each(function() {
@@ -1497,7 +1594,10 @@
                 const colorValue = $(this).find('.color-picker').val();
                 if (colorName && !variantColors.includes(colorName)) {
                     variantColors.push(colorName);
-                    colorData.push({ name: colorName, value: colorValue });
+                    colorData.push({
+                        name: colorName,
+                        value: colorValue
+                    });
                 }
             });
 
@@ -1543,11 +1643,11 @@
                 },
                 success: function(html) {
                     $('#product-images-container').append(html);
-                    
+
                     $(`#productImagePreview${imageCount}`).click(function() {
                         $(this).siblings('input[type="file"]').click();
                     });
-                    
+
                     imageCount++;
                 },
                 error: function() {
@@ -1589,13 +1689,13 @@
                     </div>
                 </div>
             `);
-            
+
             container.append(imageItem);
-            
+
             $(`#productImagePreview${imageCount}`).click(function() {
                 $(this).siblings('input[type="file"]').click();
             });
-            
+
             updateImageColorOptions(imageCount);
             imageCount++;
         }
@@ -1607,7 +1707,7 @@
         function previewProductImage(input, index) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                
+
                 if (!file.type.startsWith('image/')) {
                     Swal.fire({
                         icon: 'error',
@@ -1616,7 +1716,7 @@
                     });
                     return;
                 }
-                
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     $(`#productImagePreview${index}`).css('background-image', `url('${e.target.result}')`);

@@ -231,40 +231,58 @@ class PromotionController extends Controller
         }
     }
 
-    public function removeVariant(ProductVariantPromotion $promotionVariant)
+    public function removeVariant(ProductVariantPromotion $variantPromotion)
     {
-        $promotion = $promotionVariant->promotion;
-        $variant = $promotionVariant->productVariant;
-        $variantName = $variant->color_name . ' (' . $variant->size . ')';
-        $productName = $variant->product->name;
-
-        $promotionVariant->delete();
-
-        return redirect()
-            ->route('admin.promotions.variants', $promotion)
-            ->with('success', "Đã xóa biến thể {$variantName} của sản phẩm {$productName} khỏi khuyến mãi thành công.");
+        $promotionName = $variantPromotion->promotion->name;
+        
+        // Thông tin biến thể và sản phẩm để hiển thị thông báo
+        $variant = $variantPromotion->productVariant;
+        $variantInfo = $variant ? "{$variant->color_name} ({$variant->size})" : "biến thể không xác định";
+        $productName = $variant && $variant->product ? $variant->product->name : "sản phẩm không xác định";
+        
+        // Xóa khuyến mãi
+        $variantPromotion->delete();
+        
+        return redirect()->back()->with('success', "Đã xóa {$variantInfo} của {$productName} khỏi khuyến mãi '{$promotionName}'");
     }
 
     public function removeProductVariants($promotionId, $productId)
     {
         $promotion = Promotion::findOrFail($promotionId);
-        $product = Product::findOrFail($productId);
-        // Lấy tất cả biến thể của sản phẩm
-        $variantIds = ProductVariant::where('product_id', $product->id)->pluck('id');
-
+        
         // Đếm số biến thể bị ảnh hưởng
-        $affectedCount = ProductVariantPromotion::where('promotion_id', $promotion->id)
-            ->whereIn('product_variant_id', $variantIds)
+        $count = ProductVariantPromotion::where('promotion_id', $promotionId)
+            ->whereHas('productVariant', function($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->orWhere(function($query) use ($promotionId, $productId) {
+                // Tìm các bản ghi mà productVariant đã bị xóa mềm
+                $query->where('promotion_id', $promotionId)
+                    ->whereHas('productVariant', function($q) use ($productId) {
+                        $q->withTrashed()->where('product_id', $productId);
+                    });
+            })
             ->count();
-
-        // Xóa tất cả các áp dụng khuyến mãi của các biến thể này
-        ProductVariantPromotion::where('promotion_id', $promotion->id)
-            ->whereIn('product_variant_id', $variantIds)
+        
+        // Xóa tất cả biến thể của sản phẩm khỏi khuyến mãi
+        ProductVariantPromotion::where('promotion_id', $promotionId)
+            ->whereHas('productVariant', function($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->orWhere(function($query) use ($promotionId, $productId) {
+                // Xóa cả các bản ghi mà productVariant đã bị xóa mềm
+                $query->where('promotion_id', $promotionId)
+                    ->whereHas('productVariant', function($q) use ($productId) {
+                        $q->withTrashed()->where('product_id', $productId);
+                    });
+            })
             ->delete();
-
-        return redirect()
-            ->route('admin.promotions.variants', $promotion)
-            ->with('success', "Đã xóa {$affectedCount} biến thể của sản phẩm {$product->name} khỏi khuyến mãi thành công.");
+        
+        // Lấy tên sản phẩm
+        $product = Product::withTrashed()->find($productId);
+        $productName = $product ? $product->name : "sản phẩm không xác định";
+        
+        return redirect()->back()->with('success', "Đã xóa {$count} biến thể của {$productName} khỏi khuyến mãi '{$promotion->name}'");
     }
 
     public function getProductVariants(Request $request)

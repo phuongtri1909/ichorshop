@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Promotion extends Model
 {
-    protected $fillable = ['name', 'type','value', 'start_date', 'end_date', 'status','description', 'min_order_amount', 'max_discount_amount', 'usage_limit'];
+    protected $fillable = ['name', 'type', 'value', 'start_date', 'end_date', 'status', 'description', 'min_order_amount', 'max_discount_amount', 'usage_limit'];
 
     const TYPE_PERCENTAGE = 'percentage';
     const TYPE_FIXED = 'fixed';
@@ -24,7 +24,14 @@ class Promotion extends Model
         'usage_limit' => 'integer'
     ];
 
-        public static function getDiscountTypes()
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE)
+                     ->where('start_date', '<=', now())
+                     ->where('end_date', '>=', now());
+    }
+
+    public static function getDiscountTypes()
     {
         return [
             self::TYPE_PERCENTAGE => 'Phần trăm (%)',

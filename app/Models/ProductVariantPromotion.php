@@ -16,7 +16,8 @@ class ProductVariantPromotion extends Model
      */
     public function productVariant()
     {
-        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id')
+                    ->withTrashed(); 
     }
     /**
      * Get the promotion that owns the product variant.

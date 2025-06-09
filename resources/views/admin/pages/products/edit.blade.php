@@ -101,7 +101,7 @@
                                     <textarea id="description_short" name="description_short" class="custom-input" rows="3"
                                         placeholder="Nhập mô tả ngắn về sản phẩm (tối đa 500 ký tự)" maxlength="500">{{ old('description_short', $product->description_short) }}</textarea>
                                     <div class="error-message" id="description_short-error"></div>
-                                    <small class="form-text">Mô tả này sẽ hiển thị trong danh sách sản phẩm</small>
+                                   
                                 </div>
 
                                 <div class="form-group">
@@ -187,7 +187,7 @@
                                             class="image-input" style="display: none;">
                                     </div>
                                     <div class="error-message" id="avatar-error"></div>
-                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG</small>
+                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG, Tỉ lệ 1:1</small>
                                 </div>
                             </div>
                         </div>
@@ -229,32 +229,35 @@
                                     <ul class="mb-0 mt-2">
                                         <li>Nếu bạn có biến thể có màu, hãy chọn màu tương ứng khi upload ảnh</li>
                                         <li>Nếu không chọn màu, ảnh sẽ là ảnh chung cho tất cả biến thể</li>
-                                        <li>Mỗi ảnh tối đa định dạng JPG, PNG, JPEG</li>
+                                        <li>Mỗi ảnh tối đa định dạng JPG, PNG, JPEG, Tỉ lệ 3:4</li>
                                     </ul>
                                 </div>
 
                                 <!-- Existing Images -->
-                                @if($existingProductImages && $existingProductImages->count() > 0)
+                                @if ($existingProductImages && $existingProductImages->count() > 0)
                                     <div class="form-group">
                                         <label class="form-label">Ảnh hiện tại</label>
                                         <div class="existing-images-grid row">
-                                            @foreach($existingProductImages as $image)
+                                            @foreach ($existingProductImages as $image)
                                                 <div class="mb-3">
                                                     <div class="existing-image-item" data-image-id="{{ $image->id }}">
-                                                        <img src="{{ Storage::url($image->image_path_medium ?? $image->image_path) }}" alt="Product Image">
+                                                        <img src="{{ Storage::url($image->image_path_medium ?? $image->image_path) }}"
+                                                            alt="Product Image">
                                                         <div class="image-info">
-                                                            @if($image->color)
+                                                            @if ($image->color)
                                                                 <span class="color-tag">{{ $image->color }}</span>
                                                             @else
                                                                 <span class="color-tag general">Ảnh chung</span>
                                                             @endif
                                                         </div>
                                                         <div class="image-actions">
-                                                            <button type="button" class="delete-existing-image" data-image-id="{{ $image->id }}">
+                                                            <button type="button" class="delete-existing-image"
+                                                                data-image-id="{{ $image->id }}">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </div>
-                                                        <input type="hidden" name="delete_images[]" value="" disabled>
+                                                        <input type="hidden" name="delete_images[]" value=""
+                                                            disabled>
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -265,7 +268,7 @@
                                 <!-- Add New Images -->
                                 <div class="form-group">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="form-label mb-0">Thêm ảnh mới</label>
+                                        <label class="form-label mb-0">Thêm ảnh mới: Tỉ lệ 3:4</label>
                                         <button type="button" class="btn btn-outline-primary btn-sm" id="addImageBtn">
                                             <i class="fas fa-plus me-1"></i> Thêm ảnh
                                         </button>
@@ -1122,6 +1125,73 @@
                 submitForm();
                 return false;
             });
+
+
+            $('.color-toggle').on('change', function() {
+                const colorInputs = $(this).closest('.color-input-group').find('.color-inputs');
+                const colorPicker = colorInputs.find('.color-picker');
+                const colorName = colorInputs.find('.color-name-input');
+
+                if ($(this).is(':checked')) {
+                    // Lưu giá trị cũ trước khi xóa
+                    colorPicker.data('old-value', colorPicker.val());
+                    colorName.data('old-value', colorName.val());
+
+                    // Xóa giá trị
+                    colorPicker.val('').prop('disabled', true);
+                    colorName.val('').prop('disabled', true);
+                    colorInputs.hide();
+                } else {
+                    // Khôi phục giá trị cũ nếu có
+
+                    colorPicker.prop('disabled', false);
+                    colorName.prop('disabled', false);
+
+                    if (colorPicker.data('old-value')) {
+                        colorPicker.val(colorPicker.data('old-value'));
+                    }
+                    if (colorName.data('old-value')) {
+                        colorName.val(colorName.data('old-value'));
+                    }
+                    colorInputs.show();
+                }
+
+                updateAllImageColorOptions();
+            });
+
+            // Áp dụng cho biến thể mới
+            $(document).on('change', '.color-toggle', function() {
+                const colorInputs = $(this).closest('.color-input-group').find('.color-inputs');
+                const colorPicker = colorInputs.find('.color-picker');
+                const colorName = colorInputs.find('.color-name-input');
+
+                if ($(this).is(':checked')) {
+                    // Lưu giá trị cũ trước khi xóa
+                    colorPicker.data('old-value', colorPicker.val());
+                    colorName.data('old-value', colorName.val());
+
+                    // Xóa giá trị
+                    colorPicker.val('').prop('disabled', true);
+                    colorName.val('').prop('disabled', true);
+                    colorInputs.hide();
+                } else {
+                    // Khôi phục giá trị cũ nếu có
+
+                    colorPicker.prop('disabled', false);
+                    colorName.prop('disabled', false);
+
+
+                    if (colorPicker.data('old-value')) {
+                        colorPicker.val(colorPicker.data('old-value'));
+                    }
+                    if (colorName.data('old-value')) {
+                        colorName.val(colorName.data('old-value'));
+                    }
+                    colorInputs.show();
+                }
+
+                updateAllImageColorOptions();
+            });
         });
 
         // ======================== MAIN FUNCTIONS ========================
@@ -1188,65 +1258,111 @@
         function addVariantFallback() {
             const container = $('#variants-container');
             const newVariant = $(`
-                <div class="variant-item mb-3 form-card p-2" data-index="${variantCount}">
-                    <div class="card-header d-flex justify-content-between align-items-center py-2">
-                        <h6 class="mb-0">Biến thể #${variantCount + 1}</h6>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn" onclick="removeVariant(${variantCount})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+        <div class="variant-item mb-3 form-card p-2" data-index="${variantCount}">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <h6 class="mb-0">Biến thể #${variantCount + 1}</h6>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn" onclick="removeVariant(${variantCount})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label class="form-label">Kích thước</label>
+                        <input type="text" name="variants[${variantCount}][size]" class="custom-input" placeholder="Ví dụ: S, M, L, XL">
                     </div>
                     
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="form-group col-md-4">
-                                <label class="form-label">Kích thước</label>
-                                <input type="text" name="variants[${variantCount}][size]" class="custom-input" placeholder="Ví dụ: S, M, L, XL">
-                            </div>
-                            
-                            <div class="form-group col-md-4">
-                                <label class="form-label">Màu sắc</label>
-                                <div class="color-input-group">
-                                    <input type="color" name="variants[${variantCount}][color]" class="color-picker" value="#000000" title="Chọn màu">
-                                    <input type="text" name="variants[${variantCount}][color_name]" class="custom-input color-name-input" placeholder="Tên màu (VD: Đỏ, Xanh)">
-                                </div>
-                                <small class="form-text text-muted">Chọn màu và nhập tên màu hiển thị</small>
-                            </div>
-                            
-                            <div class="form-group col-md-4">
-                                <label class="form-label">Trạng thái</label>
-                                <select name="variants[${variantCount}][status]" class="custom-input">
-                                    <option value="active" selected>Hoạt động</option>
-                                    <option value="inactive">Không hoạt động</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="form-group col-md-4">
-                                <label class="form-label required">Giá bán <span class="required-asterisk">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" name="variants[${variantCount}][price]" class="custom-input" placeholder="0.00" min="0" step="0.01">
+                    <div class="form-group col-md-4">
+                        <label class="form-label">Màu sắc</label>
+                        <div class="color-input-group">
+                            <div class="color-toggle-wrapper mb-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input color-toggle" type="checkbox" id="colorToggle${variantCount}">
+                                    <label class="form-check-label" for="colorToggle${variantCount}">Không màu</label>
                                 </div>
                             </div>
-                            
-                            <div class="form-group col-md-4">
-                                <label class="form-label required">Số lượng <span class="required-asterisk">*</span></label>
-                                <input type="number" name="variants[${variantCount}][quantity]" class="custom-input" placeholder="0" min="0">
-                            </div>
-                            
-                            <div class="form-group col-md-4">
-                                <label class="form-label">SKU</label>
-                                <input type="text" name="variants[${variantCount}][sku]" class="custom-input" placeholder="Mã SKU (tùy chọn)">
+                            <div class="color-inputs">
+                                <input type="color" name="variants[${variantCount}][color]" class="color-picker" value="#6c757d" title="Chọn màu">
+                                <input type="text" name="variants[${variantCount}][color_name]" class="custom-input color-name-input" placeholder="Tên màu (VD: Đỏ, Xanh)">
                             </div>
                         </div>
+                        <small class="form-text text-muted">Chọn màu và nhập tên màu hiển thị, hoặc chọn "Không màu"</small>
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        <label class="form-label">Trạng thái</label>
+                        <select name="variants[${variantCount}][status]" class="custom-input">
+                            <option value="active" selected>Hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
+                        </select>
                     </div>
                 </div>
-            `);
+                
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label class="form-label required">Giá bán <span class="required-asterisk">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="variants[${variantCount}][price]" class="custom-input" placeholder="0.00" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        <label class="form-label required">Số lượng <span class="required-asterisk">*</span></label>
+                        <input type="number" name="variants[${variantCount}][quantity]" class="custom-input" placeholder="0" min="0">
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        <label class="form-label">SKU</label>
+                        <input type="text" name="variants[${variantCount}][sku]" class="custom-input" placeholder="Mã SKU (tùy chọn)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
 
             container.append(newVariant);
+
+            // Xử lý color toggle
+            $(`#colorToggle${variantCount}`).on('change', function() {
+                const colorInputs = $(this).closest('.color-input-group').find('.color-inputs');
+                const colorPicker = colorInputs.find('.color-picker');
+                const colorName = colorInputs.find('.color-name-input');
+
+                if ($(this).is(':checked')) {
+                    // Lưu giá trị cũ trước khi xóa
+                    colorPicker.data('old-value', colorPicker.val());
+                    colorName.data('old-value', colorName.val());
+
+                    // Xóa giá trị và disable inputs
+                    colorPicker.val('').prop('disabled', true);
+                    colorName.val('').prop('disabled', true);
+                    colorInputs.hide();
+                } else {
+                    // Enable inputs và khôi phục giá trị
+                    colorPicker.prop('disabled', false);
+                    colorName.prop('disabled', false);
+
+                    if (colorPicker.data('old-value')) {
+                        colorPicker.val(colorPicker.data('old-value'));
+                    }
+                    if (colorName.data('old-value')) {
+                        colorName.val(colorName.data('old-value'));
+                    }
+                    colorInputs.show();
+                }
+
+                updateAllImageColorOptions();
+            });
+
             variantCount++;
-            $('.remove-variant-btn').removeClass('d-none');
+
+            // Hiển thị nút xóa cho tất cả variants nếu có nhiều hơn 1
+            if ($('.variant-item').length > 1) {
+                $('.remove-variant-btn').removeClass('d-none');
+            }
+
             updateAllImageColorOptions();
         }
 
@@ -1380,11 +1496,23 @@
 
         // Update all image color options
         function updateAllImageColorOptions() {
+            const variantColors = [];
+
+            $('.variant-item').each(function() {
+                const colorToggle = $(this).find('.color-toggle');
+                // Chỉ lấy màu từ các biến thể không có checkbox "Không màu"
+                if (colorToggle.length > 0 && !colorToggle.is(':checked')) {
+                    const colorName = $(this).find('.color-name-input').val().trim();
+                    if (colorName && !variantColors.includes(colorName)) {
+                        variantColors.push(colorName);
+                    }
+                }
+            });
+
+            // Cập nhật color options cho mỗi ảnh
             $('.product-image-upload-item').each(function() {
                 const imageIndex = $(this).data('index');
-                if (imageIndex !== undefined) {
-                    updateImageColorOptions(imageIndex);
-                }
+                updateImageColorOptions(imageIndex);
             });
         }
 
@@ -1651,58 +1779,67 @@
         function validateImages() {
             const errors = [];
 
-            // Đếm số ảnh hiện tại sau khi xóa
-            let remainingImages = 0;
-            $('.existing-image-item:not(.marked-for-deletion)').each(function() {
-                remainingImages++;
-            });
-
-            // Đếm số ảnh mới được upload
-            let newImages = 0;
-            $('.product-image-upload-item').each(function() {
-                const fileInput = $(this).find('input[type="file"]')[0];
-                if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                    newImages++;
+            // Get all unique colors from variants
+            const variantColors = [];
+            $('.variant-item').each(function() {
+                const colorToggle = $(this).find('.color-toggle');
+                // Chỉ lấy màu từ các biến thể không có checkbox "Không màu"
+                if (colorToggle.length > 0 && !colorToggle.is(':checked')) {
+                    const colorName = $(this).find('.color-name-input').val().trim();
+                    if (colorName && !variantColors.includes(colorName.toLowerCase())) {
+                        variantColors.push(colorName.toLowerCase());
+                    }
                 }
             });
 
-            const totalImages = remainingImages + newImages;
-
-            // Kiểm tra phải có ít nhất 1 ảnh
-            if (totalImages === 0) {
-                $('#product-images-error').text('Sản phẩm phải có ít nhất 1 ảnh');
-                errors.push('Sản phẩm phải có ít nhất 1 ảnh');
-            }
-
-            // Kiểm tra ảnh chung (color = null hoặc rỗng)
+            // Tạo mảng chứa tất cả màu có ảnh (bao gồm cả ảnh mới và ảnh đã tồn tại)
+            const allImageColors = [];
             let hasGeneralImage = false;
 
-            // Kiểm tra ảnh hiện tại còn lại
+            // Kiểm tra ảnh đã tồn tại (không bị đánh dấu xóa)
             $('.existing-image-item:not(.marked-for-deletion)').each(function() {
                 const colorTag = $(this).find('.color-tag').text().trim();
-                if (colorTag === 'Ảnh chung' || colorTag === '' || colorTag === 'General') {
+                if (colorTag === 'Ảnh chung' || colorTag === 'General') {
                     hasGeneralImage = true;
+                } else if (colorTag) {
+                    allImageColors.push(colorTag.toLowerCase());
                 }
             });
 
             // Kiểm tra ảnh mới
-            if (!hasGeneralImage) {
-                $('.product-image-upload-item').each(function() {
-                    const fileInput = $(this).find('input[type="file"]')[0];
-                    const colorInput = $(this).find('input[name*="[color]"]');
-
-                    if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                        const colorValue = colorInput.val();
-                        if (!colorValue || colorValue.trim() === '') {
-                            hasGeneralImage = true;
-                        }
+            $('.product-image-upload-item').each(function() {
+                const fileInput = $(this).find('input[type="file"]')[0];
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    const colorInput = $(this).find('input[name*="[color]"]:checked');
+                    if (colorInput.length > 0 && colorInput.val()) {
+                        allImageColors.push(colorInput.val().toLowerCase());
+                    } else {
+                        hasGeneralImage = true;
                     }
-                });
+                }
+            });
+
+            // Validation logic for images
+            if (variantColors.length > 0) {
+                // Tìm các màu thiếu ảnh
+                const missingColors = variantColors.filter(color =>
+                    !allImageColors.includes(color)
+                );
+
+                if (missingColors.length > 0) {
+                    errors.push(`Các màu sau cần có ảnh: ${missingColors.join(', ')}`);
+                }
             }
 
-            if (!hasGeneralImage && totalImages > 0) {
-                $('#product-images-error').text('Phải có ít nhất 1 ảnh chung (không gắn với màu cụ thể nào)');
-                errors.push('Phải có ít nhất 1 ảnh chung (không gắn với màu cụ thể nào)');
+            // Kiểm tra có ít nhất một ảnh (bao gồm cả ảnh hiện tại)
+            const hasAnyImage =
+                $('.existing-image-item:not(.marked-for-deletion)').length > 0 ||
+                $('.product-image-upload-item input[type="file"]').filter(function() {
+                    return this.files && this.files.length > 0;
+                }).length > 0;
+
+            if (!hasAnyImage) {
+                errors.push('Bạn phải thêm ít nhất một ảnh cho sản phẩm');
             }
 
             return errors;

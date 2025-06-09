@@ -41,23 +41,80 @@
             </div>
             <div class="card-content">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-3">
                         <div class="info-item">
                             <label>Tên khuyến mãi:</label>
                             <p>{{ $promotion->name }}</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-3">
                         <div class="info-item">
                             <label>Loại giảm giá:</label>
                             <p>{{ $promotion->type == 'percentage' ? 'Phần trăm' : 'Số tiền cố định' }}</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-3">
                         <div class="info-item">
                             <label>Giá trị:</label>
                             <p>{{ $promotion->getFormattedDiscountValue() }}</p>
                         </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="info-item">
+                            <label>Trạng thái:</label>
+                            <p>
+                                @if ($promotion->active())
+                                    <span class="badge bg-success">Đang hoạt động</span>
+                                @else
+                                    <span class="badge bg-secondary">Không hoạt động</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="info-item">
+                            <label>Đã áp dụng cho:</label>
+                            <p>
+                                @if ($appliedVariants->isEmpty())
+                                    <span class="badge bg-secondary">Chưa có sản phẩm nào</span>
+                                @else
+                                    <span class="badge bg-primary">{{ $appliedVariants->count() }} sản phẩm</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="info-item">
+                            <label>Ngày bắt đầu:</label>
+                            <p>{{ $promotion->start_date->format('d/m/Y H:i') }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày kết thúc:</label>
+                            <p>{{ $promotion->end_date->format('d/m/Y H:i') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="info-item">
+                            <label>Giá trị tối thiểu:</label>
+                            <p>{{ $promotion->minimum_value ? '$' . number_format($promotion->minimum_value, 2) : 'Không yêu cầu' }}</p>
+                        </div>
+
+                        <div class="info-item">
+                            <label>Giá trị tối đa:</label>
+                            <p>{{ $promotion->maximum_value ? '$' . number_format($promotion->maximum_value, 2) : 'Không giới hạn' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="info-item">
+                            <label>Mô tả:</label>
+                            <p>{{ $promotion->description ?: 'Không có mô tả' }}</p>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -84,18 +141,22 @@
                     @foreach ($appliedVariants as $productId => $variants)
                         <div class="product-group mb-4">
                             <div class="product-header">
-                                <h6>{{ $variants->first()->productVariant->product->name }}</h6>
+                                @php
+                                    $firstVariant = $variants->first();
+                                    $productExists = $firstVariant->productVariant && $firstVariant->productVariant->product;
+                                    $productName = $productExists ? $firstVariant->productVariant->product->name : 'Sản phẩm không xác định';
+                                    $productId = $productExists ? $firstVariant->productVariant->product_id : $productId;
+                                @endphp
+                                <h6>{{ $productName }}</h6>
                                 <div class="product-actions">
-
                                     @include('components.delete-form', [
-                                        'id' => $variants->first()->productVariant->product_id,
+                                        'id' => $productId,
                                         'route' => route('admin.promotions.remove-product-variants', [
                                             'promotionId' => $promotion->id,
-                                            'productId' => $variants->first()->productVariant->product_id,
+                                            'productId' => $productId,
                                         ]),
-                                        'message' => "Bạn có chắc chắn muốn xóa tất cả biến thể của sản phẩm '{$variants->first()->productVariant->product->name}' khỏi khuyến mãi '{$promotion->name}'?",
+                                        'message' => "Bạn có chắc chắn muốn xóa tất cả biến thể của " . ($productExists ? "sản phẩm '{$productName}'" : "sản phẩm không xác định này") . " khỏi khuyến mãi '{$promotion->name}'?",
                                     ])
-
                                 </div>
                             </div>
                             <div class="variants-table-container">
@@ -107,37 +168,52 @@
                                             <th>SKU</th>
                                             <th>Giá gốc</th>
                                             <th>Giá sau KM</th>
+                                            
                                             <th class="text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($variants as $variant)
                                             @php
-                                                $price = $variant->productVariant->price;
-                                                $discountedPrice =
-                                                    $promotion->type == 'percentage'
+                                                $variantExists = $variant->productVariant !== null;
+                                                $price = $variantExists ? $variant->productVariant->price : 0;
+                                                $discountedPrice = $variantExists 
+                                                    ? ($promotion->type == 'percentage'
                                                         ? $price * (1 - $promotion->value / 100)
-                                                        : max(0, $price - $promotion->value);
+                                                        : max(0, $price - $promotion->value))
+                                                    : 0;
+                                                
+                                                $colorName = $variantExists ? $variant->productVariant->color_name : 'Không xác định';
+                                                $colorCode = $variantExists ? $variant->productVariant->color : '#cccccc';
+                                                $size = $variantExists ? $variant->productVariant->size : 'Không xác định';
+                                                $sku = $variantExists ? $variant->productVariant->sku : 'Không xác định';
                                             @endphp
-                                            <tr>
+                                            <tr class="{{ !$variantExists ? 'table-warning' : '' }}">
                                                 <td>
                                                     <div class="color-display">
                                                         <span class="color-swatch"
-                                                            style="background-color: {{ $variant->productVariant->color }}"></span>
-                                                        {{ $variant->productVariant->color_name }}
+                                                            style="background-color: {{ $colorCode }}"></span>
+                                                        {{ $colorName }}
+                                                        @if(!$variantExists)
+                                                            <span class="badge bg-warning ms-2">Biến thể đã xóa</span>
+                                                        @endif
                                                     </div>
                                                 </td>
-                                                <td>{{ $variant->productVariant->size }}</td>
-                                                <td>{{ $variant->productVariant->sku }}</td>
-                                                <td>${{ number_format($price, 2) }}</td>
-                                                <td class="discounted-price">${{ number_format($discountedPrice, 2) }}</td>
+                                                <td>{{ $size }}</td>
+                                                <td>{{ $sku }}</td>
+                                                <td>{{ $variantExists ? '$'.number_format($price, 2) : 'N/A' }}</td>
+                                                <td class="discounted-price">{{ $variantExists ? '$'.number_format($discountedPrice, 2) : 'N/A' }}</td>
                                                 <td class="text-center">
                                                     @include('components.delete-form', [
                                                         'id' => $variant->id,
                                                         'route' => route(
                                                             'admin.promotions.remove-variant',
                                                             $variant),
-                                                        'message' => "Bạn có chắc chắn muốn xóa biến thể '{$variant->productVariant->color_name} ({$variant->productVariant->size})' khỏi khuyến mãi '{$promotion->name}'?",
+                                                        'message' => "Bạn có chắc chắn muốn xóa " . 
+                                                            ($variantExists 
+                                                                ? "biến thể '{$colorName} ({$size})'" 
+                                                                : "biến thể không xác định này") .
+                                                            " khỏi khuyến mãi '{$promotion->name}'?",
                                                     ])
                                                 </td>
                                             </tr>
@@ -343,6 +419,33 @@
 
         .variant-status {
             margin-left: 10px;
+        }
+
+        /* Thêm style cho biến thể đã bị xóa */
+        .table-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .color-swatch.deleted {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23999' fill-opacity='0.6'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E");
+            position: relative;
+        }
+
+        .color-swatch.deleted::after {
+            content: "×";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .badge.bg-warning {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.5rem;
+            background-color: #ffc107 !important;
+            color: #212529;
         }
     </style>
 @endpush

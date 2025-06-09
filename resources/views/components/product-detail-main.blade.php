@@ -5,26 +5,34 @@
             <div class="col-lg-6 d-flex align-items-stretch">
                 <div class="product-images w-100 d-flex gap-3">
                     <!-- Thumbnails -->
-                    <div class="product-thumbnails d-flex gap-3">
+                    <div class="product-thumbnails d-flex flex-column gap-3">
                         @php
                             $totalImages = count($product['images']);
-                            $showCount = min(3, $totalImages);
                         @endphp
                         
-                        @for ($i = 0; $i < $showCount; $i++)
-                            @if ($i < 2 || $totalImages <= 3)
-                                <div class="thumbnail-item {{ $i === 0 ? 'active' : '' }}"
-                                    data-index="{{ $i }}">
+                        <!-- Always maintain 3-box structure but only show actual images -->
+                        @for ($i = 0; $i < 3; $i++)
+                            @if ($i < $totalImages && $totalImages <= 3)
+                                <!-- Show actual image if available and total is 3 or less -->
+                                <div class="thumbnail-item {{ $i === 0 ? 'active' : '' }} flex-1" data-index="{{ $i }}">
                                     <img src="{{ asset($product['images'][$i]) }}" alt="Product {{ $i + 1 }}" class="img-fluid">
                                 </div>
-                            @else
-                                <!-- More images indicator -->
-                                <div class="thumbnail-item more-images" data-toggle="modal" data-target="#imageGalleryModal">
+                            @elseif ($i < 2 && $totalImages > 3)
+                                <!-- For 4+ images: Show first 2 images -->
+                                <div class="thumbnail-item {{ $i === 0 ? 'active' : '' }} flex-1" data-index="{{ $i }}">
                                     <img src="{{ asset($product['images'][$i]) }}" alt="Product {{ $i + 1 }}" class="img-fluid">
+                                </div>
+                            @elseif ($i === 2 && $totalImages > 3)
+                                <!-- For 4+ images: Show more indicator on 3rd slot -->
+                                <div class="thumbnail-item more-images flex-1" data-toggle="modal" data-target="#imageGalleryModal">
+                                    <img src="{{ asset($product['images'][2]) }}" alt="More images" class="img-fluid">
                                     <div class="more-overlay">
-                                        <span class="more-count">+{{ $totalImages - 2 }}</span>
+                                        <span>+{{ $totalImages - 2 }}</span>
                                     </div>
                                 </div>
+                            @else
+                                <!-- Empty placeholder - invisible but maintains spacing -->
+                                <div class="thumbnail-item empty flex-1"></div>
                             @endif
                         @endfor
                     </div>
@@ -94,7 +102,8 @@
                         </div>
 
                         <!-- Description -->
-                        <p class="product-description color-primary-5 mb-4">{{ $product['description'] }}</p>
+                       <p class="product-description color-primary-5 mb-4">{!! nl2br(e($product['description'])) !!}</p>
+
                     </div>
 
                     <div>
@@ -104,7 +113,7 @@
                             <div class="color-options">
                                 @foreach ($product['colors'] as $color)
                                     <div class="color-option {{ $loop->first ? 'active' : '' }}"
-                                        data-color="{{ $color }}">
+                                        data-color="{{ $color }}" style="background-color: {{ $color }};">
                                         <div class="color-circle color-{{ $color }}"></div>
                                     </div>
                                 @endforeach
@@ -179,210 +188,161 @@
 </div>
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const productImages = @json($product['images']);
-            let currentImageIndex = 0;
+<script>
+    $(document).ready(function () {
+        const productImages = @json($product['images']);
+        let currentImageIndex = 0;
+        let galleryCurrentIndex = 0;
+
+        const $mainImage = $('.main-image');
+        const $thumbnails = $('.thumbnail-item:not(.more-images)');
+        const $prevBtn = $('.prev-btn');
+        const $nextBtn = $('.next-btn');
+        const $indicators = $('.indicator');
+        const $mainImageContainer = $('.main-image-container');
+        const $moreImages = $('.thumbnail-item.more-images');
+
+        function updateMainImage(index) {
+            currentImageIndex = index;
+            $mainImage.attr('src', '{{ asset('') }}' + productImages[index])
+                      .attr('data-current-index', index);
+
+            $indicators.removeClass('active').eq(index).addClass('active');
+            $thumbnails.removeClass('active');
             
-            // Elements
-            const thumbnails = document.querySelectorAll('.thumbnail-item:not(.more-images)');
-            const mainImage = document.querySelector('.main-image');
-            const prevBtn = document.querySelector('.prev-btn');
-            const nextBtn = document.querySelector('.next-btn');
-            const indicators = document.querySelectorAll('.indicator');
-            const mainImageContainer = document.querySelector('.main-image-container');
-
-            // Update main image and thumbnails
-            function updateMainImage(index) {
-                currentImageIndex = index;
-                mainImage.src = '{{ asset("") }}' + productImages[index];
-                mainImage.setAttribute('data-current-index', index);
-                
-                // Update indicators
-                indicators.forEach((indicator, i) => {
-                    indicator.classList.toggle('active', i === index);
-                });
-                
-                // Update thumbnail active state (only for visible thumbnails)
-                thumbnails.forEach((thumbnail, i) => {
-                    thumbnail.classList.toggle('active', i === index);
-                });
-            }
-
-            // Thumbnail click handler
-            thumbnails.forEach((thumbnail, index) => {
-                thumbnail.addEventListener('click', function() {
-                    updateMainImage(index);
-                });
-            });
-
-            // Navigation arrows
-            if (prevBtn && nextBtn) {
-                prevBtn.addEventListener('click', function() {
-                    currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : productImages.length - 1;
-                    updateMainImage(currentImageIndex);
-                });
-
-                nextBtn.addEventListener('click', function() {
-                    currentImageIndex = currentImageIndex < productImages.length - 1 ? currentImageIndex + 1 : 0;
-                    updateMainImage(currentImageIndex);
-                });
-            }
-
-            // Indicator clicks
-            indicators.forEach((indicator, index) => {
-                indicator.addEventListener('click', function() {
-                    updateMainImage(index);
-                });
-            });
-
-            // Touch/Swipe functionality for mobile
-            let startX = 0;
-            let startY = 0;
-            let isDragging = false;
-
-            mainImageContainer.addEventListener('touchstart', function(e) {
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                isDragging = true;
-            });
-
-            mainImageContainer.addEventListener('touchmove', function(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-            });
-
-            mainImageContainer.addEventListener('touchend', function(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                
-                const endX = e.changedTouches[0].clientX;
-                const endY = e.changedTouches[0].clientY;
-                const diffX = startX - endX;
-                const diffY = startY - endY;
-                
-                // Check if horizontal swipe is more significant than vertical
-                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-                    if (diffX > 0) {
-                        // Swipe left - next image
-                        currentImageIndex = currentImageIndex < productImages.length - 1 ? currentImageIndex + 1 : 0;
-                    } else {
-                        // Swipe right - previous image
-                        currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : productImages.length - 1;
-                    }
-                    updateMainImage(currentImageIndex);
+            // Only update thumbnail active state if it exists (may not for index > 1 when we have more than 3 images)
+            $thumbnails.each(function() {
+                if ($(this).data('index') == index) {
+                    $(this).addClass('active');
                 }
             });
+        }
 
-            // Mouse drag functionality for desktop
-            let mouseStartX = 0;
-            let isMouseDragging = false;
-
-            mainImageContainer.addEventListener('mousedown', function(e) {
-                mouseStartX = e.clientX;
-                isMouseDragging = true;
-                e.preventDefault();
-            });
-
-            document.addEventListener('mousemove', function(e) {
-                if (!isMouseDragging) return;
-                e.preventDefault();
-            });
-
-            document.addEventListener('mouseup', function(e) {
-                if (!isMouseDragging) return;
-                isMouseDragging = false;
-                
-                const diffX = mouseStartX - e.clientX;
-                
-                if (Math.abs(diffX) > 50) {
-                    if (diffX > 0) {
-                        // Drag left - next image
-                        currentImageIndex = currentImageIndex < productImages.length - 1 ? currentImageIndex + 1 : 0;
-                    } else {
-                        // Drag right - previous image
-                        currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : productImages.length - 1;
-                    }
-                    updateMainImage(currentImageIndex);
-                }
-            });
-
-            // Gallery Modal functionality
-            const galleryImage = document.querySelector('.gallery-image');
-            const galleryThumbs = document.querySelectorAll('.gallery-thumb');
-            const galleryPrev = document.querySelector('.gallery-prev');
-            const galleryNext = document.querySelector('.gallery-next');
-            let galleryCurrentIndex = 0;
-
-            function updateGalleryImage(index) {
-                galleryCurrentIndex = index;
-                galleryImage.src = '{{ asset("") }}' + productImages[index];
-                
-                galleryThumbs.forEach((thumb, i) => {
-                    thumb.classList.toggle('active', i === index);
-                });
-            }
-
-            // Gallery thumbnail clicks
-            galleryThumbs.forEach((thumb, index) => {
-                thumb.addEventListener('click', function() {
-                    updateGalleryImage(index);
-                });
-            });
-
-            // Gallery navigation
-            if (galleryPrev && galleryNext) {
-                galleryPrev.addEventListener('click', function() {
-                    galleryCurrentIndex = galleryCurrentIndex > 0 ? galleryCurrentIndex - 1 : productImages.length - 1;
-                    updateGalleryImage(galleryCurrentIndex);
-                });
-
-                galleryNext.addEventListener('click', function() {
-                    galleryCurrentIndex = galleryCurrentIndex < productImages.length - 1 ? galleryCurrentIndex + 1 : 0;
-                    updateGalleryImage(galleryCurrentIndex);
-                });
-            }
-
-            // Open gallery modal at current image
-            $('#imageGalleryModal').on('show.bs.modal', function() {
-                updateGalleryImage(currentImageIndex);
-            });
-
-            // Color selection
-            const colorOptions = document.querySelectorAll('.color-option');
-            colorOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    colorOptions.forEach(o => o.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-
-            // Size selection
-            const sizeOptions = document.querySelectorAll('.size-option');
-            sizeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    sizeOptions.forEach(o => o.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-
-            // Quantity controls
-            const quantityInput = document.querySelector('.quantity-input');
-            const minusBtn = document.querySelector('.quantity-btn.minus');
-            const plusBtn = document.querySelector('.quantity-btn.plus');
-
-            minusBtn.addEventListener('click', function() {
-                const currentValue = parseInt(quantityInput.value);
-                if (currentValue > 1) {
-                    quantityInput.value = currentValue - 1;
-                }
-            });
-
-            plusBtn.addEventListener('click', function() {
-                const currentValue = parseInt(quantityInput.value);
-                quantityInput.value = currentValue + 1;
-            });
+        $thumbnails.on('click', function () {
+            const index = $(this).data('index');
+            updateMainImage(index);
         });
-    </script>
+
+        $moreImages.on('click', function() {
+            $('#imageGalleryModal').modal('show');
+        });
+
+        $prevBtn.on('click', function () {
+            currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : productImages.length - 1;
+            updateMainImage(currentImageIndex);
+        });
+
+        $nextBtn.on('click', function () {
+            currentImageIndex = currentImageIndex < productImages.length - 1 ? currentImageIndex + 1 : 0;
+            updateMainImage(currentImageIndex);
+        });
+
+        // Swipe mobile
+        let startX = 0, startY = 0, isDragging = false;
+        $mainImageContainer.on('touchstart', function (e) {
+            const touch = e.originalEvent.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            isDragging = true;
+        });
+
+        $mainImageContainer.on('touchmove', function (e) {
+            if (!isDragging) return;
+            e.preventDefault();
+        });
+
+        $mainImageContainer.on('touchend', function (e) {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const touch = e.originalEvent.changedTouches[0];
+            const diffX = startX - touch.clientX;
+            const diffY = startY - touch.clientY;
+
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                currentImageIndex = diffX > 0
+                    ? (currentImageIndex + 1) % productImages.length
+                    : (currentImageIndex - 1 + productImages.length) % productImages.length;
+                updateMainImage(currentImageIndex);
+            }
+        });
+
+        // Mouse drag
+        let mouseStartX = 0, isMouseDragging = false;
+        $mainImageContainer.on('mousedown', function (e) {
+            mouseStartX = e.clientX;
+            isMouseDragging = true;
+            e.preventDefault();
+        });
+
+        $(document).on('mouseup', function (e) {
+            if (!isMouseDragging) return;
+            isMouseDragging = false;
+
+            const diffX = mouseStartX - e.clientX;
+            if (Math.abs(diffX) > 50) {
+                currentImageIndex = diffX > 0
+                    ? (currentImageIndex + 1) % productImages.length
+                    : (currentImageIndex - 1 + productImages.length) % productImages.length;
+                updateMainImage(currentImageIndex);
+            }
+        });
+
+        // Gallery modal
+        const $galleryImage = $('.gallery-image');
+        const $galleryThumbs = $('.gallery-thumb');
+        const $galleryPrev = $('.gallery-prev');
+        const $galleryNext = $('.gallery-next');
+
+        function updateGalleryImage(index) {
+            galleryCurrentIndex = index;
+            $galleryImage.attr('src', '{{ asset('') }}' + productImages[index]);
+            $galleryThumbs.removeClass('active').eq(index).addClass('active');
+        }
+
+        $galleryThumbs.on('click', function () {
+            updateGalleryImage($(this).index());
+        });
+
+        $galleryPrev.on('click', function () {
+            galleryCurrentIndex = (galleryCurrentIndex - 1 + productImages.length) % productImages.length;
+            updateGalleryImage(galleryCurrentIndex);
+        });
+
+        $galleryNext.on('click', function () {
+            galleryCurrentIndex = (galleryCurrentIndex + 1) % productImages.length;
+            updateGalleryImage(galleryCurrentIndex);
+        });
+
+        $('#imageGalleryModal').on('show.bs.modal', function () {
+            updateGalleryImage(currentImageIndex);
+        });
+
+        // Color selection
+        $('.color-option').on('click', function () {
+            $('.color-option').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        // Size selection
+        $('.size-option').on('click', function () {
+            $('.size-option').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        // Quantity controls
+        const $quantityInput = $('.quantity-input');
+        $('.quantity-btn.minus').on('click', function () {
+            const current = parseInt($quantityInput.val(), 10);
+            if (current > 1) $quantityInput.val(current - 1);
+        });
+
+        $('.quantity-btn.plus').on('click', function () {
+            const current = parseInt($quantityInput.val(), 10);
+            $quantityInput.val(current + 1);
+        });
+    });
+</script>
 @endpush
+
 

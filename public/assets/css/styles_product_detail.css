@@ -4,7 +4,7 @@
     display: flex;
     gap: 20px;
     height: 100%;
-    min-height: 600px;
+    min-height: auto; /* Changed from 600px to auto */
 }
 
 .product-thumbnails {
@@ -27,9 +27,19 @@
     transition: all 0.3s ease;
 }
 
+.thumbnail-item.empty {
+    background-color: transparent;
+    border: none;
+    visibility: hidden; /* Hide but keep space */
+    cursor: default;
+    pointer-events: none; /* Prevent interactions */
+}
+
 .thumbnail-item.active {
     border-color: var(--primary-color);
 }
+
+/* If you're maintaining the "more images" functionality, modify it like this */
 
 .thumbnail-item:hover {
     border-color: var(--primary-color-5);
@@ -38,14 +48,14 @@
 .thumbnail-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: scale-down;
 }
 
 .product-main-image {
     border-radius: 20px;
     overflow: hidden;
     background: var(--primary-color-2);
-    min-height: 600px;
+    min-height: auto; /* Changed from 600px to auto */
     height: 100%;
 }
 
@@ -339,33 +349,31 @@
     }
 
     .product-thumbnails {
-        flex-direction: row;
+        flex-direction: row !important; /* Force horizontal layout */
         width: 100%;
         height: auto;
-        justify-content: center;
-        gap: 10px;
-        overflow-x: auto;
         order: 2;
+        overflow-x: auto;
+        padding-bottom: 5px; /* Space for scrollbar */
     }
 
     .thumbnail-item {
-        width: 100px;
-        height: 100px;
-        flex: none;
-        flex-shrink: 0;
+        width: 100px; /* Fixed width */
+        height: 100px; /* Fixed height */
+        min-width: 100px; /* Prevent shrinking */
+        flex: 0 0 auto; /* Do not grow or shrink */
+        margin-right: 10px;
     }
 
     .product-main-image {
-        min-height: 450px;
-        height: 450px;
+        min-height: 400px;
+        height: auto;
         width: 100%;
-        order: 1;
-        /* Main image lên trên */
+        order: 1; /* Main image on top */
     }
-
-    .product-info {
-        padding-left: 0;
-        margin-top: 30px;
+    
+    .main-image {
+        object-fit: contain;
     }
 }
 
@@ -558,7 +566,7 @@
     border-radius: 20px;
     color: white;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 /* Main image navigation */
@@ -733,6 +741,41 @@
         touch-action: pan-y;
         user-select: none;
     }
+
+    .product-images {
+        flex-direction: column;
+        min-height: auto;
+        height: auto;
+        gap: 15px;
+    }
+
+    .product-thumbnails {
+        flex-direction: row !important; /* Force horizontal layout */
+        width: 100%;
+        height: auto;
+        order: 2;
+        overflow-x: auto;
+        padding-bottom: 5px; /* Space for scrollbar */
+    }
+
+    .thumbnail-item {
+        width: 100px; /* Fixed width */
+        height: 100px; /* Fixed height */
+        min-width: 100px; /* Prevent shrinking */
+        flex: 0 0 auto; /* Do not grow or shrink */
+        margin-right: 10px;
+    }
+
+    .product-main-image {
+        min-height: 400px;
+        height: auto;
+        width: 100%;
+        order: 1; /* Main image on top */
+    }
+    
+    .main-image {
+        object-fit: contain;
+    }
 }
 
 @media (max-width: 768px) {
@@ -794,5 +837,15 @@
     
     .gallery-image {
         height: 280px;
+    }
+    
+    .thumbnail-item {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+    }
+    
+    .product-main-image {
+        min-height: 350px;
     }
 }
