@@ -101,7 +101,7 @@
                                     <textarea id="description_short" name="description_short" class="custom-input" rows="3"
                                         placeholder="Nhập mô tả ngắn về sản phẩm (tối đa 500 ký tự)" maxlength="500">{{ old('description_short', $product->description_short) }}</textarea>
                                     <div class="error-message" id="description_short-error"></div>
-                                   
+
                                 </div>
 
                                 <div class="form-group">
@@ -187,7 +187,8 @@
                                             class="image-input" style="display: none;">
                                     </div>
                                     <div class="error-message" id="avatar-error"></div>
-                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG, Tỉ lệ 1:1</small>
+                                    <small class="form-text">Ảnh chính của sản phẩm. Định dạng: JPG, PNG, JPEG, Tỉ lệ
+                                        1:1</small>
                                 </div>
                             </div>
                         </div>
@@ -1006,10 +1007,81 @@
 @endpush
 
 @push('scripts')
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
         let variantCount = {{ $product->variants->count() }};
         let imageCount = 0;
         let currentTab = 'basic-info';
+
+        CKEDITOR.replace('description_long', {
+            filebrowserUploadUrl: "{{ route('admin.ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form',
+            height: 400,
+            toolbarGroups: [
+                { name: 'document', groups: ['mode', 'document', 'doctools'] },
+                { name: 'clipboard', groups: ['clipboard', 'undo'] },
+                { name: 'editing', groups: ['find', 'selection', 'spellchecker', 'editing'] },
+                { name: 'forms', groups: ['forms'] },
+                { name: 'basicstyles', groups: ['basicstyles', 'cleanup'] },
+                { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align', 'paragraph'] },
+                { name: 'links', groups: ['links'] },
+                { name: 'insert', groups: ['insert'] },
+                { name: 'styles', groups: ['styles'] },
+                { name: 'colors', groups: ['colors'] },
+                { name: 'tools', groups: ['tools'] },
+                { name: 'others', groups: ['others'] }
+            ],
+            // Thêm tùy chọn cho kích thước, màu sắc và định dạng
+            fontSize_sizes: '8/8px;9/9px;10/10px;11/11px;12/12px;14/14px;16/16px;18/18px;20/20px;22/22px;24/24px;26/26px;28/28px;36/36px;48/48px;72/72px',
+            font_names: 'Arial/Arial, Helvetica, sans-serif;Times New Roman/Times New Roman, Times, serif;Verdana/Verdana, Geneva, sans-serif;Roboto/Roboto, sans-serif;Open Sans/Open Sans, sans-serif;Lato/Lato, sans-serif;Montserrat/Montserrat, sans-serif;',
+            colorButton_colors: '000,800000,8B4513,2F4F4F,008080,000080,4B0082,696969,B22222,A52A2A,DAA520,006400,40E0D0,0000CD,800080,808080,F00,FF8C00,FFD700,008000,0FF,00F,EE82EE,A9A9A9,FFA07A,FFA500,FFFF00,00FF00,AFEEEE,ADD8E6,DDA0DD,D3D3D3,FFF0F5,FAEBD7,FFFFE0,F0FFF0,F0FFFF,F0F8FF,E6E6FA,FFF',
+            colorButton_enableMore: true,
+            colorButton_foreStyle: {
+                element: 'span',
+                styles: { 'color': '#(color)' },
+                overrides: [{
+                    element: 'font',
+                    attributes: { 'color': null }
+                }]
+            },
+            colorButton_backStyle: {
+                element: 'span',
+                styles: { 'background-color': '#(color)' }
+            },
+            // Cấu hình để thêm các plugin chèn ảnh nâng cao
+            extraPlugins: 'uploadimage,clipboard,pastetext,font,colorbutton,justify,image2',
+            uploadUrl: "{{ route('admin.ckeditor.upload', ['_token' => csrf_token()]) }}",
+            
+            // Hỗ trợ xử lý clipboard và paste ảnh
+            clipboard_handleImages: true,
+            pasteFilter: null,
+            pasteUploadFileApi: "{{ route('admin.ckeditor.upload', ['_token' => csrf_token()]) }}",
+            allowedContent: true,
+            
+            // Cấu hình xử lý hình ảnh
+            image_previewText: ' ',
+            image2_alignClasses: ['image-align-left', 'image-align-center', 'image-align-right'],
+            image2_disableResizer: false,
+            
+            // Danh sách nút sẽ loại bỏ
+            removeButtons: 'About,Scayt,Anchor',
+            
+            // Cấu hình chỉnh sửa hình ảnh nâng cao
+            image2_prefillDimensions: true,
+            image2_captionedClass: 'image-captioned',
+            
+            // Kích thước mặc định cho ảnh đặt vào
+            imageUploadUrl: "{{ route('admin.ckeditor.upload', ['_token' => csrf_token()]) }}",
+            imageUploadMethod: 'form',
+            filebrowserImageUploadUrl: "{{ route('admin.ckeditor.upload', ['_token' => csrf_token()]) }}"
+        });
+
+        // CKEditor events để cập nhật dữ liệu khi submit form
+        CKEDITOR.instances.description_long.on('change', function() {
+            this.updateElement();
+        });
+
+        $('#description_long').removeAttr('maxlength');
 
         $(document).ready(function() {
             // Remove all HTML5 required attributes to prevent browser validation
@@ -1799,7 +1871,7 @@
             // Kiểm tra ảnh đã tồn tại (không bị đánh dấu xóa)
             $('.existing-image-item:not(.marked-for-deletion)').each(function() {
                 const colorTag = $(this).find('.color-tag').text().trim();
-                if (colorTag === 'Ảnh chung' || colorTag === 'General') {
+                if (colorTag === 'Ảnh chung' || colorTag === '' || colorTag === 'General') {
                     hasGeneralImage = true;
                 } else if (colorTag) {
                     allImageColors.push(colorTag.toLowerCase());
@@ -1810,11 +1882,12 @@
             $('.product-image-upload-item').each(function() {
                 const fileInput = $(this).find('input[type="file"]')[0];
                 if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                    const colorInput = $(this).find('input[name*="[color]"]:checked');
-                    if (colorInput.length > 0 && colorInput.val()) {
-                        allImageColors.push(colorInput.val().toLowerCase());
-                    } else {
+                    const colorInput = $(this).find('input[name*="[color]"]');
+                    const colorValue = colorInput.val();
+                    if (!colorValue || colorValue.trim() === '') {
                         hasGeneralImage = true;
+                    } else {
+                        allImageColors.push(colorValue.toLowerCase());
                     }
                 }
             });
@@ -1953,6 +2026,11 @@
         }
 
         function submitForm() {
+
+            if(CKEDITOR.instances.description_long) {
+                CKEDITOR.instances.description_long.updateElement();
+            }
+
             $('.error-message').empty();
             $('.input-error').removeClass('input-error');
             $('.nav-link').removeClass('tab-error');

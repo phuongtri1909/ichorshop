@@ -4,19 +4,20 @@
         <div class="tab-navigation">
             <ul class="nav nav-tabs border-0" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#details" type="button"
-                        role="tab">
+                    <button class="nav-link active py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#details"
+                        type="button" role="tab">
                         Product Details
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#reviews" type="button"
-                        role="tab">
+                    <button class="nav-link py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#reviews"
+                        type="button" role="tab">
                         Rating & Reviews
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#faqs" type="button" role="tab">
+                    <button class="nav-link py-1 px-0 py-md-3" data-bs-toggle="tab" data-bs-target="#faqs"
+                        type="button" role="tab">
                         FAQs
                     </button>
                 </li>
@@ -28,26 +29,16 @@
             <!-- Product Details -->
             <div class="tab-pane fade show active" id="details" role="tabpanel">
                 <div class="product-details-content">
-                    <h5>Product Information</h5>
-                    <p>This graphic t-shirt is perfect for any occasion. Made from premium cotton blend fabric that
-                        provides exceptional comfort and durability.</p>
-
-                    <div class="details-grid">
-                        <div class="detail-item">
-                            <strong>Material:</strong>
-                            <span>100% Cotton</span>
+                    <div class="description-container">
+                        <div class="description-content text-muted mt-4 mb-0 text-justify"
+                            id="description-content-{{ $product['id'] }}">
+                            {!! $product['description_long'] !!}
                         </div>
-                        <div class="detail-item">
-                            <strong>Fit:</strong>
-                            <span>Regular Fit</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>Care Instructions:</strong>
-                            <span>Machine wash cold, tumble dry low</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>Origin:</strong>
-                            <span>Made in USA</span>
+                        <div class="description-toggle-btn mt-2 text-center d-none">
+                            <button class="btn btn-sm btn-link show-more-btn">See More <i
+                                    class="fas fa-chevron-down"></i></button>
+                            <button class="btn btn-sm btn-link show-less-btn d-none">See Less <i
+                                    class="fas fa-chevron-up"></i></button>
                         </div>
                     </div>
                 </div>
@@ -124,7 +115,7 @@
         .tab-navigation {
             border-bottom: 1px solid #e5e5e5;
         }
-        
+
         .tab-navigation .nav-tabs {
             justify-content: space-between;
             border-bottom: none;
@@ -188,5 +179,95 @@
                 font-size: 14px;
             }
         }
+
+        .description-container {
+            position: relative;
+            max-width: 100%;
+        }
+
+        .description-content {
+            max-height: 180px;
+            /* Chiều cao tối đa khi thu gọn */
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.5s ease;
+            line-height: 1.8;
+            text-align: justify;
+        }
+        
+        .description-content.expanded {
+            max-height: 5000px;
+            /* Đủ lớn để chứa mọi nội dung */
+        }
+        
+        .description-content:not(.expanded)::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(transparent, #fff);
+            pointer-events: none;
+        }
+        
+        .description-toggle-btn .btn-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            background-color: rgba(var(--primary-color-rgb), 0.05);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .description-toggle-btn .btn-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
     </style>
+@endpush
+
+@push('scripts')
+    <script>
+        // Description show more/less functionality
+        function initDescriptionToggle() {
+            const descriptionContent = document.getElementById('description-content-{{ $product['id'] }}');
+            const toggleBtnContainer = document.querySelector('.description-toggle-btn');
+            const showMoreBtn = document.querySelector('.show-more-btn');
+            const showLessBtn = document.querySelector('.show-less-btn');
+
+            if (descriptionContent && toggleBtnContainer) {
+                // Check if content height exceeds the max-height
+                if (descriptionContent.scrollHeight > descriptionContent.offsetHeight) {
+                    // Content is taller than the container, show the toggle button
+                    toggleBtnContainer.classList.remove('d-none');
+
+                    showMoreBtn.addEventListener('click', function() {
+                        descriptionContent.classList.add('expanded');
+                        showMoreBtn.classList.add('d-none');
+                        showLessBtn.classList.remove('d-none');
+                    });
+
+                    showLessBtn.addEventListener('click', function() {
+                        descriptionContent.classList.remove('expanded');
+                        showLessBtn.classList.add('d-none');
+                        showMoreBtn.classList.remove('d-none');
+
+                        // Scroll back to start of description
+                        descriptionContent.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initDescriptionToggle();
+            
+            // Any other existing scripts...
+        });
+    </script>
 @endpush

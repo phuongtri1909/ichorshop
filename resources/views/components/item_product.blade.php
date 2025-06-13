@@ -3,7 +3,7 @@
         <img src="{{ $product->avatar ? Storage::url($product->avatar) : asset('assets/images/default/product-default.png') }}"
             alt="{{ $product->name }}" class="img-fluid">
     </div>
-    <div class="product-info">
+    <div class="">
         <h5 class="product-name">{{ $product->name }}</h5>
         <div class="d-flex">
             <span class="rating-stars text-sm color-primary-5" title="{{ $product->rating ?? 0 }} sao">

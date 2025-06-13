@@ -74,61 +74,80 @@ class HomeController extends Controller
             'brand'
         ])->where('slug', $slug)->active()->firstOrFail();
 
+        // Find cheapest variant after discounts
         $cheapestVariant = $product->variants
             ->sortBy(fn($v) => $v->getDiscountedPrice())
             ->first();
 
+        // Set default selections based on cheapest variant
         $defaultColor = $cheapestVariant->color_name ?? null;
         $defaultColorCode = $cheapestVariant->color ?? null;
         $defaultSize = $cheapestVariant->size ?? null;
 
+        // Get available colors (with their codes)
         $availableColors = $product->variants
             ->whereNotNull('color')
             ->whereNotNull('color_name')
             ->pluck('color', 'color_name')
             ->unique();
 
-        $availableSizes = $product->variants
+        // Get all sizes from all variants
+        $allSizes = $product->variants
             ->pluck('size')
+            ->filter() // Remove null values
             ->unique()
             ->values();
 
-        // $sizesByColor = $product->variants
-        //     ->whereNotNull('color')
-        //     ->groupBy('color')
-        //     ->map(fn($group) => $group->pluck('size')->unique()->values());
+        // Get variants without color (for "Default" option)
+        $variantsWithoutColor = $product->variants
+            ->whereNull('color')
+            ->whereNull('color_name')
+            ->values();
 
-        // $colorsBySize = $product->variants
-        //     ->whereNotNull('color')
-        //     ->whereNotNull('color_name')
-        //     ->groupBy('size')
-        //     ->map(fn($group) => $group->pluck('color', 'color_name')->unique());
+        // Get images
+        $defaultImages = $product->images->whereNull('color')->pluck('image_url');
+        if ($defaultImages->isEmpty()) {
+            $defaultImages = collect([$product->avatar_url]);
+        }
 
-        // $sizesWithoutColor = $product->variants
-        //     ->whereNull('color')
-        //     ->pluck('size')
-        //     ->unique()
-        //     ->values();
+        // Get images per color
+        $colorImages = [];
+        foreach ($availableColors as $colorName => $colorCode) {
+            $images = $product->images->where('color', $colorCode)->pluck('image_url');
+            if ($images->isNotEmpty()) {
+                $colorImages[$colorName] = $images->toArray();
+            }
+        }
 
+        // Initial product images based on default color
         $productImages = collect();
-        if ($defaultColorCode) {
-            $productImages = $product->images->where('color', $defaultColorCode);
-        }
-        if ($productImages->isEmpty()) {
-            $productImages = $product->images->whereNull('color');
-        }
-        if ($productImages->isEmpty()) {
-            $productImages = collect([$product->avatar_url]);
+        if ($defaultColorCode && isset($colorImages[$defaultColor])) {
+            $productImages = collect($colorImages[$defaultColor]);
         } else {
-            $productImages = $productImages->pluck('image_url');
+            $productImages = $defaultImages;
         }
 
+        // Price calculations
         $currentPrice = $cheapestVariant?->getDiscountedPrice() ?? 0;
         $originalPrice = $cheapestVariant->price ?? 0;
 
         $discount = $originalPrice > $currentPrice
             ? round(100 - ($currentPrice / $originalPrice * 100))
             : 0;
+
+        // Format variants for frontend with discounted prices
+        $formattedVariants = $product->variants->map(function ($variant) {
+            return [
+                'id' => $variant->id,
+                'color' => $variant->color,
+                'color_name' => $variant->color_name,
+                'size' => $variant->size,
+                'price' => (float)$variant->price, // Ensure price is numeric
+                'discounted_price' => (float)$variant->getDiscountedPrice(), // Ensure discounted_price is numeric
+                'sku' => $variant->sku,
+                'quantity' => $variant->quantity,
+            ];
+        });
 
         $breadcrumbItems = [
             ['title' => 'Home', 'url' => route('home')],
@@ -181,21 +200,20 @@ class HomeController extends Controller
             'discount' => $discount,
 
             'images' => $productImages->toArray(),
+            'default_images' => $defaultImages->toArray(),
+            'color_images' => $colorImages,
+
             'colors' => $availableColors->toArray(),
-            'sizes' => $availableSizes,
+            'all_sizes' => $allSizes,
+            'available_sizes' => $allSizes, // Initially all sizes are available
 
-            // 'sizes_by_color' => $sizesByColor,
-            // 'colors_by_size' => $colorsBySize,
-
-            // 'sizes_without_color' => $sizesWithoutColor,
+            'variants_without_color' => $variantsWithoutColor->toArray(),
             'default_color' => $defaultColor,
             'default_color_code' => $defaultColorCode,
             'default_size' => $defaultSize,
             'cheapest_variant' => $cheapestVariant?->toArray(),
-            'all_variants' => $product->variants->toArray(),
+            'all_variants' => $formattedVariants->toArray(),
         ];
-
-        //dd($productData);
 
         return view('client.pages.product-detail', [
             'product' => $productData,

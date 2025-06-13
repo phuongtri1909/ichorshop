@@ -66,7 +66,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description_short' => 'nullable|string|max:500',
-            'description_long' => 'nullable|string',
+            'description_long' => 'nullable',
             'brand_id' => 'nullable|exists:brands,id',
             'categories' => 'required|array|min:1',
             'categories.*' => 'exists:categories,id',
@@ -247,7 +247,7 @@ class ProductController extends Controller
             'dress_styles' => 'nullable|array',
             'dress_styles.*' => 'exists:dress_styles,id',
             'description_short' => 'nullable|string|max:500',
-            'description_long' => 'nullable|string',
+            'description_long' => 'nullable',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg',
 
             // Validate variants

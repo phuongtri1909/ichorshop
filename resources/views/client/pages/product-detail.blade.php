@@ -25,6 +25,7 @@
             'reviews' => 'Rating & Reviews',
             'faqs' => 'FAQs',
         ],
+        'product' => $product,
     ])
 
     <!-- You might also like -->

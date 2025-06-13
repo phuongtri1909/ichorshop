@@ -2,11 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
-use App\Http\Controllers\Admin\BrandController;
-use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\NewsController;
-use App\Http\Controllers\Admin\DressStyleController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -14,9 +12,12 @@ use App\Http\Controllers\Admin\SocialController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CkeditorController;
 use App\Http\Controllers\Admin\LogoSiteController;
-use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseController;
+use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\DressStyleController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
 Route::group(['as' => 'admin.'], function () {
@@ -82,6 +83,9 @@ Route::group(['as' => 'admin.'], function () {
         Route::patch('/contacts/{contact}/status', [ContactController::class, 'updateStatus'])->name('contacts.update-status');
 
         Route::resource('socials', SocialController::class)->except(['show']);
+
+        Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
+            ->name('ckeditor.upload');
     });
 
     Route::group(['middleware' => 'guest'], function () {
