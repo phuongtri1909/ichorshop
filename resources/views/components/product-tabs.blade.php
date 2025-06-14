@@ -266,8 +266,6 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             initDescriptionToggle();
-            
-            // Any other existing scripts...
         });
     </script>
 @endpush
