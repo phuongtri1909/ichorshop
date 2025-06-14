@@ -26,6 +26,7 @@
             'faqs' => 'FAQs',
         ],
         'product' => $product,
+        'faqs' => $faqs,
     ])
 
     <!-- You might also like -->

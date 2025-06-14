@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faq;
 use App\Models\Brand;
-use App\Models\DressStyle;
 use App\Models\Product;
+use App\Models\DressStyle;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
@@ -215,11 +216,16 @@ class HomeController extends Controller
             'all_variants' => $formattedVariants->toArray(),
         ];
 
+        $faqs = Faq::orderBy('order')->take(4)->get();
+        $totalFaqs = Faq::count();
+
         return view('client.pages.product-detail', [
             'product' => $productData,
             'breadcrumbItems' => $breadcrumbItems,
             'likeProducts' => $likeProducts,
             'relatedProducts' => $relatedProducts,
+            'faqs' => $faqs,
+            'totalFaqs' => $totalFaqs,
         ]);
     }
 

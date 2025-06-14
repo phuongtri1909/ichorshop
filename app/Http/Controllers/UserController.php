@@ -213,11 +213,6 @@ class UserController extends Controller
         return view('client.pages.account.orders');
     }
 
-    public function wishlist()
-    {
-        return view('client.pages.account.wishlist');
-    }
-
     public function addresses()
     {
         return view('client.pages.account.addresses');

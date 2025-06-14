@@ -90,19 +90,29 @@
 
             <!-- FAQs -->
             <div class="tab-pane fade" id="faqs" role="tabpanel">
-                <div class="faqs-content row">
-                    <div class="faq-item col-12 col-md-6">
-                        <h6>How does the sizing run?</h6>
-                        <p>Our sizes run true to size. Please refer to our size chart for detailed measurements.</p>
-                    </div>
-                    <div class="faq-item col-12 col-md-6">
-                        <h6>What is the return policy?</h6>
-                        <p>We offer free returns within 30 days of purchase. Items must be in original condition.</p>
-                    </div>
-                    <div class="faq-item col-12 col-md-6">
-                        <h6>How long does shipping take?</h6>
-                        <p>Standard shipping takes 3-5 business days. Express shipping options are available.</p>
-                    </div>
+                <div class="faqs-content">
+                    @if (isset($faqs) && $faqs->count() > 0)
+                        <div class="row" id="faqs-container">
+                            @foreach ($faqs as $index => $faq)
+                                <div class="col-12 col-md-6 faq-item">
+                                    <h6>{{ $faq->question }}</h6>
+                                    <p>{!! $faq->answer !!}</p>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @if (isset($totalFaqs) && $totalFaqs > $faqs->count())
+                            <div class="faqs-toggle-btn mt-4 text-center" id="load-more-faqs-container">
+                                <button class="btn btn-sm btn-link show-more-faqs">
+                                    See More <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        @endif
+                    @else
+                        <div class="empty-faqs text-center py-4">
+                            <p class="text-muted">No FAQs available.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -166,11 +176,32 @@
         .faqs-content .faq-item h6 {
             color: var(--primary-color);
             margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .faqs-content .faq-item p {
             color: var(--primary-color-5);
             margin: 0;
+        }
+
+        /* FAQ Toggle Button */
+        .faqs-toggle-btn .btn-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            background-color: rgba(var(--primary-color-rgb), 0.05);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .faqs-toggle-btn .btn-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .faq-item.hidden {
+            display: none;
         }
 
         /* Responsive */
@@ -194,12 +225,12 @@
             line-height: 1.8;
             text-align: justify;
         }
-        
+
         .description-content.expanded {
             max-height: 5000px;
             /* Đủ lớn để chứa mọi nội dung */
         }
-        
+
         .description-content:not(.expanded)::after {
             content: "";
             position: absolute;
@@ -210,7 +241,7 @@
             background: linear-gradient(transparent, #fff);
             pointer-events: none;
         }
-        
+
         .description-toggle-btn .btn-link {
             color: var(--primary-color);
             text-decoration: none;
@@ -220,7 +251,7 @@
             transition: all 0.3s ease;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .description-toggle-btn .btn-link:hover {
             background-color: var(--primary-color);
             color: white;
@@ -264,8 +295,67 @@
             }
         }
 
+        // FAQs show more/less functionality
+        function initFaqsToggle() {
+            const faqsContainer = document.getElementById('faqs-container');
+            const loadMoreContainer = document.getElementById('load-more-faqs-container');
+            let offset = {{ $faqs->count() ?? 0 }};
+            const limit = 4; // Số lượng FAQ load thêm mỗi lần
+            let loading = false;
+
+            if (loadMoreContainer) {
+                const showMoreBtn = loadMoreContainer.querySelector('.show-more-faqs');
+
+                showMoreBtn.addEventListener('click', function() {
+                    if (loading) return;
+
+                    loading = true;
+                    showMoreBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+
+                    // AJAX request to load more FAQs
+                    fetch(`{{ route('faqs.load-more') }}?offset=${offset}&limit=${limit}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Add FAQs to container
+                            if (data.faqs.length > 0) {
+                                let faqsHtml = '';
+
+                                data.faqs.forEach(faq => {
+                                    faqsHtml += `
+                                        <div class="col-12 col-md-6 faq-item">
+                                            <h6>${faq.question}</h6>
+                                            <p>${faq.answer}</p>
+                                        </div>
+                                    `;
+                                });
+
+                                faqsContainer.innerHTML += faqsHtml;
+                                offset += data.count;
+
+                                // Hide button if no more FAQs
+                                if (offset >= {{ $totalFaqs ?? 0 }}) {
+                                    loadMoreContainer.style.display = 'none';
+                                }
+                            } else {
+                                loadMoreContainer.style.display = 'none';
+                            }
+
+                            loading = false;
+                            showMoreBtn.innerHTML = 'See More <i class="fas fa-chevron-down"></i>';
+                        })
+                        .catch(error => {
+                            console.error('Error loading FAQs:', error);
+                            loading = false;
+                            showMoreBtn.innerHTML = 'Try Again <i class="fas fa-redo"></i>';
+                        });
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initDescriptionToggle();
+            initFaqsToggle();
         });
     </script>
 @endpush

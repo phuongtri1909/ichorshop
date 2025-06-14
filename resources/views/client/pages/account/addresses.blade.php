@@ -6,6 +6,17 @@
 @section('info_section_title', 'My Addresses')
 @section('info_section_desc', 'Manage your delivery addresses for easier checkout')
 
+@push('breadcrumb')
+    @include('components.breadcrumb', [
+        'title' => 'Addresses',
+        'items' => [
+            ['title' => 'Home', 'url' => route('home')],
+            ['title' => 'My Account', 'url' => route('user.my.account')],
+            ['title' => 'Addresses', 'url' => route('user.addresses')], 
+        ]
+    ])
+@endpush
+
 @section('info_content')
     <div class="addresses-container">
         <!-- Add New Address Button -->

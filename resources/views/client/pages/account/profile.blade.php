@@ -5,6 +5,16 @@
 @section('info_keyword', 'My Account, User Information, ' . request()->getHost())
 @section('info_section_title', 'Account Details')
 
+@push('breadcrumb')
+    @include('components.breadcrumb', [
+        'title' => 'My Account',
+        'items' => [
+            ['title' => 'Home', 'url' => route('home')],
+            ['title' => 'My Account', 'url' => route('user.my.account')], 
+        ]
+    ])
+@endpush
+
 @section('info_content')
     <div class="account-details">
         <!-- Avatar Section -->

@@ -6,7 +6,7 @@
     <div class="">
         <h5 class="product-name">{{ $product->name }}</h5>
         <div class="d-flex">
-            <span class="rating-stars text-sm color-primary-5" title="{{ $product->rating ?? 0 }} sao">
+            <span class="rating-stars text-sm color-primary-5 me-3" title="{{ $product->rating ?? 0 }} sao">
                 @php
                     $rating = $product->rating ?? 0;
                     $displayRating = round($rating * 2) / 2;
@@ -21,6 +21,10 @@
                     @endif
                 @endfor
                 {{ $rating }}/5
+            </span>
+
+            <span onclick="event.preventDefault()">
+                <x-wishlist-button :product="$product" class="color-primary" />
             </span>
         </div>
         <div class="product-price">

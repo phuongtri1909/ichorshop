@@ -27,7 +27,8 @@ body {
     color: white !important;
 }
 
-.btn-pry:hover, .btn-pry:focus {
+.btn-pry:hover,
+.btn-pry:focus {
     background-color: var(--primary-color-2) !important;
     color: var(--primary-color) !important;
     box-shadow: 0 4px 10px rgba(91, 60, 37, 0.2) !important;
@@ -72,7 +73,8 @@ body {
 }
 
 
-.color-primary-hover:hover, .color-primary-hover:focus {
+.color-primary-hover:hover,
+.color-primary-hover:focus {
     color: var(--primary-color) !important;
 }
 
@@ -92,9 +94,17 @@ body {
     color: var(--primary-color-5) !important;
 }
 
-.font-light { font-weight: 300; }
-.font-regular { font-weight: 400; }
-.font-bold { font-weight: 700; }
+.font-light {
+    font-weight: 300;
+}
+
+.font-regular {
+    font-weight: 400;
+}
+
+.font-bold {
+    font-weight: 700;
+}
 
 
 /* header dropdown */
@@ -102,7 +112,7 @@ body {
     .dropdown-toggle::after {
         display: none !important;
     }
-    
+
     /* Also hide the dropdown arrow specifically for user dropdown on mobile */
     #userDropdown::after {
         display: none !important;
@@ -199,7 +209,8 @@ body {
     transition: all 0.3s;
 }
 
-.login-container .btn-primary:hover, .btn-primary:focus {
+.login-container .btn-primary:hover,
+.btn-primary:focus {
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
     box-shadow: 0 4px 10px rgba(91, 60, 37, 0.2);
@@ -232,7 +243,7 @@ body {
     .login-container .login-container {
         padding: 10px;
     }
-    
+
     .login-container .login-body {
         padding: 20px;
     }
@@ -473,7 +484,7 @@ body {
     padding: 12px 15px;
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin: 0;
 }
 
@@ -501,7 +512,8 @@ body {
 }
 
 /* Content Card Styles */
-.content-card, .form-card {
+.content-card,
+.form-card {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -510,21 +522,24 @@ body {
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.content-card:hover, .form-card:hover {
+.content-card:hover,
+.form-card:hover {
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
 }
 
-.card-top, .form-header {
+.card-top,
+.form-header {
     padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.card-title, .form-title {
+.card-title,
+.form-title {
     display: flex;
     align-items: center;
 }
@@ -535,19 +550,22 @@ body {
     margin-right: 10px;
 }
 
-.card-title h5, .form-title h5 {
+.card-title h5,
+.form-title h5 {
     margin: 0;
     font-weight: 600;
     color: #333;
     font-size: 16px;
 }
 
-.card-content, .form-body {
+.card-content,
+.form-body {
     padding: 20px 25px;
 }
 
 /* Form Styles */
-.category-form-container, .category-container {
+.category-form-container,
+.category-container {
     padding: 0 10px;
 }
 
@@ -627,7 +645,8 @@ body {
     gap: 12px;
 }
 
-.category-slug, .category-products {
+.category-slug,
+.category-products {
     display: inline-flex;
     align-items: center;
     padding: 5px 10px;
@@ -646,13 +665,15 @@ body {
     color: #00875a;
 }
 
-.category-slug i, .category-products i {
+.category-slug i,
+.category-products i {
     margin-right: 5px;
     font-size: 11px;
 }
 
 /* Button Styles */
-.action-button, .save-button {
+.action-button,
+.save-button {
     padding: 8px 16px;
     background-color: var(--primary-color);
     color: white;
@@ -667,13 +688,17 @@ body {
     cursor: pointer;
 }
 
-.action-button:hover, .save-button:hover {
+.action-button:hover,
+.save-button:hover {
     background-color: var(--primary-hover);
     box-shadow: 0 4px 10px rgba(91, 60, 37, 0.2);
     color: white;
 }
 
-.action-button i, .save-button i, .back-button i, .btn_delete i {
+.action-button i,
+.save-button i,
+.back-button i,
+.btn_delete i {
     margin-right: 6px;
 }
 
@@ -750,7 +775,8 @@ body {
     border-collapse: collapse;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #f1f1f1;
@@ -861,40 +887,43 @@ body {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .pagination-info {
         order: 2;
     }
-    
+
     .pagination-controls {
         order: 1;
         margin-bottom: 10px;
     }
-    
+
     .form-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .form-actions {
         flex-direction: column;
         gap: 15px;
     }
-    
-    .back-button, .action-group {
+
+    .back-button,
+    .action-group {
         width: 100%;
     }
-    
+
     .back-button {
         justify-content: center;
     }
-    
+
     .action-group {
         flex-direction: column;
         gap: 10px;
     }
-    
-    .save-button, .btn_delete, .action-button {
+
+    .save-button,
+    .btn_delete,
+    .action-button {
         width: 100%;
         justify-content: center;
     }
@@ -952,8 +981,13 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .form-check-group {
@@ -1274,16 +1308,16 @@ body {
 
 /* Responsive styles for product forms */
 @media (max-width: 768px) {
-    
+
     .form-check-group {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .tab-header {
         justify-content: flex-start;
     }
-    
+
     .image-upload-container {
         width: 120px;
         height: 120px;
@@ -1310,12 +1344,13 @@ body {
     color: #d35400;
     font-size: 15px;
 }
+
 /* Product Form Styles - End */
 
 /* Filter styles - Begin */
 .filter-section {
     padding: 15px 20px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     background-color: #f9f9f9;
     border-radius: 0 0 5px 5px;
 }
@@ -1455,21 +1490,23 @@ body {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .filter-item {
         width: 100%;
     }
-    
+
     .filter-actions {
         flex-direction: column;
         width: 100%;
     }
-    
-    .filter-btn, .filter-clear-btn {
+
+    .filter-btn,
+    .filter-clear-btn {
         width: 100%;
         justify-content: center;
     }
 }
+
 /* Filter styles - End */
 
 /* Review form styles - Begin */
@@ -1478,7 +1515,8 @@ body {
     gap: 15px;
 }
 
-.review-product, .review-date {
+.review-product,
+.review-date {
     display: inline-flex;
     align-items: center;
     padding: 5px 10px;
@@ -1497,7 +1535,8 @@ body {
     color: #0052cc;
 }
 
-.review-product i, .review-date i {
+.review-product i,
+.review-date i {
     margin-right: 5px;
     font-size: 11px;
 }
@@ -1573,17 +1612,18 @@ body {
     color: #666;
 }
 
-.rating-option input:checked ~ label i,
+.rating-option input:checked~label i,
 .rating-option:hover label i,
-.rating-option:hover ~ .rating-option label i {
+.rating-option:hover~.rating-option label i {
     color: #f7c427;
 }
 
-.rating-option input:checked + label span,
+.rating-option input:checked+label span,
 .rating-option:hover label span,
-.rating-option:hover ~ .rating-option label span {
+.rating-option:hover~.rating-option label span {
     color: #333;
 }
+
 /* Review form styles - End */
 
 /* News styles - Begin */
@@ -1674,25 +1714,30 @@ body {
 
 /* News image upload styles - these extend the existing image upload styles */
 .news-image-upload-container {
-    width: 250px; /* Giảm kích thước từ 100% xuống 250px */
+    width: 250px;
+    /* Giảm kích thước từ 100% xuống 250px */
     max-width: 100%;
     margin-bottom: 15px;
 }
 
 .news-image-preview {
-    height: 150px; /* Giảm chiều cao từ 200px xuống 150px */
+    height: 150px;
+    /* Giảm chiều cao từ 200px xuống 150px */
     background-position: center;
-    background-size: contain; /* Thay đổi từ cover sang contain để không cắt ảnh */
+    background-size: contain;
+    /* Thay đổi từ cover sang contain để không cắt ảnh */
     background-repeat: no-repeat;
     transition: all 0.3s;
 }
 
 .news-image-preview.has-image {
-    background-size: cover; /* Khi có ảnh thì dùng cover để hiển thị đầy đủ */
+    background-size: cover;
+    /* Khi có ảnh thì dùng cover để hiển thị đầy đủ */
 }
 
 .news-image-preview:hover {
-    background-size: contain; /* Khi hover thì hiển thị đầy đủ ảnh */
+    background-size: contain;
+    /* Khi hover thì hiển thị đầy đủ ảnh */
 }
 
 /* Thêm nút xóa ảnh khi đã có ảnh */
@@ -1721,18 +1766,22 @@ body {
     font-size: 18px;
     display: inline-block;
 }
+
 .featured-badge .fa-star {
     color: #ffcc00;
 }
+
 .normal-badge {
     font-size: 18px;
     display: inline-block;
     opacity: 0.5;
 }
+
 .news-badge.featured {
     background-color: #ffcc00;
     color: #333;
 }
+
 /* News styles - End */
 
 /* Franchise Styles */
@@ -1935,7 +1984,7 @@ body {
     border-radius: 8px;
     padding: 1.2rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .section-title {
@@ -2072,7 +2121,7 @@ body {
 }
 
 .action-icon.view-icon {
-    
+
     background-color: var(--primary-color);
 }
 
@@ -2105,36 +2154,43 @@ body {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .actions-container {
         flex-direction: column;
         gap: 1rem;
     }
-    
-    .back-btn, .delete-btn {
+
+    .back-btn,
+    .delete-btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .info-item {
         flex-direction: column;
     }
-    
+
     .info-label {
         margin-bottom: 0.3rem;
     }
 }
+
 /* FranchiseContact Styles - End */
 
 
 /* admin */
 .required-asterisk {
-        color: #dc3545;
-        font-weight: bold;
-        margin-left: 2px;
-    }
-    
-    .image-upload-container {
-        position: relative;
-        display: inline-block;
-    }
+    color: #dc3545;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+.image-upload-container {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--primary-color);
+    color: white;
+}

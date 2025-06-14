@@ -103,6 +103,13 @@
                                 <span>Banner</span>
                             </a>
                         </li>
+
+                        <li class="{{ Route::currentRouteNamed('admin.faqs.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.faqs.index') }}">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Faqs</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

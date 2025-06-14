@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\BrandController;
@@ -83,6 +84,7 @@ Route::group(['as' => 'admin.'], function () {
         Route::patch('/contacts/{contact}/status', [ContactController::class, 'updateStatus'])->name('contacts.update-status');
 
         Route::resource('socials', SocialController::class)->except(['show']);
+        Route::resource('faqs', FaqController::class)->except(['show']);
 
         Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
             ->name('ckeditor.upload');

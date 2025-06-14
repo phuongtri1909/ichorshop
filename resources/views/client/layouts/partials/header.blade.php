@@ -7,12 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title>@yield('title', 'Home')</title>
-    <meta name="description" content="@yield('description', 'Truyện Pink Novel - Đọc truyện online, tiểu thuyết, truyện tranh, tiểu thuyết hay nhất')">
-    <meta name="keywords" content="@yield('keywords', 'truyện, tiểu thuyết, truyện tranh, đọc truyện online')">
+    <meta name="description" content="@yield('description', 'IchorShop - Your one-stop shop for all things Ichor')">
+    <meta name="keywords" content="@yield('keywords', 'Ichor, Shop, Online Store')">
+    <meta name="author" content="IchorShop">
     <meta name="robots" content="noindex, nofollow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="@yield('title', 'Home')">
-    <meta property="og:description" content="@yield('description', 'Truyện Pink Novel - Đọc truyện online, tiểu thuyết, truyện tranh, tiểu thuyết hay nhất')">
+    <meta property="og:description" content="@yield('description', 'IchorShop - Your one-stop shop for all things Ichor')">
     <meta property="og:url" content="{{ url()->full() }}">
     <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:locale" content="vi_VN">
@@ -23,7 +24,7 @@
     <meta property="og:image:alt" content="@yield('title', 'Home')">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'Home')">
-    <meta name="twitter:description" content="@yield('description', 'Truyện Pink Novel - Đọc truyện online, tiểu thuyết, truyện tranh, tiểu thuyết hay nhất')">
+    <meta name="twitter:description" content="@yield('description', 'IchorShop - Your one-stop shop for all things Ichor')">
     <meta name="twitter:image" content="{{ $logoPath }}">
     <meta name="twitter:image:alt" content="@yield('title', 'Home')">
     <link rel="icon" href="{{ $faviconPath }}" type="image/x-icon">
@@ -167,7 +168,7 @@
                                     aria-labelledby="userDropdown">
                                     <li>
                                         <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                                            <i class="fas fa-tachometer-alt me-2"></i>
+                                            <img src="{{ asset('assets/images/svg/dashboard.svg') }}" alt="" class="me-2">
                                             Admin Dashboard
                                         </a>
                                     </li>
@@ -180,12 +181,12 @@
                                     <li>
                                         <a class="dropdown-item" href="">
                                             <img src="{{ asset('assets/images/svg/orders.svg') }}" alt="Orders"
-                                                 class="me-1">
+                                                 style="margin:0 3px 0 -3px">
                                             My Orders
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="">
+                                        <a class="dropdown-item" href="{{ route('user.wishlist.index') }}">
                                             <i class="fa-regular fa-heart me-2"></i>
                                             Wishlist
                                         </a>

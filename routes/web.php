@@ -1,15 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WishlistController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('products/{slug}', [HomeController::class, 'productDetails'])->name('product.details');
 Route::get('/product-images/{slug}/{color?}', [ProductController::class, 'getProductImages']);
+
+Route::get('faqs/load-more', [FaqController::class, 'loadMore'])->name('faqs.load-more');
 
 Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->name('category.products');
 
@@ -20,7 +24,11 @@ Route::group(['middleware' => 'auth'], function () {
         // Profile pages
         Route::get('my-account', [UserController::class, 'userProfile'])->name('my.account');
         Route::get('orders', [UserController::class, 'orders'])->name('orders');
-        Route::get('wishlist', [UserController::class, 'wishlist'])->name('wishlist');
+
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+        Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+        Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
         Route::get('addresses', [UserController::class, 'addresses'])->name('addresses');
 
         // Address CRUD routes

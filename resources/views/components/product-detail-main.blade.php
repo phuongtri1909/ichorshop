@@ -96,6 +96,9 @@
                                 @endfor
                             </div>
                             <span class="rating-text">{{ $product['rating'] }}/5</span>
+                            <span onclick="event.preventDefault()">
+                                <x-wishlist-button :product="$product" class="color-primary" />
+                            </span>
                         </div>
 
                         <!-- Price -->
@@ -107,7 +110,7 @@
                             @endif
                         </div>
                         <div class="product-stock-info">
-                           
+
                         </div>
 
                         <!-- Description -->

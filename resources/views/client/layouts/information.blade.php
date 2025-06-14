@@ -17,14 +17,7 @@
 @endpush
 
 @section('content')
-    @include('components.breadcrumb', [
-        'title' => 'My Account',
-        'items' => [
-            ['title' => 'Home', 'url' => route('home')],
-            ['title' => 'My Account', 'url' => route('user.my.account'),'active' => true],
-          
-        ]
-    ])
+    @stack('breadcrumb')
 
     <div class="container mt-5">
         <div class="row g-4">
@@ -42,8 +35,8 @@
                         </div>
 
                         <div class="user-nav-item">
-                            <a href=""
-                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.wishlist') ? 'active' : '' }}">
+                            <a href="{{ route('user.wishlist.index') }}"
+                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.wishlist.index') ? 'active' : '' }}">
                                 <i class="fa-regular fa-heart user-nav-icon"></i>
                                 <span class="user-nav-text">Wishlist</span>
                             </a>
