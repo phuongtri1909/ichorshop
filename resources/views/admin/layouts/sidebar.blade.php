@@ -121,12 +121,20 @@
                         <i class="fas fa-chevron-down submenu-arrow"></i>
                     </a>
                     <ul class="submenu">
-                        <li class="{{ Route::currentRouteNamed('admin.contacts.*') ? 'active' : '' }}">
+                        {{-- <li class="{{ Route::currentRouteNamed('admin.contacts.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.contacts.index') }}">
                                 <i class="fa-regular fa-id-badge"></i>
                                 <span>Liên hệ</span>
                             </a>
+                        </li> --}}
+
+                        <li class="{{ Route::currentRouteNamed('admin.newsletter.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.newsletter.index') }}">
+                                <i class="fas fa-envelope-open-text"></i>
+                                <span>Đăng ký bản tin</span>
+                            </a>
                         </li>
+
                         <li class="{{ Route::currentRouteNamed('admin.reviews.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.reviews.index') }}">
                                 <i class="fa-regular fa-star"></i>

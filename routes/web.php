@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\NewsletterController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -18,6 +19,8 @@ Route::get('faqs/load-more', [FaqController::class, 'loadMore'])->name('faqs.loa
 Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->name('category.products');
 Route::get('new-arrivals', [HomeController::class, 'newArrivals'])->name('new.arrivals');
 Route::get('top-selling', [HomeController::class, 'topSelling'])->name('top.selling');
+
+Route::post('/newsletter-subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');

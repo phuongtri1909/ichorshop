@@ -13,9 +13,9 @@
                                 <span class="input-group-text">
                                     <i class="fas fa-envelope"></i>
                                 </span>
-                                <input type="email" class="form-control" placeholder="Enter your email address">
+                                <input type="email" class="form-control" id="newsletter-email" placeholder="Enter your email address">
                             </div>
-                            <button type="submit" class="btn newsletter-btn" style="width: 350px;">Subscribe to
+                            <button type="button" id="newsletter-subscribe-btn" class="btn newsletter-btn" style="width: 350px;">Subscribe to
                                 Newsletter
                             </button>
                         </div>
@@ -132,6 +132,67 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="{{ asset('assets/js/script.js') }}"></script>
 @stack('scripts')
+
+<script>
+    $(document).ready(function() {
+        // Xử lý đăng ký newsletter
+        $('#newsletter-subscribe-btn').click(function() {
+            const email = $('#newsletter-email').val().trim();
+        
+            // Check empty
+            if (email === '') {
+                showToast('Please enter your email address.', 'error');
+                return;
+            }
+            
+            // Disable button và hiện loading
+            const $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+            // Gửi request đăng ký
+            $.ajax({
+                url: '{{ route("newsletter.subscribe") }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    email: email
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast(response.message, 'success');
+                        $('#newsletter-email').val('');
+                    } else {
+                        showToast(response.errors[0], 'error');
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        let errorMessage = 'An error occurred. Please try again.';
+
+                        if (errors && errors.email) {
+                            errorMessage = errors.email[0];
+                        }
+
+                        showToast(errorMessage, 'error');
+                    } else {
+                        showToast('An error occurred. Please try again later.', 'error');
+                    }
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).text('Subscribe to Newsletter');
+                }
+            });
+        });
+        
+        // Cho phép nhấn Enter để submit form
+        $('#newsletter-email').keypress(function(e) {
+            if (e.which === 13) {
+                $('#newsletter-subscribe-btn').click();
+            }
+        });
+    });
+</script>
 </body>
 
 </html>

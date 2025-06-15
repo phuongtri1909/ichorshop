@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\LogoSiteController;
 use App\Http\Controllers\Admin\FranchiseController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\DressStyleController;
+use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
@@ -85,6 +86,11 @@ Route::group(['as' => 'admin.'], function () {
 
         Route::resource('socials', SocialController::class)->except(['show']);
         Route::resource('faqs', FaqController::class)->except(['show']);
+
+
+        Route::get('/newsletter-subscriptions', [NewsletterController::class, 'index'])->name('newsletter.index');
+        Route::delete('/newsletter-subscriptions/{subscription}', [NewsletterController::class, 'destroy'])->name('newsletter.destroy');
+        Route::post('/newsletter-subscriptions/export', [NewsletterController::class, 'export'])->name('newsletter.export');
 
         Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
             ->name('ckeditor.upload');
