@@ -11,7 +11,7 @@
          </div>
 
          <div class="text-center mt-5">
-             <a href="" class="btn view-all-btn">View All</a>
+             <a href="{{ route($routeName) }}" class="btn view-all-btn">View All</a>
          </div>
      </div>
  </section>

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\ProductVariant;
+use App\Models\Promotion;
+use App\Observers\ProductVariantObserver;
+use App\Observers\PromotionObserver;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Đăng ký Observer cho ProductVariant
+        ProductVariant::observe(ProductVariantObserver::class);
+        Promotion::observe(PromotionObserver::class);
+
         // Check if database and table exist before querying
         $logoSite = null;
         try {

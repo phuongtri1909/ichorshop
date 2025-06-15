@@ -6,12 +6,12 @@
     <div class="filter-content">
         <div class="price-range-slider">
             <div class="range-slider">
-                <input type="range" class="range-input" id="priceMin" min="0" max="500" value="50" step="10">
-                <input type="range" class="range-input" id="priceMax" min="0" max="500" value="200" step="10">
+                <input type="range" class="range-input" id="priceMin" min="{{ $priceRange['min'] }}" max="{{ $priceRange['max'] }}" value="{{ $priceRange['min'] }}" step="10">
+                <input type="range" class="range-input" id="priceMax" min="{{ $priceRange['min'] }}" max="{{ $priceRange['max'] }}" value="{{ $priceRange['max'] }}" step="10">
             </div>
             <div class="price-display d-flex justify-content-between mt-3">
-                <span class="price-value">$<span id="minPrice">50</span></span>
-                <span class="price-value">$<span id="maxPrice">200</span></span>
+                <span class="price-value">$<span id="minPrice">{{ $priceRange['min'] }}</span></span>
+                <span class="price-value">$<span id="maxPrice">{{ $priceRange['max'] }}</span></span>
             </div>
         </div>
     </div>
@@ -63,7 +63,7 @@
 
     .range-input {
         position: absolute;
-        top: -7px;
+        top: 0;
         left: 0;
         width: 100%;
         height: 5px;

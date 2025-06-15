@@ -84,14 +84,16 @@
 
     @include('components.list_product_home', [
         'title' => 'NEW ARRIVALS',
-        'products' => $newProducts
+        'products' => $newProducts,
+        'routeName' => 'new.arrivals',
     ])
 
     <hr class="container my-0 color-primary-5">
 
     @include('components.list_product_home', [
         'title' => 'TOP SELLING',
-        'products' => $topSellingProducts
+        'products' => $topSellingProducts,
+        'routeName' => 'top.selling',
     ])
 
     <!-- Browse by Style Section -->

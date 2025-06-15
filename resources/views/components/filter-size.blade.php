@@ -5,13 +5,9 @@
     </h6>
     <div class="filter-content">
         <div class="size-options">
-            @php
-                $sizes = ['XX-Small', 'X-Small', 'Small', 'Medium', 'Large', 'X-Large', 'XX-Large', '3X-Large', '4X-Large'];
-            @endphp
-
             @foreach($sizes as $size)
-                <div class="size-option {{ $size === 'Large' ? 'active' : '' }}" data-size="{{ $size }}">
-                    {{ $size }}
+                <div class="size-option" data-size="{{ $size['value'] }}">
+                    {{ $size['name'] ? $size['name'] : 'Default' }}
                 </div>
             @endforeach
         </div>
@@ -22,7 +18,7 @@
 <style>
     .size-options {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 8px;
     }
 
@@ -39,7 +35,10 @@
         font-weight: 400;
     }
 
-    .size-option:hover,
+    .size-option:hover {
+        border-color: var(--primary-color);
+    }
+    
     .size-option.active {
         background: var(--primary-color);
         color: white;
@@ -48,7 +47,7 @@
 
     @media (max-width: 576px) {
         .size-options {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(7, 1fr);
         }
         
         .size-option {
@@ -64,10 +63,36 @@
 document.addEventListener('DOMContentLoaded', function() {
     const sizeOptions = document.querySelectorAll('.size-option');
     
+    // Khởi tạo mảng lưu các kích thước đã chọn
+    let selectedSizes = [];
+    
     sizeOptions.forEach(option => {
         option.addEventListener('click', function() {
-            sizeOptions.forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
+            // Toggle active class cho phần tử được click
+            this.classList.toggle('active');
+            
+            // Lấy giá trị size
+            const sizeValue = this.getAttribute('data-size');
+            
+            // Cập nhật mảng các kích thước đã chọn
+            if (this.classList.contains('active')) {
+                // Thêm size vào danh sách nếu chưa có
+                if (!selectedSizes.includes(sizeValue)) {
+                    selectedSizes.push(sizeValue);
+                }
+            } else {
+                // Xóa size khỏi danh sách nếu đã bỏ chọn
+                selectedSizes = selectedSizes.filter(size => size !== sizeValue);
+            }
+            
+            // Sự kiện tùy chỉnh thông báo thay đổi bộ lọc
+            // Các component khác có thể lắng nghe sự kiện này
+            document.dispatchEvent(new CustomEvent('filter:changed', { 
+                detail: { 
+                    type: 'size',
+                    values: selectedSizes
+                } 
+            }));
         });
     });
 });

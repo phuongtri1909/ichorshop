@@ -8,7 +8,7 @@
 @if ($items || $title)
     <div class="py-4" style="background: {{ $background }};">
         <div class="container">
-            <div class="mx-5">
+            <div class="">
                 @if ($title)
                     <div class="page-title-section">
                         <h2 class="page-title-breadcrumb fw-semibold">{{ $title }}</h2>

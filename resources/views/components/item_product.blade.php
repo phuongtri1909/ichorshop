@@ -49,6 +49,25 @@
 @once
     @push('styles')
         <style>
+            .product-price {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .current-price {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--primary-color);
+            }
+
+            .original-price {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--primary-color-5);
+                text-decoration: line-through;
+            }
+
             .product-name {
                 font-size: 1.25rem;
                 font-weight: 700;

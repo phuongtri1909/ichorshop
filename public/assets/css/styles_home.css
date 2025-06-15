@@ -197,25 +197,6 @@
     color: var(--primary-color-2);
 }
 
-.product-price {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.current-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.original-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color-2);
-    text-decoration: line-through;
-}
-
 
 
 .view-all-btn {

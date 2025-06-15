@@ -16,6 +16,8 @@ Route::get('/product-images/{slug}/{color?}', [ProductController::class, 'getPro
 Route::get('faqs/load-more', [FaqController::class, 'loadMore'])->name('faqs.load-more');
 
 Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->name('category.products');
+Route::get('new-arrivals', [HomeController::class, 'newArrivals'])->name('new.arrivals');
+Route::get('top-selling', [HomeController::class, 'topSelling'])->name('top.selling');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');

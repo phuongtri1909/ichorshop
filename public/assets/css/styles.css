@@ -1361,12 +1361,6 @@ body {
     gap: 15px;
 }
 
-.filter-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
 .filter-item {
     flex: 1;
     min-width: 200px;
@@ -1486,10 +1480,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .filter-group {
-        flex-direction: column;
-        gap: 10px;
-    }
 
     .filter-item {
         width: 100%;

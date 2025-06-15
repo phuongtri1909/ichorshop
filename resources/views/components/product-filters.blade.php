@@ -1,31 +1,25 @@
-<div class="filters-section">
-    <!-- Mobile Filter Toggle -->
-    <div class="d-block d-lg-none mb-3">
-        <button class="btn btn-outline-primary w-100 filter-toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse">
-            <i class="fas fa-filter me-2"></i>
-            Filters
-        </button>
-    </div>
-
-    <!-- Filters Container -->
+<div class="filters-section border-0 border-lg-4 rounded-4 p-0 p-lg-3">
     <div class="collapse d-lg-block" id="filtersCollapse">
         <div class="filters-container">
             <div class="filters-header d-flex justify-content-between align-items-center">
                 <h5 class="filters-title">Filters</h5>
-                <button class="btn-close d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse"></button>
+                <img src="{{ asset('assets/images/svg/filter.svg') }}" alt="">
             </div>
 
+            <!-- Category Filter -->
+            @include('components.filter-categories', ['categories' => $categories])
+
             <!-- Price Filter -->
-            @include('components.filter-price')
+            @include('components.filter-price',['priceRange' => $priceRange])
 
             <!-- Colors Filter -->
-            @include('components.filter-colors')
+            @include('components.filter-colors', ['colors' => $colors])
 
             <!-- Size Filter -->
-            @include('components.filter-size')
+            @include('components.filter-size', ['sizes' => $sizes])
 
             <!-- Dress Style Filter -->
-            @include('components.filter-dress-style')
+            @include('components.filter-dress-style', ['dressStyles' => $dressStyles])
 
             <!-- Apply Filter Button -->
             <div class="filter-actions mt-4">
@@ -40,22 +34,7 @@
     .filters-section {
         background: white;
         border-radius: 20px;
-        padding: 20px;
-        border: 1px solid #e5e5e5;
         height: fit-content;
-    }
-
-    .filter-toggle-btn {
-        border-radius: 62px;
-        padding: 12px 20px;
-        border: 1px solid var(--primary-color);
-        color: var(--primary-color);
-        background: white;
-    }
-
-    .filter-toggle-btn:hover {
-        background: var(--primary-color);
-        color: white;
     }
 
     .filters-header {
@@ -92,6 +71,7 @@
             border-right: none;
             margin: 0 -15px;
         }
+
 
         #filtersCollapse {
             position: fixed;

@@ -121,8 +121,8 @@
                                     Shop <i class="fas fa-chevron-down dropdown-arrow"></i>
                                 </a>
                             </div>
-                            <a href="#" class="nav-link-custom font-regular">On Sale</a>
-                            <a href="#" class="nav-link-custom font-regular">New Arrivals</a>
+                            <a href="{{ route('top.selling') }}" class="nav-link-custom font-regular">On Sale</a>
+                            <a href="{{ route('new.arrivals') }}" class="nav-link-custom font-regular">New Arrivals</a>
                             <a href="#" class="nav-link-custom font-regular">Brands</a>
                         </nav>
                     @endif
