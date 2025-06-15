@@ -26,35 +26,49 @@
             <!-- Filter Section -->
             <div class="filter-section">
                 <form action="{{ route('admin.faqs.index') }}" method="GET" class="filter-form">
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <label for="question_filter">Câu hỏi</label>
-                            <input type="text" id="question_filter" name="question" class="filter-input" 
-                                placeholder="Nhập từ khóa" value="{{ request('question') }}">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="question_filter" class="form-label">Câu hỏi</label>
+                                <input type="text" id="question_filter" name="question" class="form-control filter-input"
+                                    placeholder="Nhập từ khóa" value="{{ request('question') }}">
+                            </div>
                         </div>
-                        <div class="filter-item">
-                            <label for="order_filter">Thứ tự</label>
-                            <input type="number" id="order_filter" name="order" class="filter-input" 
-                                placeholder="Thứ tự hiển thị" value="{{ request('order') }}">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="order_filter" class="form-label">Thứ tự</label>
+                                <input type="number" id="order_filter" name="order" class="form-control filter-input"
+                                    placeholder="Thứ tự hiển thị" value="{{ request('order') }}">
+                            </div>
                         </div>
-                        <div class="filter-item">
-                            <label for="date_from">Từ ngày</label>
-                            <input type="date" id="date_from" name="date_from" class="filter-input" 
-                                value="{{ request('date_from') }}">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="date_from" class="form-label">Từ ngày</label>
+                                <input type="date" id="date_from" name="date_from" class="form-control filter-input"
+                                    value="{{ request('date_from') }}">
+                            </div>
                         </div>
-                        <div class="filter-item">
-                            <label for="date_to">Đến ngày</label>
-                            <input type="date" id="date_to" name="date_to" class="filter-input" 
-                                value="{{ request('date_to') }}">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="date_to" class="form-label">Đến ngày</label>
+                                <input type="date" id="date_to" name="date_to" class="form-control filter-input"
+                                    value="{{ request('date_to') }}">
+                            </div>
                         </div>
                     </div>
-                    <div class="filter-actions">
-                        <button type="submit" class="filter-btn">
-                            <i class="fas fa-filter"></i> Lọc
-                        </button>
-                        <a href="{{ route('admin.faqs.index') }}" class="filter-clear-btn">
-                            <i class="fas fa-times"></i> Xóa bộ lọc
-                        </a>
+
+                    <div class="row mt-3">
+                        <div class="col-12 d-flex justify-content-end">
+                            <div class="filter-actions">
+                                <button type="submit" class="filter-btn btn btn-primary me-2">
+                                    <i class="fas fa-filter"></i> Lọc
+                                </button>
+                                <a href="{{ route('admin.faqs.index') }}"
+                                    class="filter-clear-btn btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Xóa bộ lọc
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -66,25 +80,29 @@
                         @if (request('question'))
                             <span class="filter-tag">
                                 <span>Câu hỏi: {{ request('question') }}</span>
-                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('question')) }}" class="remove-filter">×</a>
+                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('question')) }}"
+                                    class="remove-filter">×</a>
                             </span>
                         @endif
                         @if (request('order'))
                             <span class="filter-tag">
                                 <span>Thứ tự: {{ request('order') }}</span>
-                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('order')) }}" class="remove-filter">×</a>
+                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('order')) }}"
+                                    class="remove-filter">×</a>
                             </span>
                         @endif
                         @if (request('date_from'))
                             <span class="filter-tag">
                                 <span>Từ ngày: {{ date('d/m/Y', strtotime(request('date_from'))) }}</span>
-                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('date_from')) }}" class="remove-filter">×</a>
+                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('date_from')) }}"
+                                    class="remove-filter">×</a>
                             </span>
                         @endif
                         @if (request('date_to'))
                             <span class="filter-tag">
                                 <span>Đến ngày: {{ date('d/m/Y', strtotime(request('date_to'))) }}</span>
-                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('date_to')) }}" class="remove-filter">×</a>
+                                <a href="{{ request()->url() }}?{{ http_build_query(request()->except('date_to')) }}"
+                                    class="remove-filter">×</a>
                             </span>
                         @endif
                     </div>
@@ -167,56 +185,56 @@
 @endsection
 
 @push('styles')
-<style>
-    /* FAQ specific styles */
-    .faq-question {
-        font-weight: 500;
-        color: #333;
-    }
-    
-    .faq-answer {
-        color: #555;
-    }
-    
-    .truncate-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        display: inline-block;
-    }
-</style>
+    <style>
+        /* FAQ specific styles */
+        .faq-question {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .faq-answer {
+            color: #555;
+        }
+
+        .truncate-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: inline-block;
+        }
+    </style>
 @endpush
 
 @push('scripts')
-<script>
-    // Khi thay đổi bộ lọc, tự động submit form
-    document.getElementById('question_filter').addEventListener('change', function() {
-        if (this.value.length >= 3 || this.value.length === 0) {
+    <script>
+        // Khi thay đổi bộ lọc, tự động submit form
+        document.getElementById('question_filter').addEventListener('change', function() {
+            if (this.value.length >= 3 || this.value.length === 0) {
+                document.querySelector('.filter-form').submit();
+            }
+        });
+
+        document.getElementById('order_filter').addEventListener('change', function() {
             document.querySelector('.filter-form').submit();
-        }
-    });
-    
-    document.getElementById('order_filter').addEventListener('change', function() {
-        document.querySelector('.filter-form').submit();
-    });
-    
-    // Tự động submit khi chọn ngày
-    document.getElementById('date_from').addEventListener('change', function() {
-        // Nếu date_to chưa có giá trị và date_from có giá trị mới
-        if (!document.getElementById('date_to').value && this.value) {
-            // Đặt date_to thành ngày hiện tại
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            document.getElementById('date_to').value = `${year}-${month}-${day}`;
-        }
-        document.querySelector('.filter-form').submit();
-    });
-    
-    document.getElementById('date_to').addEventListener('change', function() {
-        document.querySelector('.filter-form').submit();
-    });
-</script>
+        });
+
+        // Tự động submit khi chọn ngày
+        document.getElementById('date_from').addEventListener('change', function() {
+            // Nếu date_to chưa có giá trị và date_from có giá trị mới
+            if (!document.getElementById('date_to').value && this.value) {
+                // Đặt date_to thành ngày hiện tại
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                document.getElementById('date_to').value = `${year}-${month}-${day}`;
+            }
+            document.querySelector('.filter-form').submit();
+        });
+
+        document.getElementById('date_to').addEventListener('change', function() {
+            document.querySelector('.filter-form').submit();
+        });
+    </script>
 @endpush
