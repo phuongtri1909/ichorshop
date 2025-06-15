@@ -39,10 +39,12 @@
                             We have clothes that suits your style and which you're proud to wear. From women to men.
                         </p>
                         <div class="social-icons">
-                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                           
+                            @foreach ($socials as $social)
+                                <a href="{{ $social->link }}" class="social-link">
+                                    <i class="{{ $social->icon }}"></i>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                 </div>

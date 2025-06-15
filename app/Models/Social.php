@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Social extends Model
 {
@@ -11,6 +12,7 @@ class Social extends Model
 
     protected $fillable = [
         'name',
+        'key',
         'url',
         'icon',
         'is_active',
@@ -37,4 +39,13 @@ class Social extends Model
     {
         return $query->where('is_active', true);
     }
-} 
+
+    public function getIconHtmlAttribute()
+    {
+        if (Str::startsWith($this->icon, 'custom-')) {
+            return '<span class="' . $this->icon . '"></span>';
+        }
+
+        return '<i class="' . $this->icon . '"></i>';
+    }
+}

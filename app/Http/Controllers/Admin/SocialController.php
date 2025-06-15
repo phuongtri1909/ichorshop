@@ -7,6 +7,7 @@ use App\Models\Social;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class SocialController extends Controller
 {
@@ -15,9 +16,38 @@ class SocialController extends Controller
      */
     public function index()
     {
-        $socials = Social::orderBy('name', 'asc')->get();
+        $socials = Social::orderBy('sort_order')->get();
         
-        return view('admin.pages.socials.index', compact('socials'));
+        // Danh sách biểu tượng FontAwesome cho dropdown
+        $fontAwesomeIcons = [
+            // Brand icons
+            'fab fa-facebook-f' => 'Facebook',
+            'fab fa-twitter' => 'Twitter',
+            'fab fa-instagram' => 'Instagram',
+            'fab fa-youtube' => 'YouTube',
+            'fab fa-tiktok' => 'TikTok',
+            'fab fa-pinterest' => 'Pinterest',
+            'fab fa-discord' => 'Discord',
+            'fab fa-telegram' => 'Telegram',
+            'fab fa-linkedin' => 'LinkedIn',
+            'fab fa-github' => 'GitHub',
+            'fab fa-reddit' => 'Reddit',
+            'fab fa-snapchat' => 'Snapchat',
+            'fab fa-whatsapp' => 'WhatsApp',
+            'fab fa-line' => 'Line',
+            
+            // Regular icons
+            'fas fa-envelope' => 'Email',
+            'fas fa-globe' => 'Website',
+            'fas fa-phone' => 'Phone',
+            'fas fa-map-marker-alt' => 'Location',
+            'fas fa-rss' => 'RSS Feed',
+            
+            // Custom SVG icons
+            'custom-zalo' => 'Zalo',
+        ];
+        
+        return view('admin.pages.socials.index', compact('socials', 'fontAwesomeIcons'));
     }
 
     /**
@@ -25,7 +55,36 @@ class SocialController extends Controller
      */
     public function create()
     {
-        return view('admin.pages.socials.create');
+        // Danh sách biểu tượng FontAwesome cho dropdown
+        $fontAwesomeIcons = [
+            // Brand icons
+            'fab fa-facebook-f' => 'Facebook',
+            'fab fa-twitter' => 'Twitter',
+            'fab fa-instagram' => 'Instagram',
+            'fab fa-youtube' => 'YouTube',
+            'fab fa-tiktok' => 'TikTok',
+            'fab fa-pinterest' => 'Pinterest',
+            'fab fa-discord' => 'Discord',
+            'fab fa-telegram' => 'Telegram',
+            'fab fa-linkedin' => 'LinkedIn',
+            'fab fa-github' => 'GitHub',
+            'fab fa-reddit' => 'Reddit',
+            'fab fa-snapchat' => 'Snapchat',
+            'fab fa-whatsapp' => 'WhatsApp',
+            'fab fa-line' => 'Line',
+            
+            // Regular icons
+            'fas fa-envelope' => 'Email',
+            'fas fa-globe' => 'Website',
+            'fas fa-phone' => 'Phone',
+            'fas fa-map-marker-alt' => 'Location',
+            'fas fa-rss' => 'RSS Feed',
+            
+            // Custom SVG icons
+            'custom-zalo' => 'Zalo',
+        ];
+        
+        return view('admin.pages.socials.create', compact('fontAwesomeIcons'));
     }
 
     /**
@@ -35,20 +94,38 @@ class SocialController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'link' => 'required|url|max:255',
-            'icon' => 'required|file|mimes:svg|max:100',
+            'url' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (Str::startsWith($value, ['mailto:', 'tel:', 'sms:'])) {
+                        return;
+                    }
+                    
+                    if (Str::startsWith($value, ['javascript:', 'data:'])) {
+                        $fail('Đường dẫn không được chứa mã JavaScript hoặc dữ liệu trực tiếp.');
+                        return;
+                    }
+                    
+                    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('Đường dẫn phải là một URL hợp lệ hoặc định dạng đặc biệt như mailto:, tel:.');
+                    }
+                },
+            ],
+            'icon' => 'required|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
         ],
         [
             'name.required' => 'Tên mạng xã hội là bắt buộc.',
             'name.string' => 'Tên mạng xã hội phải là một chuỗi.',
             'name.max' => 'Tên mạng xã hội không được vượt quá 255 ký tự.',
-            'link.url' => 'Liên kết phải là một URL hợp lệ.',
-            'link.max' => 'Liên kết không được vượt quá 255 ký tự.',
-            'link.required' => 'Liên kết là bắt buộc.',
-            'icon.required' => 'Biểu tượng là bắt buộc.',
-            'icon.file' => 'Biểu tượng phải là một tệp.',
-            'icon.mimes' => 'Biểu tượng phải có định dạng svg.',
-            'icon.max' => 'Biểu tượng không được vượt quá 100 KB.',
+            'url.required' => 'Đường dẫn là bắt buộc.',
+            'url.string' => 'Đường dẫn phải là một chuỗi.',
+            'url.max' => 'Đường dẫn không được vượt quá 255 ký tự.',
+            'icon.required' => 'Icon là bắt buộc.',
+            'icon.string' => 'Icon phải là một chuỗi.',
+            'icon.max' => 'Icon không được vượt quá 255 ký tự.',
         ]);
 
         // Tạo key từ tên
@@ -59,31 +136,18 @@ class SocialController extends Controller
         if ($existingKey) {
             $key = $key . '-' . uniqid();
         }
-
-        $iconPath = null;
-        if ($request->hasFile('icon')) {
-            // Đảm bảo thư mục tồn tại
-            $path = storage_path('app/public/socials');
-            if (!file_exists($path)) {
-                mkdir($path, 0755, true);
-            }
-            
-            $svgFile = $request->file('icon');
-            $fileName = $key . '-' . time() . '.svg';
-            
-            // Di chuyển file vào thư mục storage
-            $svgFile->move($path, $fileName);
-            
-            // Đường dẫn để lưu vào database và truy cập trên web
-            $iconPath = 'storage/socials/' . $fileName;
-        }
         
         Social::create([
             'name' => $request->name,
-            'link' => $request->link,
-            'icon' => $iconPath,
+            'url' => $request->url,
+            'icon' => $request->icon,
             'key' => $key,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+            'sort_order' => $request->sort_order ?? 0,
         ]);
+        
+        // Xóa cache
+        Cache::forget('socials');
 
         return redirect()->route('admin.socials.index')
             ->with('success', 'Đã thêm mạng xã hội mới thành công!');
@@ -94,7 +158,36 @@ class SocialController extends Controller
      */
     public function edit(Social $social)
     {
-        return view('admin.pages.socials.edit', compact('social'));
+        // Danh sách biểu tượng FontAwesome cho dropdown
+        $fontAwesomeIcons = [
+            // Brand icons
+            'fab fa-facebook-f' => 'Facebook',
+            'fab fa-twitter' => 'Twitter',
+            'fab fa-instagram' => 'Instagram',
+            'fab fa-youtube' => 'YouTube',
+            'fab fa-tiktok' => 'TikTok',
+            'fab fa-pinterest' => 'Pinterest',
+            'fab fa-discord' => 'Discord',
+            'fab fa-telegram' => 'Telegram',
+            'fab fa-linkedin' => 'LinkedIn',
+            'fab fa-github' => 'GitHub',
+            'fab fa-reddit' => 'Reddit',
+            'fab fa-snapchat' => 'Snapchat',
+            'fab fa-whatsapp' => 'WhatsApp',
+            'fab fa-line' => 'Line',
+            
+            // Regular icons
+            'fas fa-envelope' => 'Email',
+            'fas fa-globe' => 'Website',
+            'fas fa-phone' => 'Phone',
+            'fas fa-map-marker-alt' => 'Location',
+            'fas fa-rss' => 'RSS Feed',
+            
+            // Custom SVG icons
+            'custom-zalo' => 'Zalo',
+        ];
+        
+        return view('admin.pages.socials.edit', compact('social', 'fontAwesomeIcons'));
     }
 
     /**
@@ -104,52 +197,49 @@ class SocialController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'link' => 'required|url|max:255',
-            'icon' => 'nullable|file|mimes:svg|max:100',
+            'url' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (Str::startsWith($value, ['mailto:', 'tel:', 'sms:'])) {
+                        return;
+                    }
+                    if (Str::startsWith($value, ['javascript:', 'data:'])) {
+                        $fail('Đường dẫn không được chứa mã JavaScript hoặc dữ liệu trực tiếp.');
+                        return;
+                    }
+                    
+                    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('Đường dẫn phải là một URL hợp lệ hoặc định dạng đặc biệt như mailto:, tel:.');
+                    }
+                },
+            ],
+            'icon' => 'required|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
         ],
         [
             'name.required' => 'Tên mạng xã hội là bắt buộc.',
             'name.string' => 'Tên mạng xã hội phải là một chuỗi.',
             'name.max' => 'Tên mạng xã hội không được vượt quá 255 ký tự.',
-            'link.url' => 'Liên kết phải là một URL hợp lệ.',
-            'link.max' => 'Liên kết không được vượt quá 255 ký tự.',
-            'link.required' => 'Liên kết là bắt buộc.',
-            'icon.file' => 'Biểu tượng phải là một tệp.',
-            'icon.mimes' => 'Biểu tượng phải có định dạng svg.',
-            'icon.max' => 'Biểu tượng không được vượt quá 100 KB.',
+            'url.required' => 'Đường dẫn là bắt buộc.',
+            'url.string' => 'Đường dẫn phải là một chuỗi.',
+            'url.max' => 'Đường dẫn không được vượt quá 255 ký tự.',
+            'icon.required' => 'Icon là bắt buộc.',
+            'icon.string' => 'Icon phải là một chuỗi.',
+            'icon.max' => 'Icon không được vượt quá 255 ký tự.',
         ]);
 
-        $updateData = [
+        $social->update([
             'name' => $request->name,
-            'link' => $request->link,
-        ];
-
-        if ($request->hasFile('icon')) {
-            // Xóa file cũ nếu tồn tại
-            if ($social->icon) {
-                $oldPath = public_path($social->icon);
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
-            }
-            
-            // Đảm bảo thư mục tồn tại
-            $path = storage_path('app/public/socials');
-            if (!file_exists($path)) {
-                mkdir($path, 0755, true);
-            }
-            
-            $svgFile = $request->file('icon');
-            $fileName = $social->key . '-' . time() . '.svg';
-            
-            // Di chuyển file vào thư mục storage
-            $svgFile->move($path, $fileName);
-            
-            // Đường dẫn để lưu vào database
-            $updateData['icon'] = 'storage/socials/' . $fileName;
-        }
-
-        $social->update($updateData);
+            'url' => $request->url,
+            'icon' => $request->icon,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+            'sort_order' => $request->sort_order ?? 0,
+        ]);
+        
+        // Xóa cache
+        Cache::forget('socials');
 
         return redirect()->route('admin.socials.index')
             ->with('success', 'Đã cập nhật mạng xã hội thành công!');
@@ -160,15 +250,10 @@ class SocialController extends Controller
      */
     public function destroy(Social $social)
     {
-        // Xóa file icon nếu tồn tại
-        if ($social->icon) {
-            $iconPath = public_path($social->icon);
-            if (file_exists($iconPath)) {
-                unlink($iconPath);
-            }
-        }
-        
         $social->delete();
+        
+        // Xóa cache
+        Cache::forget('socials');
         
         return redirect()->route('admin.socials.index')
             ->with('success', 'Đã xóa mạng xã hội thành công!');
