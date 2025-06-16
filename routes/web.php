@@ -20,6 +20,7 @@ Route::get('categories/{slug}', [HomeController::class, 'categoryProducts'])->na
 Route::get('new-arrivals', [HomeController::class, 'newArrivals'])->name('new.arrivals');
 Route::get('top-selling', [HomeController::class, 'topSelling'])->name('top.selling');
 
+
 Route::post('/newsletter-subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 Route::group(['middleware' => 'auth'], function () {

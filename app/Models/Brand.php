@@ -9,6 +9,15 @@ class Brand extends Model
 {
     protected $fillable = ['name', 'slug', 'logo', 'description'];
 
+
+    /**
+     * Get the products associated with the brand
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
     /**
      * Get the logo URL
      */

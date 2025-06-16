@@ -114,7 +114,7 @@ class Product extends Model
     public function hasDiscount()
     {
         $cheapestVariant = $this->getCheapestVariant();
-      
+
         if (!$cheapestVariant) return false;
 
         return $cheapestVariant->getDiscountedPrice() < $cheapestVariant->price;
@@ -130,5 +130,92 @@ class Product extends Model
         $discounted = $cheapestVariant->getDiscountedPrice();
 
         return round((($original - $discounted) / $original) * 100);
+    }
+
+    /**
+     * Mối quan hệ với lượt xem sản phẩm
+     */
+    public function productViews()
+    {
+        return $this->hasMany(ProductView::class);
+    }
+
+    /**
+     * Lấy tổng số lượt xem của sản phẩm
+     */
+    public function getTotalViewsAttribute()
+    {
+        return $this->productViews()->sum('view_count');
+    }
+
+    /**
+     * Lấy số lượt xem trong ngày hôm nay
+     */
+    public function getTodayViewsAttribute()
+    {
+        return $this->productViews()->today()->sum('view_count');
+    }
+
+    /**
+     * Lấy số lượt xem của người dùng cụ thể
+     */
+    public function getViewsByUserAttribute($userId)
+    {
+        return $this->productViews()->where('user_id', $userId)->sum('view_count');
+    }
+
+    /**
+     * Scope sắp xếp sản phẩm theo lượt xem
+     */
+    public function scopeMostViewed($query, $limit = null)
+    {
+        $query->withCount(['productViews as views_count' => function ($query) {
+            $query->select(\DB::raw('SUM(view_count)'));
+        }])->orderByDesc('views_count');
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Ghi lại lượt xem sản phẩm (1 lần/ngày cho mỗi người dùng)
+     */
+    public function recordView($userId = null, $ipAddress = null)
+    {
+        $today = now()->startOfDay();
+        $ipAddress = $ipAddress ?: request()->ip();
+        $sessionId = session()->getId();
+
+        $sessionKey = "product_viewed_{$this->id}";
+        if (session()->has($sessionKey)) {
+            return null;
+        }
+        session()->put($sessionKey, now()->timestamp);
+
+        $view = $this->productViews()
+            ->where(function ($query) use ($userId, $ipAddress) {
+                if ($userId) {
+                    $query->where('user_id', $userId);
+                } else {
+                    $query->where('ip_address', $ipAddress);
+                }
+            })
+            ->whereDate('viewed_at', $today)
+            ->first();
+
+        if ($view) {
+            $view->increment('view_count');
+            return $view;
+        } else {
+            return $this->productViews()->create([
+                'user_id' => $userId,
+                'ip_address' => $ipAddress,
+                'viewed_at' => now(),
+                'view_count' => 1
+            ]);
+        }
     }
 }

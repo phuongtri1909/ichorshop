@@ -6,11 +6,13 @@
                 <img src="{{ asset('assets/images/svg/filter.svg') }}" alt="">
             </div>
 
-            <!-- Category Filter -->
-            @include('components.filter-categories', ['categories' => $categories])
+            @if (!isset($showCategoryFilter) || $showCategoryFilter !== false)
+                <!-- Category Filter -->
+                @include('components.filter-categories', ['categories' => $categories])
+            @endif
 
             <!-- Price Filter -->
-            @include('components.filter-price',['priceRange' => $priceRange])
+            @include('components.filter-price', ['priceRange' => $priceRange])
 
             <!-- Colors Filter -->
             @include('components.filter-colors', ['colors' => $colors])
@@ -30,64 +32,64 @@
 </div>
 
 @push('styles')
-<style>
-    .filters-section {
-        background: white;
-        border-radius: 20px;
-        height: fit-content;
-    }
-
-    .filters-header {
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #e5e5e5;
-    }
-
-    .filters-title {
-        color: var(--primary-color);
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .apply-filter-btn {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 62px;
-        padding: 14px 20px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .apply-filter-btn:hover {
-        background: var(--primary-hover);
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 992px) {
+    <style>
         .filters-section {
-            border-radius: 0;
-            border-left: none;
-            border-right: none;
-            margin: 0 -15px;
-        }
-
-
-        #filtersCollapse {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background: white;
-            z-index: 1050;
-            padding: 20px;
-            overflow-y: auto;
+            border-radius: 20px;
+            height: fit-content;
         }
 
-        #filtersCollapse.show {
-            display: block !important;
+        .filters-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e5e5;
         }
-    }
-</style>
+
+        .filters-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .apply-filter-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 62px;
+            padding: 14px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .apply-filter-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 992px) {
+            .filters-section {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                margin: 0 -15px;
+            }
+
+
+            #filtersCollapse {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: white;
+                z-index: 1050;
+                padding: 20px;
+                overflow-y: auto;
+            }
+
+            #filtersCollapse.show {
+                display: block !important;
+            }
+        }
+    </style>
 @endpush

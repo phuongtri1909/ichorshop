@@ -1,19 +1,17 @@
 @extends('client.layouts.app')
-@section('title', 'Casual Shoes - Shop Now')
-@section('description', 'Explore our collection of casual shoes. Find the perfect pair for your everyday style. Shop
-    now!')
+@section('title', 'Category - Casual Shoes')
+@section('description', 'Explore our collection of casual shoes. Find the perfect pair for your everyday style. Shop now!')
 @section('keywords', 'casual shoes, everyday shoes, comfortable footwear, casual style')
 
 @section('content')
+
+    @include('components.breadcrumb', [
+        'items' => [['title' => 'Home', 'url' => route('home')], ['title' => 'Categories', 'active' => true]],
+        'background' => '',
+    ])
+
     <div class="category-page">
         <div class="container">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mb-4">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Casual</li>
-                </ol>
-            </nav>
 
             <div class="row">
                 <!-- Filters Sidebar -->
@@ -23,7 +21,10 @@
 
                 <!-- Products Content -->
                 <div class="col-lg-9">
-                    @include('components.products-grid', ['products' => $products])
+                   @include('components.products-grid', [
+                        'title' => 'Category - ' . $category->name,
+                        'products' => $products,
+                    ])
                 </div>
             </div>
         </div>
