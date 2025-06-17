@@ -33,61 +33,109 @@ class Cart extends Model
 
         // Nếu user đăng nhập, tìm giỏ hàng theo user_id
         if ($userId) {
-            $cart = self::firstWhere('user_id', $userId);
-            
-            // Nếu có giỏ hàng theo session và khác với giỏ hàng theo user, hợp nhất chúng
-            $sessionCart = self::firstWhere('session_id', $sessionId);
-            if ($sessionCart && (!$cart || $sessionCart->id !== $cart->id)) {
-                if (!$cart) {
-                    // Nếu user chưa có giỏ hàng, chuyển giỏ hàng session thành giỏ hàng user
-                    $sessionCart->update(['user_id' => $userId]);
-                    return $sessionCart;
-                } else {
-                    // Hợp nhất giỏ hàng
-                    self::mergeCarts($sessionCart, $cart);
-                    $sessionCart->delete();
-                }
+            $userCart = self::where('user_id', $userId)->first();
+
+            if ($userCart) {
+                return $userCart;
             }
-            
-            // Trả về giỏ hàng của user hoặc tạo mới
-            return $cart ?: self::create([
+
+            // Kiểm tra giỏ hàng session hiện tại và chuyển đổi nếu có
+            $sessionCart = self::where('session_id', $sessionId)
+                ->whereNull('user_id')
+                ->first();
+
+            if ($sessionCart) {
+                // Chuyển đổi giỏ hàng khách thành giỏ hàng user
+                $sessionCart->user_id = $userId;
+                $sessionCart->save();
+                return $sessionCart;
+            }
+
+            // Tạo giỏ hàng mới cho user
+            $newCart = self::create([
                 'user_id' => $userId,
-                'session_id' => $sessionId
+                'session_id' => $sessionId,
+                'total_price' => 0
             ]);
+            return $newCart;
         }
 
-        // Nếu user chưa đăng nhập, lấy giỏ hàng theo session
-        return self::firstOrCreate(['session_id' => $sessionId]);
+        // Nếu chưa đăng nhập, tìm giỏ hàng theo session
+        $sessionCart = self::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->first();
+
+        if ($sessionCart) {
+            return $sessionCart;
+        }
+
+        // Tạo giỏ hàng mới cho session
+        $newCart = self::create([
+            'session_id' => $sessionId,
+            'total_price' => 0
+        ]);
+        return $newCart;
     }
 
     /**
      * Hợp nhất hai giỏ hàng
      */
-    private static function mergeCarts($sourceCart, $targetCart)
+    public static function mergeCarts($sourceCart, $targetCart)
     {
-        foreach ($sourceCart->items as $item) {
-            $existingItem = $targetCart->items()
-                ->where('product_variant_id', $item->product_variant_id)
-                ->first();
-            
-            if ($existingItem) {
-                // Nếu đã có sản phẩm trong giỏ hàng mục tiêu, tăng số lượng
-                $existingItem->update([
-                    'quantity' => $existingItem->quantity + $item->quantity
-                ]);
-            } else {
-                // Nếu chưa có, tạo mới item trong giỏ hàng mục tiêu
-                $targetCart->items()->create([
-                    'product_id' => $item->product_id,
-                    'product_variant_id' => $item->product_variant_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price
-                ]);
+        try {
+            // Đảm bảo cả hai giỏ hàng tồn tại
+            if (!$sourceCart || !$targetCart) {
+                return false;
             }
-        }
 
-        // Cập nhật tổng giá trị giỏ hàng
-        $targetCart->updateTotalPrice();
+            // Đảm bảo items đã được load
+            $sourceCart->load('items.variant');
+
+
+            // Hợp nhất từng sản phẩm
+            foreach ($sourceCart->items as $item) {
+                $existingItem = $targetCart->items()
+                    ->where('product_variant_id', $item->product_variant_id)
+                    ->first();
+
+                if ($existingItem) {
+                    // Cập nhật số lượng nếu sản phẩm đã tồn tại
+                    $newQuantity = $existingItem->quantity + $item->quantity;
+                    $existingItem->update(['quantity' => $newQuantity]);
+
+                   
+                } else {
+                    // Thêm sản phẩm mới nếu chưa có
+                    $targetCart->items()->create([
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price' => $item->price
+                    ]);
+
+                }
+            }
+
+            // Cập nhật tổng giá trị giỏ hàng đích
+            $targetCart->updateTotalPrice();
+
+            // Xóa giỏ hàng nguồn sau khi đã hợp nhất
+            $sourceCart->delete();
+
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Error in mergeCarts', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return false;
+        }
+    }
+
+    public static function getCurrentCart()
+    {
+        $userId = auth()->id();
+        return self::getOrCreateCart($userId);
     }
 
     /**
@@ -97,10 +145,10 @@ class Cart extends Model
     {
         // Lấy thông tin variant
         $variant = ProductVariant::findOrFail($variantId);
-        
+
         // Kiểm tra nếu sản phẩm đã có trong giỏ hàng
         $cartItem = $this->items()->where('product_variant_id', $variantId)->first();
-        
+
         if ($cartItem) {
             // Nếu đã có, tăng số lượng
             $cartItem->update([
@@ -115,10 +163,10 @@ class Cart extends Model
                 'price' => $variant->getDiscountedPrice() // Lấy giá đã giảm
             ]);
         }
-        
+
         // Cập nhật tổng giá trị giỏ hàng
         $this->updateTotalPrice();
-        
+
         return $this;
     }
 
@@ -134,10 +182,10 @@ class Cart extends Model
             // Cập nhật số lượng
             $this->items()->where('id', $cartItemId)->update(['quantity' => $quantity]);
         }
-        
+
         // Cập nhật tổng giá trị
         $this->updateTotalPrice();
-        
+
         return $this;
     }
 
@@ -166,9 +214,14 @@ class Cart extends Model
      */
     public function updateTotalPrice()
     {
-        $total = $this->items->sum('subtotal');
-        $this->update(['total_price' => $total]);
-        return $this;
+        try {
+            $total = $this->items()->sum(\DB::raw('price * quantity'));
+            $this->total_price = $total;
+            $this->save();
+            return $this;
+        } catch (\Exception $e) {
+            return $this;
+        }
     }
 
     /**

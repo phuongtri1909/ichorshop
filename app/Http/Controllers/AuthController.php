@@ -16,6 +16,7 @@ use Intervention\Image\Facades\Image;
 use App\Services\ReadingHistoryService;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
+use App\Models\Cart;
 
 class AuthController extends Controller
 {
@@ -27,6 +28,17 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            $oldSessionId = session()->getId();
+
+            // DEBUG: Kiểm tra giỏ hàng guest trước khi đăng nhập
+            $guestCart = \App\Models\Cart::where('session_id', $oldSessionId)
+                ->where('user_id', null)
+                ->first();
+
+            if ($guestCart) {
+                // Lưu ID giỏ hàng khách vào session
+                session(['guest_cart_id' => $guestCart->id]);
+            }
             $googleUser = Socialite::driver('google')->user();
             $existingUser = User::where('email', $googleUser->getEmail())->first();
 
@@ -35,6 +47,7 @@ class AuthController extends Controller
                 $existingUser->save();
                 Auth::login($existingUser);
 
+                $this->directMergeCart($existingUser->id, $oldSessionId);
                 return redirect()->route('home');
             } else {
                 $user = new User();
@@ -61,12 +74,138 @@ class AuthController extends Controller
 
                 $user->save();
                 Auth::login($user);
+                $this->directMergeCart($user->id, $oldSessionId);
 
                 return redirect()->route('home');
             }
         } catch (\Exception $e) {
             \Log::error('Google login error:', ['error' => $e->getMessage()]);
             return redirect()->route('login')->with('error', 'Login with Google failed. Please try again.');
+        }
+    }
+
+    protected function mergeCartsAfterLogin($userId, $oldSessionId)
+    {
+        try {
+            // Tránh đồng bộ nếu không có session ID
+            if (!$oldSessionId) {
+                return;
+            }
+
+            // Tìm giỏ hàng theo session cũ
+            $guestCart = Cart::where('session_id', $oldSessionId)
+                ->where('user_id', null)
+                ->first();
+
+            if (!$guestCart) {
+                return;
+            }
+
+            // Đảm bảo giỏ hàng khách có sản phẩm
+            $guestItemsCount = $guestCart->items()->count();
+          
+
+            if ($guestItemsCount == 0) {
+               
+                $guestCart->delete(); // Xóa giỏ hàng trống
+                return;
+            }
+
+            // Tìm giỏ hàng của user
+            $userCart = Cart::firstWhere('user_id', $userId);
+
+            if (!$userCart) {
+                // Nếu user chưa có giỏ hàng, gán giỏ hàng session cho user
+                $guestCart->update([
+                    'user_id' => $userId,
+                    'session_id' => session()->getId()
+                ]);
+              
+                return;
+            }
+
+            // Gọi phương thức mergeCarts từ model Cart để đồng bộ
+            Cart::mergeCarts($guestCart, $userCart);
+
+        } catch (\Exception $e) {
+            \Log::error('Error merging carts', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+        }
+    }
+
+    protected function directMergeCart($userId, $oldSessionId)
+    {
+        try {
+            $guestCart = \App\Models\Cart::where('session_id', $oldSessionId)
+                ->where('user_id', null)
+                ->first();
+
+            if (!$guestCart && session()->has('guest_cart_id')) {
+                $guestCartId = session('guest_cart_id');
+                $guestCart = \App\Models\Cart::find($guestCartId);
+
+                session()->forget('guest_cart_id');
+            }
+
+            if (!$guestCart) {
+                return;
+            }
+
+            $guestItems = $guestCart->items()->get();
+            $itemsCount = $guestItems->count();
+
+            if ($itemsCount == 0) {
+                $guestCart->delete();
+                return;
+            }
+
+            // Lấy thông tin chi tiết item
+            $itemDetails = $guestItems->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->product_variant_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price
+                ];
+            })->toArray();
+
+            // Tìm giỏ hàng của user
+            $userCart = \App\Models\Cart::where('user_id', $userId)->first();
+
+            // Nếu user không có giỏ hàng, gán giỏ hàng guest cho user
+            if (!$userCart) {
+                $guestCart->update([
+                    'user_id' => $userId,
+                    'session_id' => session()->getId()
+                ]);
+                return;
+            }
+
+            // Chuyển từng item từ guest cart sang user cart
+            foreach ($guestItems as $item) {
+                $existingItem = $userCart->items()->where('product_variant_id', $item->product_variant_id)->first();
+
+                if ($existingItem) {
+                    $existingItem->quantity += $item->quantity;
+                    $existingItem->save();
+                } else {
+                    $userCart->items()->create([
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price' => $item->price
+                    ]);
+                }
+            }
+
+            // Cập nhật tổng tiền trong giỏ hàng user
+            $userCart->updateTotalPrice();
+
+            // Xóa giỏ hàng guest
+            $guestCart->delete();
+            return true;
+        } catch (\Exception $e) {
+            return false;
         }
     }
 
@@ -257,6 +396,13 @@ class AuthController extends Controller
 
         try {
 
+            $oldSessionId = session()->getId();
+
+            // DEBUG: Kiểm tra giỏ hàng guest trước khi đăng nhập
+            $guestCart = \App\Models\Cart::where('session_id', $oldSessionId)
+                ->where('user_id', null)
+                ->first();
+
             $user = User::where('email', $request->email)->first();
             if (!$user) {
                 return redirect()->back()->withInput()->withErrors([
@@ -276,7 +422,16 @@ class AuthController extends Controller
                 ]);
             }
 
+            if ($guestCart) {
+                // Lưu ID giỏ hàng khách vào session
+                session(['guest_cart_id' => $guestCart->id]);
+            }
+
             Auth::login($user);
+
+            $newSessionId = session()->getId();
+
+            $this->directMergeCart($user->id, $oldSessionId);
 
             $user->ip_address = $request->ip();
             $user->save();
@@ -289,11 +444,27 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $userId = null;
+        $cartInfo = null;
+
+        // Lưu thông tin giỏ hàng trước khi đăng xuất
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $cart = \App\Models\Cart::firstWhere('user_id', $userId);
+            if ($cart) {
+                $cartInfo = [
+                    'id' => $cart->id,
+                    'items_count' => $cart->items()->count()
+                ];
+            }
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route(('home'));
+
+        return redirect()->route('home');
     }
 
     public function forgotPassword(Request $request)

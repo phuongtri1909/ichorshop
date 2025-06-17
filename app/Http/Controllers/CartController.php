@@ -48,6 +48,10 @@ class CartController extends Controller
             'product_id' => 'required|exists:products,id',
             'variant_id' => 'required|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
+        ],[
+            'quantity.min' => 'The quantity must be at least 1.',
+            'variant_id.exists' => 'The selected variant does not exist.',
+            'product_id.exists' => 'The selected product does not exist.'
         ]);
 
         if ($validator->fails()) {
