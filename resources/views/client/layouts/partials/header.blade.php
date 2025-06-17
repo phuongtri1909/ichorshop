@@ -151,9 +151,18 @@
                             </button>
                         @endif
 
-                        <a class="action-btn">
+                        @php
+                            $cartCount = 0;
+                            if (isset($cart)) {
+                                $cartCount = $cart->total_items;
+                            } else {
+                                $cartSession = \App\Models\Cart::getOrCreateCart(Auth::id());
+                                $cartCount = $cartSession->total_items;
+                            }
+                        @endphp
+                        <a href="{{ route('user.cart.index') }}" class="header-action cart-icon action-btn">
                             <img src="{{ asset('assets/images/svg/cart.svg') }}" alt="Cart">
-                            <span class="cart-badge">0</span>
+                            <span class="cart-badge">{{ $cartCount }}</span>
                         </a>
 
                         @if (auth()->check())

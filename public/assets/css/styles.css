@@ -2199,3 +2199,61 @@ body {
 .social-icon .custom-zalo {
     font-size: 1.2em;
 } 
+
+
+.flying-image {
+    position: fixed;
+    z-index: 9999;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    pointer-events: none;
+}
+
+.header-action.cart-icon {
+    position: relative;
+}
+
+/* Hiệu ứng nhấp nháy cho icon giỏ hàng */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 0.3s ease;
+}
+
+/* Đảm bảo container của biểu tượng giỏ hàng có position relative */
+.action-btn {
+    position: relative;
+}
+
+/* Hiệu ứng cho badge số lượng */
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+/* Hiệu ứng cho badge khi thêm mới */
+.cart-badge.updated {
+    transform: scale(1.5);
+    background-color: var(--primary-color-dark);
+}

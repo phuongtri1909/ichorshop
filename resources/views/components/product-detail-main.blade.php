@@ -783,14 +783,6 @@
                 const hasDefaultVariant = allVariants.some(v => (!v.size || v.size === '') && (!v
                     .color_name || v.color_name === ''));
 
-                console.log("Debug variants:", {
-                    hasSizeOnlyVariants,
-                    hasColorOnlyVariants,
-                    hasDefaultVariant,
-                    currentSize,
-                    currentColorName
-                });
-
                 // Kiểm tra từng trường hợp cụ thể
                 if (currentSize && !currentColorName) {
                     // Đã chọn size nhưng chưa chọn màu
@@ -922,26 +914,114 @@
                 if (selectedVariant.size) variantInfo += `Size: ${selectedVariant.size}, `;
                 variantInfo += `Quantity: ${quantity}`;
 
-                // Gửi yêu cầu AJAX để thêm sản phẩm vào giỏ hàng
-                console.log('Adding to cart:', {
-                    variantId: currentVariantId,
-                    quantity: quantity,
-                    colorName: selectedVariant.color_name || 'Default',
-                    size: selectedVariant.size || 'Default'
+                $.ajax({
+                    url: '{{ route('user.cart.add') }}',
+                    type: 'POST',
+                    data: {
+                        product_id: "{{ $product['id'] }}",
+                        variant_id: currentVariantId,
+                        quantity: quantity,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            const $mainImage = $('.main-image');
+                            const $cartIcon = $('.header-action.cart-icon');
+                            
+                            if ($cartIcon.length === 0) {
+                                // showToast(response.message || 'Product added to cart successfully', 'success');
+                                return;
+                            }
+                            
+                            // Tính toán vị trí chính xác
+                            const imageOffset = $mainImage.offset();
+                            const cartOffset = $cartIcon.offset();
+                            
+                            // Tạo bản sao của hình ảnh sản phẩm
+                            const $flyingImage = $('<img>', {
+                                class: 'flying-image',
+                                src: $mainImage.attr('src'),
+                                css: {
+                                    'position': 'absolute', // Thay đổi từ fixed thành absolute
+                                    'z-index': '9999',
+                                    'width': '100px',
+                                    'height': '100px',
+                                    'left': `${imageOffset.left}px`,
+                                    'top': `${imageOffset.top}px`,
+                                    'border-radius': '10px',
+                                    'box-shadow': '0 5px 15px rgba(0,0,0,0.1)',
+                                    'opacity': '0.9',
+                                    'pointer-events': 'none',
+                                    'transition': 'none' // Bỏ transition để đặt vị trí ban đầu
+                                }
+                            });
+                            
+                            // Thêm bản sao vào body
+                            $('body').append($flyingImage);
+                            
+                            // Force reflow để đảm bảo vị trí ban đầu được thiết lập
+                            $flyingImage[0].offsetHeight;
+                            
+                            // Sử dụng setTimeout để đảm bảo trình duyệt đã render phần tử trước khi thêm hiệu ứng
+                            setTimeout(function() {
+                                // Thêm transition
+                                $flyingImage.css({
+                                    'transition': 'all 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28)'
+                                });
+                                
+                                // Force reflow để áp dụng transition
+                                $flyingImage[0].offsetHeight;
+                                
+                                // Thực hiện hiệu ứng bay
+                                $flyingImage.css({
+                                    'width': '20px',
+                                    'height': '20px',
+                                    'left': `${cartOffset.left}px`,
+                                    'top': `${cartOffset.top}px`,
+                                    'opacity': '0.7'
+                                });
+                                
+                                // Khi hiệu ứng bay kết thúc
+                                setTimeout(function() {
+                                    // Hiệu ứng nhấp nháy cho giỏ hàng
+                                    $cartIcon.addClass('pulse-animation');
+                                    
+                                    // Cập nhật số lượng sản phẩm trong giỏ hàng
+                                    const $cartBadge = $('.cart-badge');
+                                    if ($cartBadge.length) {
+                                        $cartBadge.text(response.cart_count);
+                                        $cartBadge.addClass('animate__animated animate__bounceIn');
+                                        setTimeout(function() {
+                                            $cartBadge.removeClass('animate__animated animate__bounceIn');
+                                        }, 1000);
+                                    }
+                                    
+                                    // Xóa hình bay
+                                    $flyingImage.remove();
+                                    
+                                    // Xóa hiệu ứng nhấp nháy
+                                    setTimeout(function() {
+                                        $cartIcon.removeClass('pulse-animation');
+                                    }, 300);
+                                    
+                                    // Hiển thị thông báo thành công
+                                    // showToast(response.message || 'Product added to cart successfully', 'success');
+                                }, 800); // Thời gian để hiệu ứng bay hoàn thành
+                            }, 50);
+                        } else {
+                            showToast(response.error || 'Error adding product to cart', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Error adding product to cart';
+
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+
+                        showToast(errorMessage, 'error');
+                    }
                 });
-
-                // Hiển thị thông báo thành công
-                showToast('Product added to cart successfully', 'success');
-
-                // Ví dụ gọi AJAX (bỏ comment và điều chỉnh nếu cần)
-                // $.post('/cart/add', {
-                //     variant_id: currentVariantId,
-                //     quantity: quantity
-                // }).done(function(response) {
-                //     showToast('Product added to cart successfully', 'success');
-                // }).fail(function(error) {
-                //     showToast('Error adding product to cart', 'error');
-                // });
             });
 
             // Vuốt trên thiết bị di động

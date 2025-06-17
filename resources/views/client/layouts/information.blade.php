@@ -35,6 +35,14 @@
                         </div>
 
                         <div class="user-nav-item">
+                            <a href="{{ route('user.cart.index') }}"
+                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.cart.index') ? 'active' : '' }}">
+                                <i class="fa-solid fa-cart-shopping user-nav-icon"></i>
+                                <span class="user-nav-text">Cart</span>
+                            </a>
+                        </div>
+
+                        <div class="user-nav-item">
                             <a href="{{ route('user.wishlist.index') }}"
                                 class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.wishlist.index') ? 'active' : '' }}">
                                 <i class="fa-regular fa-heart user-nav-icon"></i>

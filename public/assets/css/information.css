@@ -259,23 +259,7 @@
     margin-bottom: 8px;
 }
 
-.form-control {
-    border: 1px solid #e1e5e9;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
 
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-}
-
-.form-control:read-only {
-    background-color: #f8f9fa;
-    cursor: not-allowed;
-}
 
 .form-actions {
     margin-top: 24px;
