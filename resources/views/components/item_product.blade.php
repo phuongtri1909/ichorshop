@@ -56,13 +56,13 @@
             }
 
             .current-price {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
                 font-weight: 700;
                 color: var(--primary-color);
             }
 
             .original-price {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
                 font-weight: 700;
                 color: var(--primary-color-5);
                 text-decoration: line-through;

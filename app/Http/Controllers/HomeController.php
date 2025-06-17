@@ -281,9 +281,6 @@ class HomeController extends Controller
         session()->put('recently_viewed', $recentlyViewed);
     }
 
-
-
-
     private function applyProductFilters($query, Request $request)
     {
         // Filter theo category
@@ -335,21 +332,26 @@ class HomeController extends Controller
         if ($request->has('price_min') && $request->has('price_max')) {
             $minPrice = (float) $request->price_min;
             $maxPrice = (float) $request->price_max;
+            
+            // Chỉ áp dụng filter khi không phải là khoảng giá mặc định (0 đến giá cao nhất)
+            $defaultMaxPrice = 100000000; // Một giá trị đủ lớn để đại diện cho "giá cao nhất"
+            $isDefaultRange = ($minPrice <= 0 && $maxPrice >= $defaultMaxPrice);
+            
+            if (!$isDefaultRange) {
+                $query->whereHas('variants', function ($q) use ($minPrice, $maxPrice) {
+                    $q->where(function ($subQuery) use ($minPrice, $maxPrice) {
+                        // Kiểm tra giá sau khi giảm giá
+                        $now = now();
 
-            $query->whereHas('variants', function ($q) use ($minPrice, $maxPrice) {
-                $q->where(function ($subQuery) use ($minPrice, $maxPrice) {
-                    // Kiểm tra giá sau khi giảm giá
-                    $now = now();
-
-                    // Sản phẩm có promotion
-                    $subQuery->where(function ($sq1) use ($minPrice, $maxPrice, $now) {
-                        $sq1->whereHas('variantPromotions.promotion', function ($sq2) use ($now) {
-                            $sq2->where('status', true)
-                                ->where('start_date', '<=', $now)
-                                ->where('end_date', '>=', $now);
-                        })
-                            ->whereRaw(
-                                "
+                        // Sản phẩm có promotion
+                        $subQuery->where(function ($sq1) use ($minPrice, $maxPrice, $now) {
+                            $sq1->whereHas('variantPromotions.promotion', function ($sq2) use ($now) {
+                                $sq2->where('status', true)
+                                    ->where('start_date', '<=', $now)
+                                    ->where('end_date', '>=', $now);
+                            })
+                                ->whereRaw(
+                                    "
                         (CASE
                             WHEN EXISTS (
                                 SELECT 1 FROM promotions p
@@ -400,16 +402,17 @@ class HomeController extends Controller
                             ELSE product_variants.price
                         END
                         ) BETWEEN ? AND ?",
-                                [$now, $now, $now, $now, $now, $now, $now, $now, $minPrice, $maxPrice]
-                            );
-                    })
-                        ->orWhere(function ($sq1) use ($minPrice, $maxPrice) {
-                            // Sản phẩm không có promotion - giá gốc trong khoảng
-                            $sq1->whereDoesntHave('variantPromotions')
-                                ->whereBetween('price', [$minPrice, $maxPrice]);
-                        });
+                                    [$now, $now, $now, $now, $now, $now, $now, $now, $minPrice, $maxPrice]
+                                );
+                        })
+                            ->orWhere(function ($sq1) use ($minPrice, $maxPrice) {
+                                // Sản phẩm không có promotion - giá gốc trong khoảng
+                                $sq1->whereDoesntHave('variantPromotions')
+                                    ->whereBetween('price', [$minPrice, $maxPrice]);
+                            });
+                    });
                 });
-            });
+            }
         }
 
         // Sort options
@@ -439,6 +442,56 @@ class HomeController extends Controller
         // }
 
         return $query;
+    }
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('q');
+
+        $now = now();
+
+        $query = Product::with([
+            'variants' => function ($query) {
+                $query->where('status', ProductVariant::STATUS_ACTIVE)->orderBy('price');
+            },
+            'variants.variantPromotions.promotion' => function ($query) use ($now) {
+                $query->where('status', true)
+                    ->where('start_date', '<=', $now)
+                    ->where('end_date', '>=', $now);
+            },
+            'categories',
+            'dressStyles'
+        ])->active();
+
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('description_short', 'like', "%{$searchTerm}%")
+                    ->orWhere('description_long', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        $query = $this->applyProductFilters($query, $request);
+
+        if (!$request->has('sort')) {
+            $query->latest();
+        }
+
+        $products = $query->paginate(20)->withQueryString();
+
+        $appliedFilters = $this->getAppliedFilters($request);
+
+        $breadcrumbItems = [
+            ['title' => 'Home', 'url' => route('home')],
+            ['title' => 'Search Results', 'url' => null, 'active' => true]
+        ];
+
+        return view('client.pages.filter.search_results', [
+            'products' => $products,
+            'appliedFilters' => $appliedFilters,
+            'searchTerm' => $searchTerm,
+            'breadcrumbItems' => $breadcrumbItems
+        ]);
     }
 
     public function categoryProducts($slug, Request $request)

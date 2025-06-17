@@ -74,7 +74,6 @@
                 margin: 0 -15px;
             }
 
-
             #filtersCollapse {
                 position: fixed;
                 top: 0;

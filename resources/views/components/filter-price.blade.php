@@ -1,4 +1,4 @@
-<div class="filter-group">
+<div class="filter-group" data-filter-type="price">
     <h6 class="filter-title">
         <span>Price</span>
         <i class="fas fa-chevron-up toggle-icon"></i>

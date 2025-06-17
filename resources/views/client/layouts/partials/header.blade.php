@@ -122,17 +122,18 @@
                                 </a>
                             </div>
                             <a href="{{ route('top.selling') }}" class="nav-link-custom font-regular">On Sale</a>
-                            <a href="{{ route('new.arrivals') }}" class="nav-link-custom font-regular">New Arrivals</a>
-                            <a href="#" class="nav-link-custom font-regular">Brands</a>
+                            <a href="{{ route('new.arrivals') }}" class="nav-link-custom font-regular">New
+                                Arrivals</a>
+                            {{-- <a href="#" class="nav-link-custom font-regular">Brands</a> --}}
                         </nav>
                     @endif
 
                     <!-- Search -->
                     @if ($showSearch && $type !== 'checkout' && $type !== 'success')
                         <div class="search-container-custom d-none d-md-block">
-                            <form>
+                            <form action="{{ route('search') }}" method="GET">
                                 <input type="text" class="search-input-custom"
-                                    placeholder="Search for products...">
+                                    placeholder="Search for products..." name="q">
                                 <button type="submit" class="search-btn-custom">
                                     <i class="fas fa-search"></i>
                                 </button>
@@ -158,17 +159,19 @@
                         @if (auth()->check())
                             <div class="dropdown">
                                 <a href="#"
-                                    class="action-btn mt-0 mt-md-1 text-decoration-none d-flex align-items-baseline dropdown-toggle"
+                                    class="color-primary mt-0 mt-md-1 text-decoration-none d-flex align-items-baseline dropdown-toggle"
                                     id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ auth()->user()->avatar ? Storage::url(auth()->user()->avatar) : asset('assets/images/avatar_default.jpg') }}" alt="User"
-                                        class="user-icon rounded-circle me-0 me-md-2" height="40" width="40">
+                                    <img src="{{ auth()->user()->avatar ? Storage::url(auth()->user()->avatar) : asset('assets/images/avatar_default.jpg') }}"
+                                        alt="User" class="user-icon rounded-circle me-0 me-md-2" height="40"
+                                        width="40">
                                     <span class="d-none d-md-inline text-sm">{{ auth()->user()->full_name }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end user-dropdown"
                                     aria-labelledby="userDropdown">
                                     <li>
                                         <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                                            <img src="{{ asset('assets/images/svg/dashboard.svg') }}" alt="" class="me-2">
+                                            <img src="{{ asset('assets/images/svg/dashboard.svg') }}" alt=""
+                                                class="me-2">
                                             Admin Dashboard
                                         </a>
                                     </li>
@@ -181,7 +184,7 @@
                                     <li>
                                         <a class="dropdown-item" href="">
                                             <img src="{{ asset('assets/images/svg/orders.svg') }}" alt="Orders"
-                                                 style="margin:0 3px 0 -3px">
+                                                style="margin:0 3px 0 -3px">
                                             My Orders
                                         </a>
                                     </li>
@@ -224,8 +227,9 @@
 
             @if ($showSearch)
                 <div class="mobile-search">
-                    <form class="position-relative">
-                        <input type="text" class="search-input-custom" placeholder="Search for products...">
+                    <form class="position-relative" action="{{ route('search') }}" method="GET">
+                        <input type="text" class="search-input-custom" placeholder="Search for products..."
+                            name="q">
                         <button type="submit" class="search-btn-custom">
                             <i class="fas fa-search"></i>
                         </button>
@@ -235,8 +239,8 @@
 
             <nav>
                 <a href="#" class="mobile-nav-item">Shop</a>
-                <a href="#" class="mobile-nav-item">On Sale</a>
-                <a href="#" class="mobile-nav-item">New Arrivals</a>
+                <a href="{{ route('top.selling') }}" class="mobile-nav-item">On Sale</a>
+                <a href="{{ route('new.arrivals') }}" class="mobile-nav-item">New Arrivals</a>
                 <a href="#" class="mobile-nav-item">Brands</a>
             </nav>
         </div>
