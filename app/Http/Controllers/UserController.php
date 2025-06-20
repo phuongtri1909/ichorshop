@@ -248,7 +248,7 @@ class UserController extends Controller
                 'state_id' => 'required|exists:states,id',
                 'city_id' => 'required|exists:cities,id',
                 'street' => 'required|string|max:500',
-                'postal_code' => 'nullable|string|max:20',
+                'postal_code' => 'required|string|max:20',
                 'label' => 'nullable|string|max:100',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -321,7 +321,7 @@ class UserController extends Controller
                 'state_id' => 'required|exists:states,id',
                 'city_id' => 'required|exists:cities,id',
                 'street' => 'required|string|max:500',
-                'postal_code' => 'nullable|string|max:20',
+                'postal_code' => 'required|string|max:20',
                 'label' => 'nullable|string|max:100',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

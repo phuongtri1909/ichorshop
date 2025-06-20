@@ -89,13 +89,13 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            {{-- <div class="col-md-6">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="postal_code" class="form-label">Postal Code</label>
                                     <input type="text" class="form-control" id="postal_code" name="postal_code" placeholder="Enter postal code">
                                     <div class="invalid-feedback"></div>
                                 </div>
-                            </div> --}}
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -371,6 +371,7 @@
 
             $('#state').on('change', function() {
                 const stateId = $(this).val();
+                
                 loadCities(stateId);
             });
 
@@ -436,7 +437,7 @@
                 const saveBtn = $(this);
                 toggleLoading(saveBtn, true);
 
-                const formData = $('#addressForm').serialize();
+                let formData = $('#addressForm').serialize();
                 let url, method;
 
                 if (currentAddressId) {
@@ -643,23 +644,6 @@
         /* Form Styles for Modal */
         .modal-lg {
             max-width: 600px;
-        }
-
-        .form-select {
-            border: 1px solid #e1e5e9;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-        }
-
-        .form-select.is-invalid {
-            border-color: #dc3545;
         }
 
         .form-check {

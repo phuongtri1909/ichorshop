@@ -255,7 +255,7 @@
 
 .form-label {
     font-weight: 500;
-    color: #333;
+    color: var(--primary-color);
     margin-bottom: 8px;
 }
 

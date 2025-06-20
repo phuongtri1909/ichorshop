@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Cart;
 use App\Models\User;
 use App\Mail\OTPMail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\OTPForgotPWMail;
+use App\Models\GoogleSetting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -16,18 +18,44 @@ use Intervention\Image\Facades\Image;
 use App\Services\ReadingHistoryService;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
-use App\Models\Cart;
 
 class AuthController extends Controller
 {
     public function redirectToGoogle()
     {
+        $googleSettings = GoogleSetting::first();
+
+        if (!$googleSettings) {
+            return redirect()->route('login')
+                ->with('error', 'Google login is not configured. Please contact support.');
+        }
+
+        config([
+            'services.google.client_id' => $googleSettings->google_client_id,
+            'services.google.client_secret' => $googleSettings->google_client_secret,
+            'services.google.redirect' => route($googleSettings->google_redirect)
+        ]);
+
         return Socialite::driver('google')->redirect();
     }
 
     public function handleGoogleCallback()
     {
         try {
+
+            $googleSettings = GoogleSetting::first();
+            
+            if (!$googleSettings) {
+                return redirect()->route('login')
+                    ->with('error', 'Google login is not configured. Please contact support.');
+            }
+            
+            config([
+                'services.google.client_id' => $googleSettings->google_client_id,
+                'services.google.client_secret' => $googleSettings->google_client_secret,
+                'services.google.redirect' => route($googleSettings->google_redirect)
+            ]);
+
             $oldSessionId = session()->getId();
 
             // DEBUG: Kiểm tra giỏ hàng guest trước khi đăng nhập
@@ -103,10 +131,10 @@ class AuthController extends Controller
 
             // Đảm bảo giỏ hàng khách có sản phẩm
             $guestItemsCount = $guestCart->items()->count();
-          
+
 
             if ($guestItemsCount == 0) {
-               
+
                 $guestCart->delete(); // Xóa giỏ hàng trống
                 return;
             }
@@ -120,13 +148,12 @@ class AuthController extends Controller
                     'user_id' => $userId,
                     'session_id' => session()->getId()
                 ]);
-              
+
                 return;
             }
 
             // Gọi phương thức mergeCarts từ model Cart để đồng bộ
             Cart::mergeCarts($guestCart, $userCart);
-
         } catch (\Exception $e) {
             \Log::error('Error merging carts', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }

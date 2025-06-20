@@ -68,6 +68,10 @@ body {
     background-color: var(--primary-color-4) !important;
 }
 
+.bg-primary-1 {
+    background-color: var(--primary-color) !important;
+}
+
 .color-primary {
     color: var(--primary-color) !important;
 }
@@ -2180,7 +2184,8 @@ body {
     display: inline-block;
 }
 
-.dropdown-item.active, .dropdown-item:active {
+.dropdown-item.active,
+.dropdown-item:active {
     background-color: var(--primary-color);
     color: white;
 }
@@ -2198,14 +2203,14 @@ body {
 
 .social-icon .custom-zalo {
     font-size: 1.2em;
-} 
+}
 
 
 .flying-image {
     position: fixed;
     z-index: 9999;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     pointer-events: none;
 }
 
@@ -2218,9 +2223,11 @@ body {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.2);
     }
+
     100% {
         transform: scale(1);
     }

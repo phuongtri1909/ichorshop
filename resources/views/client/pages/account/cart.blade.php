@@ -316,9 +316,7 @@
                     return;
                 }
                 
-                // Chuyển đến trang thanh toán với danh sách các sản phẩm đã chọn
-                // Ở đây, bạn có thể thay thế bằng URL thật của trang thanh toán
-                const checkoutUrl = "{{ route('home') }}"; // Thay thế bằng route checkout thực tế
+                const checkoutUrl = "{{ route('user.checkout') }}"; 
                 
                 // Tạo form ẩn để submit danh sách item đã chọn
                 const $form = $('<form>', {
@@ -677,19 +675,6 @@
 
             function formatNumber(number) {
                 return parseFloat(number).toFixed(2);
-            }
-            
-            // Toast function
-            function showToast(message, type) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: type,
-                    title: message,
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
             }
             
             // Khởi tạo

@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NewsletterController;
@@ -25,6 +26,11 @@ Route::get('search', [HomeController::class, 'search'])->name('search');
 Route::post('/newsletter-subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
+
+    Route::get('countries', [UserController::class, 'getCountries'])->name('countries');
+    Route::get('states', [UserController::class, 'getStates'])->name('states');
+    Route::get('cities', [UserController::class, 'getCities'])->name('cities');
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
@@ -56,13 +62,21 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('addresses/{address}', [UserController::class, 'deleteAddress'])->name('addresses.delete');
 
         // Location data routes
-        Route::get('countries', [UserController::class, 'getCountries'])->name('countries');
-        Route::get('states', [UserController::class, 'getStates'])->name('states');
-        Route::get('cities', [UserController::class, 'getCities'])->name('cities');
 
         Route::post('update-profile', [UserController::class, 'updateProfile'])->name('update.profile');
         Route::post('update-avatar', [UserController::class, 'updateAvatar'])->name('update.avatar');
         Route::post('update-password', [UserController::class, 'updatePassword'])->name('update.password');
+
+
+        Route::post('/apply-coupon', [CouponController::class, 'apply'])->name('coupon.apply');
+        Route::post('/remove-coupon', [CouponController::class, 'remove'])->name('coupon.remove');
+        Route::get('/coupon/info', [CouponController::class, 'getAppliedCouponInfo'])->name('coupon.info');
+        Route::get('/coupon/available', [CouponController::class, 'getAvailableCoupons'])->name('coupon.available');
+
+        Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
+        Route::get('/checkout/address', [CartController::class, 'checkoutAddress'])->name('checkout.address');
+        Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
+        Route::get('/checkout/success/{order}', [CartController::class, 'checkoutSuccess'])->name('checkout.success');
     });
 });
 
@@ -88,5 +102,5 @@ Route::group(['middleware' => 'guest'], function () {
     })->name('reset-password');
 
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
-    Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+    Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });

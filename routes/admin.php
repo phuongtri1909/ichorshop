@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SocialController;
 use App\Http\Controllers\Admin\ContactController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Admin\FranchiseController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\DressStyleController;
 use App\Http\Controllers\Admin\NewsletterController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
@@ -92,8 +94,24 @@ Route::group(['as' => 'admin.'], function () {
         Route::delete('/newsletter-subscriptions/{subscription}', [NewsletterController::class, 'destroy'])->name('newsletter.destroy');
         Route::post('/newsletter-subscriptions/export', [NewsletterController::class, 'export'])->name('newsletter.export');
 
+        Route::resource('coupons', CouponController::class)->except(['show']);
+        Route::get('coupons/generate-code', [CouponController::class, 'generateCode'])->name('coupons.generate-code');
+        Route::get('coupons/product-variants/{product}', [CouponController::class, 'getProductVariants'])->name('coupons.product-variants');
+        Route::get('coupons/{coupon}/send', [CouponController::class, 'showSendForm'])->name('coupons.send.form');
+        Route::post('coupons/{coupon}/send', [CouponController::class, 'sendCoupon'])->name('coupons.send');
+
+        Route::get('coupons/load-products', [CouponController::class, 'loadProducts'])->name('coupons.load-products');
+        Route::get('coupons/load-users', [CouponController::class, 'loadUsers'])->name('coupons.load-users');
+        Route::get('coupons/initial-users', [CouponController::class, 'getInitialUsers'])->name('coupons.initial-users');
+
         Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
             ->name('ckeditor.upload');
+
+        Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
+        Route::put('setting/order', [SettingController::class, 'updateOrder'])->name('setting.update.order');
+        Route::put('setting/smtp', [SettingController::class, 'updateSMTP'])->name('setting.update.smtp');
+        Route::put('setting/google', [SettingController::class, 'updateGoogle'])->name('setting.update.google');
+        Route::put('setting/paypal', [SettingController::class, 'updatePaypal'])->name('setting.update.paypal');
     });
 
     Route::group(['middleware' => 'guest'], function () {

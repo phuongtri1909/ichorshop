@@ -35,6 +35,20 @@ class User extends Authenticatable
     const ROLE_USER = 'user';
     const ROLE_STAFF = 'staff';
 
+    const ACTIVE_YES = 1;
+    const ACTIVE_NO = 0;
+
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    public function isActive(): bool
+    {
+        return $this->active === self::ACTIVE_YES;
+    }
+
     public function addresses()
     {
         return $this->hasMany(Address::class);
