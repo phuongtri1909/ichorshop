@@ -80,7 +80,7 @@
                         <div class="product-rating mb-3">
                             <div class="rating-stars fs-5">
                                 @php
-                                    $rating = $product['rating'];
+                                    $rating = $averageRating ?? 0;
                                     $fullStars = floor($rating);
                                     $hasHalfStar = $rating - $fullStars >= 0.5;
                                 @endphp
@@ -95,7 +95,7 @@
                                     @endif
                                 @endfor
                             </div>
-                            <span class="rating-text">{{ $product['rating'] }}/5</span>
+                            <span class="rating-text">{{ $averageRating }}/5</span>
                             <span onclick="event.preventDefault()">
                                 <x-wishlist-button :product="$product" class="color-primary" />
                             </span>

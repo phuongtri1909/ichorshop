@@ -2,7 +2,7 @@
      <div class="testimonial-rating mb-3">
          <span class="rating-stars text-sm" title="5 sao">
              @php
-                 $rating = 4.5 ?? 0;
+                 $rating = $review->rating ?? 0;
 
                  $displayRating = round($rating * 2) / 2;
              @endphp
@@ -18,15 +18,14 @@
          </span>
      </div>
      <div class="d-flex">
-         <h6 class="fs-4 fw-bold me-2">Sarah M.</h6>
+         <h6 class="fs-4 fw-bold me-2">{{ $review->user->full_name }}</h6>
          <span class="rounded-circle bg-success-custom text-white"
              style="width: 17px; height: 17px; display: inline-flex; align-items: center; justify-content: center;">
              <i class="fa-solid fa-check fa-2xs"></i>
          </span>
      </div>
-     <p class="mb-0 color-primary-5">"I'm blown away by the quality and style of the clothes I received from
-         Shop.co. From casual wear to elegant dresses, every piece I've bought has exceeded my
-         expectations."</p>
+     <p class="mb-0 color-primary-5">{{ $review->content }}</p>
+     <span>Posted on {{ $review->created_at->format('F d, Y') }}</span>
  </div>
 
  @push('styles')

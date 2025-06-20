@@ -6,15 +6,19 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ReviewRatingController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('products/{slug}', [HomeController::class, 'productDetails'])->name('product.details');
 Route::get('/product-images/{slug}/{color?}', [ProductController::class, 'getProductImages']);
+Route::get('/products/{product}/reviews/load-more', [ReviewRatingController::class, 'loadMore'])->name('products.reviews.load-more');
 
 Route::get('faqs/load-more', [FaqController::class, 'loadMore'])->name('faqs.load-more');
 
@@ -24,6 +28,9 @@ Route::get('top-selling', [HomeController::class, 'topSelling'])->name('top.sell
 Route::get('search', [HomeController::class, 'search'])->name('search');
 
 Route::post('/newsletter-subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::post('/payment/paypal/ipn', [PaymentController::class, 'paypalIpn'])
+    ->name('payment.paypal.ipn');
+
 
 Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
 
@@ -77,6 +84,18 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/checkout/address', [CartController::class, 'checkoutAddress'])->name('checkout.address');
         Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
         Route::get('/checkout/success/{order}', [CartController::class, 'checkoutSuccess'])->name('checkout.success');
+
+        Route::get('orders', [OrderController::class, 'userOrders'])->name('orders');
+        Route::get('orders/{order}', [OrderController::class, 'userOrderDetail'])->name('orders.detail');
+
+        Route::get('/orders/{order}/reviews/create', [ReviewRatingController::class, 'create'])->name('reviews.create');
+        Route::post('/reviews', [ReviewRatingController::class, 'store'])->name('reviews.store');
+    });
+
+    Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
+        Route::get('/process/{order}', [PaymentController::class, 'processPayment'])->name('process');
+        Route::get('/paypal/success', [PaymentController::class, 'paypalSuccess'])->name('paypal.success');
+        Route::get('/paypal/cancel', [PaymentController::class, 'paypalCancel'])->name('paypal.cancel');
     });
 });
 

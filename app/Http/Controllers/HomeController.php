@@ -6,11 +6,12 @@ use App\Models\Faq;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\DressStyle;
+use App\Models\ProductView;
+use App\Models\ReviewRating;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use App\Models\ProductView;
 
 class HomeController extends Controller
 {
@@ -78,6 +79,13 @@ class HomeController extends Controller
 
         $styles = DressStyle::get();
 
+        $latestReviews = ReviewRating::with('user', 'product')
+            ->published()
+            ->whereDate('created_at', '>=', now()->subMonth())
+            ->latest()
+            ->take(30)
+            ->get();
+
         return view('client.pages.home', [
             'brands' => $brands,
             'brandCount' => $brandCount,
@@ -85,11 +93,12 @@ class HomeController extends Controller
             'newProducts' => $newProducts,
             'topSellingProducts' => $topSellingProducts,
             'customerCount' => $customerCount,
-            'styles' => $styles
+            'styles' => $styles,
+            'latestReviews' => $latestReviews
         ]);
     }
 
-    public function productDetails($slug)
+    public function productDetails($slug, Request $request)
     {
         $now = now();
 
@@ -248,6 +257,44 @@ class HomeController extends Controller
         $faqs = Faq::orderBy('order')->take(4)->get();
         $totalFaqs = Faq::count();
 
+        $sortBy = $request->query('sort', 'latest');
+
+        $reviewsQuery = ReviewRating::with('user')
+            ->where('product_id', $product->id)
+            ->published();
+
+        // Áp dụng logic sắp xếp
+        switch ($sortBy) {
+            case 'oldest':
+                $reviewsQuery->orderBy('created_at', 'asc');
+                break;
+            case 'highest':
+                $reviewsQuery->orderBy('rating', 'desc')->orderBy('created_at', 'desc');
+                break;
+            case 'lowest':
+                $reviewsQuery->orderBy('rating', 'asc')->orderBy('created_at', 'desc');
+                break;
+            default: // 'latest'
+                $reviewsQuery->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $reviews = $reviewsQuery->paginate(6);
+
+        // Tính số lượng đánh giá và điểm trung bình
+        $reviewsCount = ReviewRating::where('product_id', $product->id)->published()->count();
+        $averageRating = $reviewsCount > 0 ?
+            round(ReviewRating::where('product_id', $product->id)->published()->avg('rating'), 1) : 0;
+
+        $ratingCounts = ReviewRating::where('product_id', $product->id)
+            ->published()
+            ->selectRaw('rating, count(*) as count')
+            ->groupBy('rating')
+            ->pluck('count', 'rating')
+            ->toArray();
+
+
+
         return view('client.pages.product-detail', [
             'product' => $productData,
             'breadcrumbItems' => $breadcrumbItems,
@@ -255,6 +302,11 @@ class HomeController extends Controller
             'relatedProducts' => $relatedProducts,
             'faqs' => $faqs,
             'totalFaqs' => $totalFaqs,
+            'reviews' => $reviews,
+            'reviewsCount' => $reviewsCount,
+            'averageRating' => $averageRating,
+            'ratingCounts' => $ratingCounts,
+            'currentSort' => $sortBy
         ]);
     }
 
@@ -332,11 +384,11 @@ class HomeController extends Controller
         if ($request->has('price_min') && $request->has('price_max')) {
             $minPrice = (float) $request->price_min;
             $maxPrice = (float) $request->price_max;
-            
+
             // Chỉ áp dụng filter khi không phải là khoảng giá mặc định (0 đến giá cao nhất)
             $defaultMaxPrice = 100000000; // Một giá trị đủ lớn để đại diện cho "giá cao nhất"
             $isDefaultRange = ($minPrice <= 0 && $maxPrice >= $defaultMaxPrice);
-            
+
             if (!$isDefaultRange) {
                 $query->whereHas('variants', function ($q) use ($minPrice, $maxPrice) {
                     $q->where(function ($subQuery) use ($minPrice, $maxPrice) {

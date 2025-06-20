@@ -4,19 +4,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 use App\Models\Order;
-use App\Models\Product;
-use App\Models\Customer;
 use Illuminate\Http\Request;
-use App\Models\ProductWeight;
 use Illuminate\Support\Facades\DB;
-use App\Models\Province;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
         // Xây dựng query với các filter
-        $ordersQuery = Order::with(['customer', 'product', 'productWeight']);
+        $ordersQuery = Order::with('user');
 
         // Filter theo mã đơn hàng
         if ($request->filled('order_code')) {
@@ -26,10 +22,11 @@ class OrderController extends Controller
         // Filter theo khách hàng (tên hoặc số điện thoại)
         if ($request->filled('customer')) {
             $customerKeyword = $request->customer;
-            $ordersQuery->whereHas('customer', function ($query) use ($customerKeyword) {
+            $ordersQuery->where(function($query) use ($customerKeyword) {
                 $query->where('first_name', 'like', '%' . $customerKeyword . '%')
                     ->orWhere('last_name', 'like', '%' . $customerKeyword . '%')
-                    ->orWhere('phone', 'like', '%' . $customerKeyword . '%');
+                    ->orWhere('phone', 'like', '%' . $customerKeyword . '%')
+                    ->orWhere('email', 'like', '%' . $customerKeyword . '%');
             });
         }
 
@@ -59,7 +56,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // Load dữ liệu liên quan
-        $order->load(['customer', 'product', 'productWeight']);
+        $order->load(['user', 'items.product', 'items.productVariant', 'coupon']);
 
         return view('admin.pages.orders.show', compact('order'));
     }
@@ -83,5 +80,16 @@ class OrderController extends Controller
         $order->save();
 
         return redirect()->back()->with('success', "Trạng thái đơn hàng đã được cập nhật từ '$oldStatus' thành '$request->status'");
+    }
+    public function updateNotes(Request $request, Order $order)
+    {
+        $request->validate([
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $order->admin_notes = $request->admin_notes;
+        $order->save();
+
+        return redirect()->back()->with('success', 'Ghi chú quản trị đã được cập nhật');
     }
 }

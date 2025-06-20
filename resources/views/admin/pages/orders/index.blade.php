@@ -23,18 +23,18 @@
             <!-- Filter Section -->
             <div class="filter-section">
                 <form action="{{ route('admin.orders.index') }}" method="GET" class="filter-form">
-                    <div class="filter-group">
-                        <div class="filter-item">
+                    <div class="row">
+                        <div class="col-3">
                             <label for="order_code">Mã đơn hàng</label>
                             <input type="text" id="order_code" name="order_code" class="filter-input"
                                 placeholder="Nhập mã đơn hàng" value="{{ request('order_code') }}">
                         </div>
-                        <div class="filter-item">
+                        <div class="col-3">
                             <label for="customer_filter">Khách hàng</label>
                             <input type="text" id="customer_filter" name="customer" class="filter-input"
                                 placeholder="Tên hoặc SĐT khách hàng" value="{{ request('customer') }}">
                         </div>
-                        <div class="filter-item">
+                        <div class="col-3">
                             <label for="status_filter">Trạng thái</label>
                             <select id="status_filter" name="status" class="filter-input">
                                 <option value="">Tất cả trạng thái</option>
@@ -50,12 +50,12 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="filter-item">
+                        <div class="col-3">
                             <label for="date_from">Từ ngày</label>
                             <input type="date" id="date_from" name="date_from" class="filter-input"
                                 value="{{ request('date_from') }}">
                         </div>
-                        <div class="filter-item">
+                        <div class="col-3">
                             <label for="date_to">Đến ngày</label>
                             <input type="date" id="date_to" name="date_to" class="filter-input"
                                 value="{{ request('date_to') }}">
@@ -172,15 +172,16 @@
                             <tbody>
                                 @foreach ($orders as $order)
                                     <tr>
-                                        <td><span class="order-code">{{ $order->id }}</span></td>
+                                        <td><span class="order-code">{{ $order->order_code }}</span></td>
                                         <td>
                                             <div class="customer-info">
-                                                <span class="customer-name">{{ $order->customer->first_name }}
-                                                    {{ $order->customer->last_name }}</span>
+                                                <span class="customer-name">{{ $order->first_name }}
+                                                    {{ $order->last_name }}</span>
+                                                <span class="customer-email">{{ $order->email }}</span>
                                             </div>
                                         </td>
-                                        <td>{{ $order->customer->phone }}</td>
-                                        <td class="order-total">{{ number_format($order->total) }} ₫</td>
+                                        <td>{{ $order->phone }}</td>
+                                        <td class="order-total">{{ number_format($order->total_amount) }} ₫</td>
                                         <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                         <td class="text-center">
                                             <span class="status-badge status-{{ $order->status }}">
@@ -222,7 +223,7 @@
                                             @include('components.delete-form', [
                                                 'id' => $order->id,
                                                 'route' => route('admin.orders.destroy', $order),
-                                                'message' => "Bạn có chắc chắn muốn xóa đơn hàng '{$order->id}'?",
+                                                'message' => "Bạn có chắc chắn muốn xóa đơn hàng '{$order->order_code}'?",
                                             ])
                                         </td>
                                     </tr>

@@ -51,4 +51,45 @@ class Order extends Model
     {
         return $this->belongsTo(Coupon::class);
     }
+
+    /**
+     * Lấy danh sách đánh giá liên quan đến đơn hàng
+     */
+    public function reviews()
+    {
+        return $this->hasMany(ReviewRating::class);
+    }
+
+    /**
+     * Kiểm tra xem đơn hàng có thể được đánh giá không
+     */
+    public function canBeReviewed()
+    {
+        return $this->status === 'completed';
+    }
+
+    /**
+     * Lấy danh sách sản phẩm trong đơn hàng mà người dùng có thể đánh giá
+     */
+    public function getReviewableProducts($userId)
+    {
+        if (!$this->canBeReviewed()) {
+            return collect();
+        }
+
+        // Lấy các sản phẩm duy nhất trong đơn hàng (loại bỏ trùng lặp variant)
+        $productIds = $this->items()->with('product')->get()->pluck('product.id')->unique();
+        
+        // Lấy các sản phẩm đã được đánh giá trong đơn hàng này
+        $reviewedProductIds = ReviewRating::where('order_id', $this->id)
+            ->where('user_id', $userId)
+            ->pluck('product_id')
+            ->toArray();
+        
+        // Lọc các sản phẩm chưa được đánh giá
+        $reviewableProductIds = $productIds->diff($reviewedProductIds);
+        
+        // Trả về danh sách sản phẩm đầy đủ
+        return Product::whereIn('id', $reviewableProductIds)->get();
+    }
 }

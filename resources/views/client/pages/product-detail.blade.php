@@ -27,6 +27,9 @@
         ],
         'product' => $product,
         'faqs' => $faqs,
+        'reviews' => $reviews,
+        'reviewsCount' => $reviewsCount,
+        'ratingCounts' => $ratingCounts,
     ])
 
     <!-- You might also like -->

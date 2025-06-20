@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
-use App\Helpers\ImageHelper;
 use App\Models\Product;
-use App\Models\Review;
+use App\Models\ReviewRating;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
@@ -19,7 +19,7 @@ class ReviewController extends Controller
         $products = Product::orderBy('name')->get();
         
         // Xây dựng query với các filter
-        $reviewsQuery = Review::with('product')->orderBy('created_at', 'desc');
+        $reviewsQuery = ReviewRating::with(['product', 'user', 'order'])->orderBy('created_at', 'desc');
         
         // Filter theo sản phẩm
         if ($request->has('product_id') && !empty($request->product_id)) {
@@ -27,8 +27,14 @@ class ReviewController extends Controller
         }
         
         // Filter theo tên người đánh giá
-        if ($request->has('user_name') && !empty($request->user_name)) {
-            $reviewsQuery->where('user_name', 'like', '%' . $request->user_name . '%');
+        if ($request->has('full_name') && !empty($request->full_name)) {
+            $keyword = $request->full_name;
+            $reviewsQuery->whereHas('user', function($query) use ($keyword) {
+                $query->where('first_name', 'like', '%' . $keyword . '%')
+                    ->orWhere('last_name', 'like', '%' . $keyword . '%')
+                    ->orWhere('full_name', 'like', '%' . $keyword . '%')
+                    ->orWhere('email', 'like', '%' . $keyword . '%');
+            });
         }
         
         // Filter theo khoảng thời gian
@@ -40,6 +46,11 @@ class ReviewController extends Controller
             $reviewsQuery->whereDate('created_at', '<=', $request->date_to);
         }
         
+        // Filter theo trạng thái
+        if ($request->has('status') && !empty($request->status)) {
+            $reviewsQuery->where('status', $request->status);
+        }
+        
         // Thực thi query và phân trang kết quả
         $reviews = $reviewsQuery->paginate(10);
         
@@ -47,98 +58,41 @@ class ReviewController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Update the status of the specified review.
      */
-    public function create()
+    public function updateStatus(Request $request, ReviewRating $review)
     {
-        $products = Product::where('is_active', true)->orderBy('name')->get();
-        return view('admin.pages.reviews.create', compact('products'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'user_name' => 'required|string|max:255',
-            'rating' => 'required|numeric|min:1|max:5',
-            'comment' => 'required|string|max:1000',
-            'avatar' => 'nullable|image|max:1024',
-        ], [
-            'product_id.required' => 'Vui lòng chọn sản phẩm',
-            'product_id.exists' => 'Sản phẩm không tồn tại',
-            'user_name.required' => 'Tên người đánh giá không được để trống',
-            'rating.required' => 'Đánh giá không được để trống',
-            'rating.min' => 'Đánh giá tối thiểu là 1 sao',
-            'rating.max' => 'Đánh giá tối đa là 5 sao',
-            'comment.required' => 'Nội dung đánh giá không được để trống',
-            'comment.max' => 'Nội dung đánh giá không được vượt quá 1000 ký tự',
-            'avatar.image' => 'File phải là hình ảnh',
-            'avatar.max' => 'Kích thước hình ảnh không được vượt quá 1MB',
+        $request->validate([
+            'status' => 'required|in:published,pending,rejected'
         ]);
-        
-        // Xử lý và lưu avatar nếu có
-        if ($request->hasFile('avatar')) {
-            $validated['avatar'] = ImageHelper::optimizeAndSave($request->file('avatar'), 'avatars', 100);
-        }
 
-        Review::create($validated);
+        $review->status = $request->status;
+        $review->save();
 
-        return redirect()->route('admin.reviews.index')
-            ->with('success', 'Đánh giá đã được tạo thành công.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Review $review)
-    {
-        return redirect()->route('admin.reviews.edit', $review);
+        return redirect()->back()->with('success', 'Trạng thái đánh giá đã được cập nhật thành công.');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Review $review)
+    public function edit(ReviewRating $review)
     {
-        $products = Product::where('is_active', true)->orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+        $review->load(['user', 'product', 'order']);
         return view('admin.pages.reviews.edit', compact('review', 'products'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Review $review)
+    public function update(Request $request, ReviewRating $review)
     {
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'user_name' => 'required|string|max:255',
             'rating' => 'required|numeric|min:1|max:5',
-            'comment' => 'required|string|max:1000',
-            'avatar' => 'nullable|image|max:1024',
-        ], [
-            'product_id.required' => 'Vui lòng chọn sản phẩm',
-            'product_id.exists' => 'Sản phẩm không tồn tại',
-            'user_name.required' => 'Tên người đánh giá không được để trống',
-            'rating.required' => 'Đánh giá không được để trống',
-            'rating.min' => 'Đánh giá tối thiểu là 1 sao',
-            'rating.max' => 'Đánh giá tối đa là 5 sao',
-            'comment.required' => 'Nội dung đánh giá không được để trống',
-            'comment.max' => 'Nội dung đánh giá không được vượt quá 1000 ký tự',
-            'avatar.image' => 'File phải là hình ảnh',
-            'avatar.max' => 'Kích thước hình ảnh không được vượt quá 1MB',
+            'content' => 'required|string|max:1000',
+            'status' => 'required|in:published,pending,rejected',
         ]);
-        
-        // Xử lý và lưu avatar mới nếu có
-        if ($request->hasFile('avatar')) {
-            // Xóa avatar cũ nếu có
-            if ($review->avatar) {
-                ImageHelper::delete($review->avatar);
-            }
-            $validated['avatar'] = ImageHelper::optimizeAndSave($request->file('avatar'), 'avatars', 100);
-        }
 
         $review->update($validated);
 
@@ -149,13 +103,8 @@ class ReviewController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Review $review)
+    public function destroy(ReviewRating $review)
     {
-        // Xóa avatar nếu có
-        if ($review->avatar) {
-            ImageHelper::delete($review->avatar);
-        }
-        
         $review->delete();
 
         return redirect()->route('admin.reviews.index')

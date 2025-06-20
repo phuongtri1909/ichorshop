@@ -218,4 +218,55 @@ class Product extends Model
             ]);
         }
     }
+
+    /**
+     * Lấy các đánh giá của sản phẩm
+     */
+    public function reviews()
+    {
+        return $this->hasMany(ReviewRating::class);
+    }
+
+    /**
+     * Lấy điểm đánh giá trung bình
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->published()->avg('rating') ?: 0;
+    }
+
+    /**
+     * Lấy tổng số đánh giá
+     */
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviews()->published()->count();
+    }
+
+    /**
+     * Kiểm tra xem người dùng có thể đánh giá sản phẩm này không
+     */
+    public function canBeReviewedBy($userId)
+    {
+        // Kiểm tra xem user đã mua sản phẩm này trong đơn hàng completed
+        $completedOrders = Order::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->pluck('id');
+
+        // Kiểm tra xem sản phẩm có trong đơn hàng
+        $productOrderItems = OrderItem::whereIn('order_id', $completedOrders)
+            ->whereHas('product', function ($query) {
+                $query->where('product_id', $this->id);
+            })
+            ->exists();
+
+        // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
+        $alreadyReviewed = $this->reviews()
+            ->where('user_id', $userId)
+            ->exists();
+
+        return $productOrderItems && !$alreadyReviewed;
+    }
+
+    
 }

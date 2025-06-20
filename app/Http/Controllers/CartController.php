@@ -9,7 +9,9 @@ use App\Models\Countries;
 use App\Models\OrderSetting;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
@@ -217,7 +219,7 @@ class CartController extends Controller
         $validator = Validator::make($request->all(), [
             'items' => 'required|array',
             'items.*' => 'exists:cart_items,id'
-        ],[
+        ], [
             'items.required' => 'Please select at least one item to checkout.',
             'items.array' => 'Invalid items format.',
             'items.*.exists' => 'One or more selected items do not exist in your cart.'
@@ -225,6 +227,20 @@ class CartController extends Controller
 
         if ($validator->fails()) {
             return redirect()->back()->with('error', 'Invalid items selected');
+        }
+
+        // Lấy cart của user hiện tại
+        $cart = Cart::getOrCreateCart(Auth::id());
+
+        // Kiểm tra xem các items có thuộc về user hiện tại hay không
+        $selectedItemIds = $request->items;
+        $userItemIds = $cart->items()->pluck('id')->toArray();
+
+        // Kiểm tra xem tất cả các selectedItemIds có nằm trong userItemIds không
+        $invalidItems = array_diff($selectedItemIds, $userItemIds);
+
+        if (!empty($invalidItems)) {
+            return redirect()->back()->with('error', 'Unauthorized access to cart items');
         }
 
         // Lưu danh sách cart items đã chọn vào session
@@ -318,7 +334,7 @@ class CartController extends Controller
             'postal_code' => 'required|string',
             'payment_method' => 'required|in:paypal,mastercard',
             'applied_coupon' => 'nullable|string|max:50',
-        ],[
+        ], [
             'first_name.required' => 'First name is required.',
             'first_name.string' => 'First name must be a string.',
             'last_name.required' => 'Last name is required.',
@@ -341,6 +357,7 @@ class CartController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        DB::beginTransaction();
         try {
             // Lấy danh sách cart items đã chọn từ session
             $selectedItemIds = session('checkout_items', []);
@@ -472,7 +489,6 @@ class CartController extends Controller
                 $item->delete();
             }
 
-            // Nếu có mã giảm giá, ghi nhận việc sử dụng
             if ($coupon) {
                 \App\Models\CouponUsage::create([
                     'coupon_id' => $coupon->id,
@@ -484,19 +500,17 @@ class CartController extends Controller
 
                 // Tăng số lượt đã sử dụng
                 $coupon->increment('usage_count');
-
-                // Xóa mã giảm giá khỏi session nếu có
-                session()->forget('appliedCoupon');
             }
 
             // Cập nhật giỏ hàng
             $cart->updateTotalPrice();
 
-            // Xóa session checkout
-            session()->forget('checkout_items');
 
-            return redirect()->route('user.checkout.success', $order->id);
+
+            DB::commit();
+            return redirect()->route('payment.process', ['order' => $order->id]);
         } catch (\Exception $e) {
+            DB::rollBack();
             // Log lỗi
             \Log::error('Checkout process failed', [
                 'user_id' => $user->id,

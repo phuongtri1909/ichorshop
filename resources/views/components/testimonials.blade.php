@@ -14,9 +14,9 @@
         
         <div class="swiper testimonials-swiper">
             <div class="swiper-wrapper">
-                @foreach ($testimonials as $testimonial)
+                @foreach ($latestReviews as $review)
                     <div class="swiper-slide">
-                        <x-item_testimonial :testimonial="$testimonial" />
+                        <x-item_testimonial :review="$review" />
                     </div>
                 @endforeach
             </div>

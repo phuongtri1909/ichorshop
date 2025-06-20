@@ -20,7 +20,7 @@
                 <div class="order-card-title">
                     <h5>
                         <i class="fas fa-shopping-cart"></i>
-                        Đơn Hàng {{ $order->id }}
+                        Đơn Hàng #{{ $order->order_code }}
                     </h5>
                 </div>
                 <div class="order-meta">
@@ -89,31 +89,41 @@
                         <div class="customer-details">
                             <div class="detail-item">
                                 <span class="detail-label">Họ tên:</span>
-                                <span class="detail-value">{{ $order->customer->first_name }} {{ $order->customer->last_name }}</span>
+                                <span class="detail-value">{{ $order->first_name }} {{ $order->last_name }}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Điện thoại:</span>
-                                <span class="detail-value">{{ $order->customer->phone }}</span>
+                                <span class="detail-value">{{ $order->phone }}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Email:</span>
-                                <span class="detail-value">{{ $order->customer->email ?: 'Không có' }}</span>
+                                <span class="detail-value">{{ $order->email ?: 'Không có' }}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Địa chỉ:</span>
-                                <span class="detail-value">{{ $order->customer->address }}</span>
+                                <span class="detail-value">{{ $order->address }}</span>
+                            </div>
+                            @if($order->apt)
+                            <div class="detail-item">
+                                <span class="detail-label">Căn hộ/Số nhà:</span>
+                                <span class="detail-value">{{ $order->apt }}</span>
+                            </div>
+                            @endif
+                            <div class="detail-item">
+                                <span class="detail-label">Thành phố:</span>
+                                <span class="detail-value">{{ $order->city }}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">Phường/Xã:</span>
-                                <span class="detail-value">{{ $order->customer->wards_name }}</span>
+                                <span class="detail-label">Tỉnh/Bang:</span>
+                                <span class="detail-value">{{ $order->state }}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">Quận/Huyện:</span>
-                                <span class="detail-value">{{ $order->customer->districts_name }}</span>
+                                <span class="detail-label">Mã bưu chính:</span>
+                                <span class="detail-value">{{ $order->postal_code }}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">Tỉnh/Thành phố:</span>
-                                <span class="detail-value">{{ $order->customer->provinces_name }}</span>
+                                <span class="detail-label">Quốc gia:</span>
+                                <span class="detail-value">{{ $order->country }}</span>
                             </div>
                         </div>
                     </div>
@@ -124,7 +134,7 @@
                         <div class="order-info">
                             <div class="detail-item">
                                 <span class="detail-label">Mã đơn hàng:</span>
-                                <span class="detail-value order-code">{{ $order->id }}</span>
+                                <span class="detail-value order-code">{{ $order->order_code }}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Ngày đặt:</span>
@@ -133,31 +143,54 @@
                             <div class="detail-item">
                                 <span class="detail-label">Phương thức thanh toán:</span>
                                 <span class="detail-value">
-                                    @if($order->payment_method == 'cod')
-                                        <span class="payment-method cod">Thanh toán khi nhận hàng (COD)</span>
-                                    @elseif($order->payment_method == 'bank_transfer')
-                                        <span class="payment-method bank">Chuyển khoản ngân hàng</span>
-                                    @else
-                                        {{ $order->payment_method }}
-                                    @endif
+                                    @switch($order->payment_method)
+                                        @case('cod')
+                                            <span class="payment-method cod">Thanh toán khi nhận hàng (COD)</span>
+                                            @break
+                                        @case('bank_transfer')
+                                            <span class="payment-method bank">Chuyển khoản ngân hàng</span>
+                                            @break
+                                        @case('paypal')
+                                            <span class="payment-method paypal">PayPal</span>
+                                            @break
+                                        @case('credit_card')
+                                            <span class="payment-method credit">Thẻ tín dụng</span>
+                                            @break
+                                        @default
+                                            {{ $order->payment_method }}
+                                    @endswitch
                                 </span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Trạng thái thanh toán:</span>
                                 <span class="detail-value">
-                                    @if($order->payment_status == 'paid')
-                                        <span class="payment-status paid">Đã thanh toán</span>
-                                    @elseif($order->payment_status == 'unpaid')
-                                        <span class="payment-status unpaid">Chưa thanh toán</span>
-                                    @else
-                                        {{ $order->payment_status }}
-                                    @endif
+                                    @switch($order->status_payment)
+                                        @case('completed')
+                                            <span class="payment-status paid">Đã thanh toán</span>
+                                            @break
+                                        @case('pending')
+                                            <span class="payment-status unpaid">Chưa thanh toán</span>
+                                            @break
+                                        @case('failed')
+                                            <span class="payment-status failed">Thanh toán thất bại</span>
+                                            @break
+                                        @default
+                                            {{ $order->status_payment }}
+                                    @endswitch
                                 </span>
                             </div>
+                            @if($order->user_notes)
                             <div class="detail-item">
-                                <span class="detail-label">Ghi chú:</span>
-                                <span class="detail-value">{{ $order->customer->note ?: 'Không có' }}</span>
+                                <span class="detail-label">Ghi chú khách hàng:</span>
+                                <span class="detail-value">{{ $order->user_notes }}</span>
                             </div>
+                            @endif
+                            @if($order->admin_notes)
+                            <div class="detail-item">
+                                <span class="detail-label">Ghi chú quản trị:</span>
+                                <span class="detail-value">{{ $order->admin_notes }}</span>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -170,29 +203,42 @@
                             <thead>
                                 <tr>
                                     <th class="product-col">Sản phẩm</th>
-                                    <th class="weight-col">Quy cách</th>
+                                    <th class="variant-col">Biến thể</th>
                                     <th class="price-col">Giá</th>
                                     <th class="qty-col">Số lượng</th>
                                     <th class="total-col">Thành tiền</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($order->items as $item)
                                 <tr>
                                     <td class="product-col">
                                         <div class="product-info">
-                                            @if($order->product)
-                                                <img src="{{ asset('storage/' . $order->product->image) }}" alt="{{ $order->product->name }}" class="product-image">
-                                                <span class="product-name">{{ $order->product->name }}</span>
+                                            @if($item->product)
+                                                <img src="{{ asset('storage/' . $item->product->avatar) }}" alt="{{ $item->product->name }}" class="product-image">
+                                                <span class="product-name">{{ $item->product->name }}</span>
                                             @else
                                                 <span class="product-name product-not-exist">Sản phẩm không tồn tại</span>
                                             @endif
                                         </div>
                                     </td>
-                                    <td>{{ $order->productWeight ? $order->productWeight->weight : 'N/A' }}</td>
-                                    <td class="price-col">{{ $order->productWeight ? number_format($order->productWeight->discounted_price) : number_format($order->price) }} ₫</td>
-                                    <td class="qty-col">{{ $order->quantity }}</td>
-                                    <td class="total-col">{{ $order->productWeight ? number_format($order->productWeight->discounted_price * $order->quantity) : number_format($order->price * $order->quantity) }} ₫</td>
+                                    <td class="variant-col">
+                                        @if($item->productVariant)
+                                            @if($item->productVariant->color_name)
+                                                <span class="variant-detail">Màu: {{ $item->productVariant->color_name }}</span>
+                                            @endif
+                                            @if($item->productVariant->size)
+                                                <span class="variant-detail">Size: {{ $item->productVariant->size }}</span>
+                                            @endif
+                                        @else
+                                            <span>N/A</span>
+                                        @endif
+                                    </td>
+                                    <td class="price-col">{{ number_format($item->price) }} ₫</td>
+                                    <td class="qty-col">{{ $item->quantity }}</td>
+                                    <td class="total-col">{{ number_format($item->price * $item->quantity) }} ₫</td>
                                 </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -203,17 +249,36 @@
                     <div class="order-summary">
                         <div class="summary-row">
                             <span class="summary-label">Tạm tính:</span>
-                            <span class="summary-value">{{ number_format($order->total - $order->shipping_fee) }} ₫</span>
+                            <span class="summary-value">{{ number_format($order->items->sum(function($item) { return $item->price * $item->quantity; })) }} ₫</span>
                         </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Phí vận chuyển:</span>
-                            <span class="summary-value">{{ number_format($order->shipping_fee) }} ₫</span>
+                        
+                        @if($order->coupon)
+                        <div class="summary-row discount-row">
+                            <span class="summary-label">Giảm giá ({{ $order->coupon->code }}):</span>
+                            <span class="summary-value discount-value">-{{ number_format($order->total_amount - $order->items->sum(function($item) { return $item->price * $item->quantity; })) }} ₫</span>
                         </div>
+                        @endif
+                        
                         <div class="summary-row total-row">
                             <span class="summary-label">Tổng cộng:</span>
-                            <span class="summary-value order-total">{{ number_format($order->total) }} ₫</span>
+                            <span class="summary-value order-total">{{ number_format($order->total_amount) }} ₫</span>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Admin Notes Form -->
+                <div class="admin-notes-section mt-4">
+                    <h6 class="section-title">Ghi chú quản trị</h6>
+                    <form action="{{ route('admin.orders.update-notes', $order) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <div class="form-group">
+                            <textarea name="admin_notes" class="form-control" rows="3" placeholder="Thêm ghi chú cho đơn hàng này">{{ $order->admin_notes }}</textarea>
+                        </div>
+                        <button type="submit" class="btn-secondary mt-2">
+                            <i class="fas fa-save"></i> Lưu ghi chú
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -225,7 +290,7 @@
             
             <!-- Thêm các nút khác nếu cần -->
             <div class="action-group">
-                <a href="#" class="btn-secondary">
+                <a href="#" class="btn-secondary" onclick="window.print()">
                     <i class="fas fa-print"></i> In đơn hàng
                 </a>
             </div>
@@ -342,6 +407,16 @@
         color: #1976d2;
     }
     
+    .payment-method.paypal {
+        background-color: #e8f5e9;
+        color: #3b7bbf;
+    }
+    
+    .payment-method.credit {
+        background-color: #e8eaf6;
+        color: #5c6bc0;
+    }
+    
     .payment-status.paid {
         background-color: #e8f5e9;
         color: #2e7d32;
@@ -350,6 +425,11 @@
     .payment-status.unpaid {
         background-color: #fff8e1;
         color: #ff8f00;
+    }
+    
+    .payment-status.failed {
+        background-color: #fef0f0;
+        color: #d32f2f;
     }
     
     .order-products {
@@ -368,7 +448,6 @@
     }
     
     .product-image {
-        
         width: 50px;
         height: 50px;
         object-fit: cover;
@@ -378,6 +457,12 @@
     
     .product-name {
         font-weight: 500;
+    }
+    
+    .variant-detail {
+        display: block;
+        font-size: 12px;
+        color: #666;
     }
     
     .price-col, .total-col {
@@ -413,6 +498,14 @@
     
     .summary-value {
         font-weight: 500;
+    }
+    
+    .discount-row {
+        color: #2e7d32;
+    }
+    
+    .discount-value {
+        color: #2e7d32;
     }
     
     .total-row {
@@ -523,6 +616,13 @@
     .btn-secondary:hover {
         background-color: #5a6268;
         color: white;
+    }
+    
+    .admin-notes-section textarea {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        width: 100%;
     }
     
     @media (max-width: 768px) {

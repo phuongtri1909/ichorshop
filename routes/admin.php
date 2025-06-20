@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\NewsController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SocialController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CkeditorController;
 use App\Http\Controllers\Admin\LogoSiteController;
@@ -20,7 +22,6 @@ use App\Http\Controllers\Admin\FranchiseController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\DressStyleController;
 use App\Http\Controllers\Admin\NewsletterController;
-use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
@@ -67,7 +68,8 @@ Route::group(['as' => 'admin.'], function () {
             Route::get('product-variants', [PromotionController::class, 'getProductVariants'])->name('product-variants');
         });
 
-        Route::resource('reviews', ReviewController::class)->except(['show']);
+        Route::resource('reviews', ReviewController::class)->except(['show', 'create', 'store']);
+        Route::patch('/reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('reviews.update-status');
 
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
@@ -112,6 +114,10 @@ Route::group(['as' => 'admin.'], function () {
         Route::put('setting/smtp', [SettingController::class, 'updateSMTP'])->name('setting.update.smtp');
         Route::put('setting/google', [SettingController::class, 'updateGoogle'])->name('setting.update.google');
         Route::put('setting/paypal', [SettingController::class, 'updatePaypal'])->name('setting.update.paypal');
+
+        Route::post('/orders/{order}/refund', [PaymentController::class, 'refundOrder'])->name('orders.refund');
+        Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::patch('/orders/{order}/update-notes', [OrderController::class, 'updateNotes'])->name('orders.update-notes');
     });
 
     Route::group(['middleware' => 'guest'], function () {

@@ -25,14 +25,11 @@
             <div class="col-12 col-lg-3">
                 <div class="user-sidebar pe-1 ">
                     <div class="user-nav">
-                        <div class="user-nav-item">
-                            <a href=""
-                                class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.orders') ? 'active' : '' }}">
-                                <img src="{{ asset('assets/images/svg/orders.svg') }}" alt="Orders"
-                                    class="user-nav-icon">
-                                <span class="user-nav-text">Orders</span>
-                            </a>
-                        </div>
+                        <a href="{{ route('user.orders') }}"
+                            class="user-nav-link color-primary-5 text-decoration-none {{ request()->routeIs('user.orders') ? 'active' : '' }}">
+                            <img src="{{ asset('assets/images/svg/orders.svg') }}" alt="Orders" class="user-nav-icon">
+                            <span class="user-nav-text">Orders</span>
+                        </a>
 
                         <div class="user-nav-item">
                             <a href="{{ route('user.cart.index') }}"
@@ -62,7 +59,7 @@
                         <div class="user-nav-item">
                             <a href="{{ route('user.my.account') }}"
                                 class="user-nav-link color-primary-5 text-decoration-none  {{ request()->routeIs('user.my.account') ? 'active' : '' }}">
-                               <i class="fa-regular fa-user user-nav-icon"></i>
+                                <i class="fa-regular fa-user user-nav-icon"></i>
                                 <span class="user-nav-text">Account Detail</span>
                             </a>
                         </div>
