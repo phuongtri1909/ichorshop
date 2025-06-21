@@ -98,43 +98,44 @@
 
     <!-- Browse by Style Section -->
     @include('components.style', [
-        'styles' => $styles
+        'styles' => $styles,
     ])
 
     <!-- Features Section -->
-    @forEach ($features as $feature)
+    @foreach ($features as $feature)
         @include('components.features', [
             'feature' => $feature,
         ])
     @endforeach
 
     <!-- Blog Section -->
-    <section class="blog-section bg-primary-4 pb-5">
-        <div class="container">
-            <h3 class="py-4">From The Blog</h3>
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <div class="blog-image rounded-4">
-                        <img src="{{ asset(Storage::url($blogNew->image)) }}" alt="Fashion Blog" class="img-fluid rounded-5">
+    @if (isset($blogNew))
+        <section class="blog-section bg-primary-4 pb-5">
+            <div class="container">
+                <h3 class="py-4">From The Blog</h3>
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="blog-image rounded-4">
+                            <img src="{{ asset(Storage::url($blogNew->image)) }}" alt="Fashion Blog"
+                                class="img-fluid rounded-5">
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-lg-6">
-                    <div class="blog-content ps-lg-5">
-                        <h3 class="blog-title">{{ $blogNew->title }}</h3>
-                        <p class="blog-description color-3">
-                            {!! Str::limit(strip_tags($blogNew->content), 250) !!}
-                        </p>
-                        <a href="{{ route('blogs.show', $blogNew->slug) }}" class="btn blog-btn">READ MORE</a>
+                    <div class="col-lg-6">
+                        <div class="blog-content ps-lg-5">
+                            <h3 class="blog-title">{{ $blogNew->title }}</h3>
+                            <p class="blog-description color-3">
+                                {!! Str::limit(strip_tags($blogNew->content), 250) !!}
+                            </p>
+                            <a href="{{ route('blogs.show', $blogNew->slug) }}" class="btn blog-btn">READ MORE</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
 
-    @include('components.testimonials', [
-      
-    ])
+    @include('components.testimonials', [])
 
 @endsection
