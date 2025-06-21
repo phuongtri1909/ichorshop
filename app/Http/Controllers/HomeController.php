@@ -7,6 +7,7 @@ use App\Models\Blog;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\DressStyle;
+use App\Models\FeatureSection;
 use App\Models\ProductView;
 use App\Models\ReviewRating;
 use Illuminate\Http\Request;
@@ -89,6 +90,8 @@ class HomeController extends Controller
 
         $blogNew = Blog::where('is_active', true)->latest()->first();
 
+        $features = FeatureSection::with('items')->get();
+
         return view('client.pages.home', [
             'brands' => $brands,
             'brandCount' => $brandCount,
@@ -98,7 +101,8 @@ class HomeController extends Controller
             'customerCount' => $customerCount,
             'styles' => $styles,
             'latestReviews' => $latestReviews,
-            'blogNew' => $blogNew
+            'blogNew' => $blogNew,
+            'features' => $features
         ]);
     }
 

@@ -102,40 +102,11 @@
     ])
 
     <!-- Features Section -->
-    @include('components.features', [
-        ($features = [
-            [
-                'icon' => '<i class="bi bi-currency-dollar-slash"></i>',
-                'title' => 'NO Die & plate charges',
-                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
-            ],
-            [
-                'icon' => '<i class="bi bi-printer"></i>',
-                'title' => 'High quality offset printing',
-                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
-            ],
-            [
-                'icon' => '<i class="bi bi-shield-check"></i>',
-                'title' => 'Secure payment',
-                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
-            ],
-            [
-                'icon' => '<i class="bi bi-sliders"></i>',
-                'title' => 'Custom size & style',
-                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
-            ],
-            [
-                'icon' => '<i class="bi bi-truck"></i>',
-                'title' => 'Fast & free delivery',
-                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
-            ],
-            [
-                'icon' => '<i class="bi bi-box-seam"></i>',
-                'title' => 'Low minimum order quantity',
-                'desc' => 'Lorem ipsum det, cowec tetur duis necgi det...',
-            ],
-        ]),
-    ])
+    @forEach ($features as $feature)
+        @include('components.features', [
+            'feature' => $feature,
+        ])
+    @endforeach
 
     <!-- Blog Section -->
     <section class="blog-section bg-primary-4 pb-5">

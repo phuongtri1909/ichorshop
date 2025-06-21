@@ -95,14 +95,14 @@
 
                     <!-- Quản lý nội dung -->
                     <li
-                        class="has-submenu {{ Route::currentRouteNamed(['admin.blogs.*', 'admin.banners.*','admin.category-blogs.*']) ? 'open' : '' }}">
+                        class="has-submenu {{ Route::currentRouteNamed(['admin.blogs.*', 'admin.banners.*', 'admin.category-blogs.*','admin.feature-sections.*']) ? 'open' : '' }}">
                         <a href="#" class="submenu-toggle">
                             <i class="fas fa-newspaper"></i>
                             <span>Quản lý nội dung</span>
                             <i class="fas fa-chevron-down submenu-arrow"></i>
                         </a>
                         <ul class="submenu">
-                            
+
 
                             <li class="{{ Route::currentRouteNamed('admin.category-blogs.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.category-blogs.index') }}">
@@ -130,6 +130,14 @@
                                     <span>Faqs</span>
                                 </a>
                             </li>
+
+                            <li class="{{ Route::currentRouteNamed('admin.feature-sections.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.feature-sections.index') }}">
+                                    <i class="fa-regular fa-window-restore"></i>
+                                    <span>Feature</span>
+                                </a>
+                            </li>
+                            
                         </ul>
                     </li>
 

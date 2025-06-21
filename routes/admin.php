@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\DressStyleController;
 use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\CategoryBlogController;
+use App\Http\Controllers\Admin\FeatureSectionController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
@@ -122,6 +123,20 @@ Route::group(['as' => 'admin.'], function () {
         Route::post('/orders/{order}/refund', [PaymentController::class, 'refundOrder'])->name('orders.refund');
         Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::patch('/orders/{order}/update-notes', [OrderController::class, 'updateNotes'])->name('orders.update-notes');
+    
+        Route::resource('feature-sections', FeatureSectionController::class)->except(['show']);
+
+        // Feature Items routes
+        Route::prefix('feature-sections/{featureSection}')->name('feature-sections.')->group(function () {
+            Route::get('items', [FeatureSectionController::class, 'items'])->name('items.index');
+            Route::get('items/create', [FeatureSectionController::class, 'createItem'])->name('items.create');
+            Route::post('items', [FeatureSectionController::class, 'storeItem'])->name('items.store');
+            Route::get('items/{featureItem}/edit', [FeatureSectionController::class, 'editItem'])->name('items.edit');
+            Route::put('items/{featureItem}', [FeatureSectionController::class, 'updateItem'])->name('items.update');
+            Route::delete('items/{featureItem}', [FeatureSectionController::class, 'destroyItem'])->name('items.destroy');
+            Route::post('items/reorder', [FeatureSectionController::class, 'reorderItems'])->name('items.reorder');
+        });
+    
     });
 
     Route::group(['middleware' => 'guest'], function () {

@@ -4,81 +4,28 @@
             <!-- Left Side Content -->
             <div class="col-lg-4 col-md-12 mb-5 mb-lg-0 d-flex align-items-center">
                 <div class="features-intro">
-                    <h3 class="features-title">Why choose products with</h3>
+                    <h3 class="features-title">{{ $feature->title }}</h3>
                     <img height="70" src="{{ $logoPath }}" alt="{{ config('app.name') }} logo">
-                    <p class="features-description">Lorem ipsum det, cowec tetur duis necgi det, consec t eturlagix adipiscing eliet duis necgi det, con</p>
-                    <a href="#" class="btn btn-features">View All Features <i class="fas fa-arrow-right ms-2"></i></a>
+                    <p class="features-description">{{ $feature->description }}</p>
+                    <a href="#" class="btn btn-features">{{ $feature->button_text }}<i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
 
             <!-- Right Side Features Grid -->
             <div class="col-lg-8 col-md-12">
                 <div class="row g-4">
-                    <!-- Feature 1 -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon mb-3">
-                                <img src="{{ asset('assets/images/svg/features1.svg') }}" alt="No Die & Plate Charges" class="img-fluid">
-                            </div>
-                            <h4 class="feature-title">NO Die & plate charges</h4>
-                            <p class="feature-description">Lorem ipsum det, cowec tetur duis necgi det, consect eturlagix adipiscing eliet duis necgi det, con</p>
-                        </div>
-                    </div>
 
-                    <!-- Feature 2 -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon mb-3">
-                                <img src="{{ asset('assets/images/svg/features2.svg') }}" alt="High Quality Offset Printing" class="img-fluid">
+                    @foreach ($feature->items as $item)
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3">
+                                    <img src="{{  Storage::url($item->icon)  }}" alt="{{ $item->title }}" class="img-fluid">
+                                </div>
+                                <h4 class="feature-title">{{ $item->title }}</h4>
+                                <p class="feature-description">{{ $item->description }}</p>
                             </div>
-                            <h4 class="feature-title">High quality offset printing</h4>
-                            <p class="feature-description">Lorem ipsum det, cowec tetur duis necgi det, consect eturlagix adipiscing eliet duis necgi det, con</p>
                         </div>
-                    </div>
-
-                    <!-- Feature 3 -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon mb-3">
-                                <img src="{{ asset('assets/images/svg/features3.svg') }}" alt="Secure Payment" class="img-fluid">
-                            </div>
-                            <h4 class="feature-title">Secure payment</h4>
-                            <p class="feature-description">Lorem ipsum det, cowec tetur duis necgi det, consect eturlagix adipiscing eliet duis necgi det, con</p>
-                        </div>
-                    </div>
-
-                    <!-- Feature 4 -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon mb-3">
-                                <img src="{{ asset('assets/images/svg/features4.svg') }}" alt="Custom Size & Style" class="img-fluid">
-                            </div>
-                            <h4 class="feature-title">Custom size & style</h4>
-                            <p class="feature-description">Lorem ipsum det, cowec tetur duis necgi det, consect eturlagix adipiscing eliet duis necgi det, con</p>
-                        </div>
-                    </div>
-
-                    <!-- Feature 5 -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon mb-3">
-                                <img src="{{ asset('assets/images/svg/features5.svg') }}" alt="Fast & Free Delivery" class="img-fluid">
-                            </div>
-                            <h4 class="feature-title">Fast & free delivery</h4>
-                            <p class="feature-description">Lorem ipsum det, cowec tetur duis necgi det, consect eturlagix adipiscing eliet duis necgi det, con</p>
-                        </div>
-                    </div>
-
-                    <!-- Feature 6 -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon mb-3">
-                                <img src="{{ asset('assets/images/svg/features6.svg') }}" alt="Low Minimum Order Quantity" class="img-fluid">
-                            </div>
-                            <h4 class="feature-title">Low minimum order quantity</h4>
-                            <p class="feature-description">Lorem ipsum det, cowec tetur duis necgi det, consect eturlagix adipiscing eliet duis necgi det, con</p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
