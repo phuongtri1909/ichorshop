@@ -124,7 +124,7 @@
                             <a href="{{ route('top.selling') }}" class="nav-link-custom font-regular">On Sale</a>
                             <a href="{{ route('new.arrivals') }}" class="nav-link-custom font-regular">New
                                 Arrivals</a>
-                            {{-- <a href="#" class="nav-link-custom font-regular">Brands</a> --}}
+                            <a href="#" class="nav-link-custom font-regular">Blogs</a>
                         </nav>
                     @endif
 

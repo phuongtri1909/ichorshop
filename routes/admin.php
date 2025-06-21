@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\OrderController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\FranchiseController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\DressStyleController;
 use App\Http\Controllers\Admin\NewsletterController;
+use App\Http\Controllers\Admin\CategoryBlogController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\FranchiseContactController;
 
@@ -76,11 +78,13 @@ Route::group(['as' => 'admin.'], function () {
         Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 
-        Route::resource('news', NewsController::class)->except(['show']);
+        Route::resource('category-blogs', CategoryBlogController::class)->except(['show']);
+        Route::resource('blogs', BlogController::class)->except(['show']);
+
+        Route::post('blogs/upload-image', [BlogController::class, 'uploadImage'])->name('blogs.upload.image');
+        Route::get('blogs/load-categories', [BlogController::class, 'loadCategories'])->name('blogs.load-categories');
 
         Route::resource('banners', BannerController::class)->except(['show']);
-
-        Route::post('/upload-image', [NewsController::class, 'uploadImage'])->name('news.upload.image');
 
 
         Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');

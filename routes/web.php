@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
@@ -30,6 +31,10 @@ Route::get('search', [HomeController::class, 'search'])->name('search');
 Route::post('/newsletter-subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::post('/payment/paypal/ipn', [PaymentController::class, 'paypalIpn'])
     ->name('payment.paypal.ipn');
+
+Route::get('/blogs', [BlogController::class, 'index'])->name('blogs.index');
+Route::get('/blogs/category/{slug}', [BlogController::class, 'category'])->name('blogs.category');
+Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');
 
 
 Route::group(['prefix' => 'user', 'as' => 'user.'], function () {

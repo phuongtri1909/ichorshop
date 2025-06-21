@@ -95,17 +95,26 @@
 
                     <!-- Quản lý nội dung -->
                     <li
-                        class="has-submenu {{ Route::currentRouteNamed(['admin.news.*', 'admin.banners.*']) ? 'open' : '' }}">
+                        class="has-submenu {{ Route::currentRouteNamed(['admin.blogs.*', 'admin.banners.*','admin.category-blogs.*']) ? 'open' : '' }}">
                         <a href="#" class="submenu-toggle">
                             <i class="fas fa-newspaper"></i>
                             <span>Quản lý nội dung</span>
                             <i class="fas fa-chevron-down submenu-arrow"></i>
                         </a>
                         <ul class="submenu">
-                            <li class="{{ Route::currentRouteNamed('admin.news.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.news.index') }}">
+                            
+
+                            <li class="{{ Route::currentRouteNamed('admin.category-blogs.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.category-blogs.index') }}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>Danh mục Blogs</span>
+                                </a>
+                            </li>
+
+                            <li class="{{ Route::currentRouteNamed('admin.blogs.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.blogs.index') }}">
                                     <i class="fa-regular fa-newspaper"></i>
-                                    <span>Tin tức</span>
+                                    <span>Blogs</span>
                                 </a>
                             </li>
                             {{-- <li class="{{ Route::currentRouteNamed('admin.banners.*') ? 'active' : '' }}">
