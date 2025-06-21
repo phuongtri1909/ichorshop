@@ -117,8 +117,8 @@
                             <img src="{{ asset('assets/images/svg/Visa.svg') }}" alt="Visa">
                             <img src="{{ asset('assets/images/svg/Mastercard.svg') }}" alt="Mastercard">
                             <img src="{{ asset('assets/images/svg/Paypal.svg') }}" alt="PayPal">
-                            <img src="{{ asset('assets/images/svg/Applepay.svg') }}" alt="Apple Pay">
-                            <img src="{{ asset('assets/images/svg/GPay.svg') }}" alt="Google Pay">
+                            {{-- <img src="{{ asset('assets/images/svg/Applepay.svg') }}" alt="Apple Pay">
+                            <img src="{{ asset('assets/images/svg/GPay.svg') }}" alt="Google Pay"> --}}
                         </div>
                     </div>
                 </div>

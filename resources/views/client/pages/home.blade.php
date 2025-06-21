@@ -144,18 +144,17 @@
             <div class="row align-items-center">
                 <div class="col-lg-6">
                     <div class="blog-image rounded-4">
-                        <img src="https://picsum.photos/700/400?random=14" alt="Fashion Blog" class="img-fluid rounded-5">
+                        <img src="{{ asset(Storage::url($blogNew->image)) }}" alt="Fashion Blog" class="img-fluid rounded-5">
                     </div>
                 </div>
 
                 <div class="col-lg-6">
                     <div class="blog-content ps-lg-5">
-                        <h3 class="blog-title">How to combine your daily outfit to looks fresh and cool.</h3>
-                        <p class="blog-description color-3">These are ten easy tips to help fashion in New York city from
-                            business
-                            dresses, evening dresses to casual dresses and formal dresses. Find the perfect fit for your
-                            personality.</p>
-                        <a href="#" class="btn blog-btn">READ MORE</a>
+                        <h3 class="blog-title">{{ $blogNew->title }}</h3>
+                        <p class="blog-description color-3">
+                            {!! Str::limit(strip_tags($blogNew->content), 250) !!}
+                        </p>
+                        <a href="{{ route('blogs.show', $blogNew->slug) }}" class="btn blog-btn">READ MORE</a>
                     </div>
                 </div>
             </div>

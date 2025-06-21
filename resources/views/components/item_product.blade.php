@@ -8,7 +8,7 @@
         <div class="d-flex">
             <span class="rating-stars text-sm color-primary-5 me-3" title="{{ $product->rating ?? 0 }} sao">
                 @php
-                    $rating = $product->rating ?? 0;
+                    $rating = $product->getAverageRatingAttribute() ?? 0;
                     $displayRating = round($rating * 2) / 2;
                 @endphp
                 @for ($i = 1; $i <= 5; $i++)

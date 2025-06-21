@@ -232,7 +232,7 @@ class Product extends Model
      */
     public function getAverageRatingAttribute()
     {
-        return $this->reviews()->published()->avg('rating') ?: 0;
+        return round($this->reviews()->published()->avg('rating') ?: 0, 1);
     }
 
     /**

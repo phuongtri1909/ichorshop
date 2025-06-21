@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faq;
+use App\Models\Blog;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\DressStyle;
@@ -74,7 +75,7 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
-        $customerCount = 0;
+        $customerCount = \App\Models\Order::where('status', 'completed')->distinct('user_id')->count('user_id');
 
 
         $styles = DressStyle::get();
@@ -86,6 +87,8 @@ class HomeController extends Controller
             ->take(30)
             ->get();
 
+        $blogNew = Blog::where('is_active', true)->latest()->first();
+
         return view('client.pages.home', [
             'brands' => $brands,
             'brandCount' => $brandCount,
@@ -94,7 +97,8 @@ class HomeController extends Controller
             'topSellingProducts' => $topSellingProducts,
             'customerCount' => $customerCount,
             'styles' => $styles,
-            'latestReviews' => $latestReviews
+            'latestReviews' => $latestReviews,
+            'blogNew' => $blogNew
         ]);
     }
 
